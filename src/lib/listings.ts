@@ -12,7 +12,9 @@ export type Listing = {
   city?: string;
   description?: string;
   status?: "active" | "completed";
-  user?: { id: string; name: string };
+  user?: { id: string; name: string; email?: string | null };
+  contactEmail?: string | null;
+  contactPhone?: string | null;
 };
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE ?? ""; // e.g. http://127.0.0.1:8000
@@ -70,3 +72,13 @@ export async function createListing(input: CreateListingInput, token: string): P
 
 
 
+
+export type ContactListingInput = {
+  message: string;
+  email?: string | null;
+  phone?: string | null;
+};
+
+export async function contactListing(id: string, input: ContactListingInput, token: string): Promise<void> {
+  await auth<Record<string, unknown>>("POST", `/api/listings/${id}/messages`, input, token);
+}

@@ -17,7 +17,7 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Авто-рестор от token (mock) или httpOnly cookie (Sanctum)
+    // Auto-restore from token (mock) or httpOnly cookie (Sanctum)
     authClient.me().then(setUser).finally(() => setLoading(false));
   }, []);
 
@@ -51,7 +51,6 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
       }
     },
   }), [user, loading]);
-
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }
 

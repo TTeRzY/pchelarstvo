@@ -1,4 +1,6 @@
-import { NextRequest, NextResponse } from "next/server";
+﻿import { NextRequest, NextResponse } from "next/server";
+
+type RouteContext = { params: Promise<{ slug?: string[] }> };
 
 const API_ROOT = process.env.AUTH_API_BASE ?? process.env.NEXT_PUBLIC_API_BASE;
 
@@ -48,26 +50,31 @@ async function forward(req: NextRequest, slug: string[]) {
   });
 }
 
-export async function GET(req: NextRequest, { params }: { params: { slug?: string[] } }) {
-  return forward(req, params.slug ?? []);
+async function resolveSlug(ctx: RouteContext) {
+  const { slug = [] } = await ctx.params;
+  return slug;
 }
 
-export async function POST(req: NextRequest, { params }: { params: { slug?: string[] } }) {
-  return forward(req, params.slug ?? []);
+export async function GET(req: NextRequest, ctx: RouteContext) {
+  return forward(req, await resolveSlug(ctx));
 }
 
-export async function PUT(req: NextRequest, { params }: { params: { slug?: string[] } }) {
-  return forward(req, params.slug ?? []);
+export async function POST(req: NextRequest, ctx: RouteContext) {
+  return forward(req, await resolveSlug(ctx));
 }
 
-export async function PATCH(req: NextRequest, { params }: { params: { slug?: string[] } }) {
-  return forward(req, params.slug ?? []);
+export async function PUT(req: NextRequest, ctx: RouteContext) {
+  return forward(req, await resolveSlug(ctx));
 }
 
-export async function DELETE(req: NextRequest, { params }: { params: { slug?: string[] } }) {
-  return forward(req, params.slug ?? []);
+export async function PATCH(req: NextRequest, ctx: RouteContext) {
+  return forward(req, await resolveSlug(ctx));
 }
 
-export async function OPTIONS(req: NextRequest, { params }: { params: { slug?: string[] } }) {
-  return forward(req, params.slug ?? []);
+export async function DELETE(req: NextRequest, ctx: RouteContext) {
+  return forward(req, await resolveSlug(ctx));
+}
+
+export async function OPTIONS(req: NextRequest, ctx: RouteContext) {
+  return forward(req, await resolveSlug(ctx));
 }

@@ -1,96 +1,118 @@
 {
-  "common": {
-    "language": {
-      "bg": "Bulgarian",
-      "en": "English"
-    },
-    "languageSwitcher": {
-      "label": "Language"
-    },
-    "actions": {
-      "details": "Details",
-      "contact": "Contact"
-    },
-    "pagination": {
-      "previous": "Previous",
-      "next": "Next"
-    }
-  },
-  "auth": {
-    "login": "Sign in",
-    "register": "Sign up",
-    "greeting": "Hello, {name}",
-    "logout": "Sign out"
-  },
   "header": {
     "nav": {
-      "home": "Home",
-      "marketplace": "Marketplace",
-      "map": "Apiary map",
-      "news": "News",
-      "contacts": "Contacts"
+      "home": "Home", 
+      "marketplace": "Marketplace", 
+      "contacts": "Contacts", 
+      "news": "News", 
+      "map": "Apiary map"
     }
-  },
+  }, 
   "marketplace": {
-    "title": "Marketplace (honey data)",
-    "subtitle": "Track, compare and analyze the market for Bulgarian honey, bee products and services.",
-    "cta": "Post a listing",
-    "dashboard": {
-      "title": "Market indicators (recent days)",
-      "empty": "No data yet."
-    },
-    "charts": {
-      "title": "Product charts",
-      "range": {
-        "7d": "7 days",
-        "30d": "30 days",
-        "1y": "1 year"
-      },
-      "priceTitle": "{product} ({unit})"
-    },
-    "filters": {
-      "label": "Filters",
-      "searchPlaceholder": "Search by title, region, product, producer",
-      "type": {
-        "all": "All",
-        "sell": "Selling",
-        "buy": "Buying"
-      },
-      "regionAll": "All regions",
-      "productAll": "All products",
-      "minPlaceholder": "Min BGN/kg",
-      "maxPlaceholder": "Max BGN/kg",
-      "negotiableOnly": "Negotiable only",
-      "sortLabel": "Sort by:",
-      "sort": {
-        "newest": "Newest",
-        "priceAsc": "Price ↑",
-        "priceDesc": "Price ↓"
-      }
-    },
-    "listings": {
-      "heading": "Listings ({count})",
-      "signinPrompt": "Sign in to publish a listing.",
-      "badge": {
-        "sell": "Selling",
-        "buy": "Buying"
-      },
-      "quantity": "Quantity: {value} kg",
-      "published": "Published: {date}",
-      "statusCompleted": "Status: completed",
-      "empty": "No listings match the current filters."
-    },
+    "subtitle": "Track, compare and analyze the market for Bulgarian honey, bee products and services.", 
+    "title": "Marketplace (honey data)", 
     "price": {
       "unitShort": "BGN/kg"
-    },
+    }, 
+    "listings": {
+      "statusCompleted": "Status: completed", 
+      "signinPrompt": "Sign in to publish a listing.", 
+      "published": "Published: {date}", 
+      "badge": {
+        "sell": "Selling", 
+        "buy": "Buying"
+      }, 
+      "heading": "Listings ({count})", 
+      "empty": "No listings match the current filters.", 
+      "quantity": "Quantity: {value} kg"
+    }, 
+    "charts": {
+      "priceTitle": "{product} ({unit})", 
+      "range": {
+        "1y": "1 year", 
+        "7d": "7 days", 
+        "30d": "30 days"
+      }, 
+      "title": "Product charts"
+    }, 
+    "contact": {
+      "sending": "Sending…", 
+      "unknownSeller": "the seller", 
+      "error": "We could not send the message. Please try again.", 
+      "subtitle": "Send a direct message to {seller}.", 
+      "listingLabel": "Listing: {title}", 
+      "success": "Your message was sent. The seller will get in touch soon.", 
+      "title": "Contact the seller", 
+      "sellerEmail": "Email: {email}", 
+      "sellerContactHeading": "Seller provided contacts", 
+      "sellerPhone": "Phone: {phone}", 
+      "phoneLabel": "Phone (optional)", 
+      "loginRequired": "Sign in to send a message.", 
+      "messagePlaceholder": "Describe what you are interested in, delivery terms, quantities, etc…", 
+      "messageLabel": "Your message", 
+      "emailLabel": "Reply-to email", 
+      "close": "Close", 
+      "validation": {
+        "messageRequired": "Please enter a message."
+      }, 
+      "cancel": "Cancel"
+    }, 
     "products": {
-      "acacia": "Acacia honey",
-      "linden": "Linden honey",
-      "honeydew": "Honeydew honey",
-      "bouquet": "Bouquet",
-      "sunflower": "Sunflower honey",
-      "herbs": "Herbal honey",
-      "lavender": "Lavender"
+      "linden": "Linden honey", 
+      "honeydew": "Honeydew honey", 
+      "sunflower": "Sunflower honey", 
+      "bouquet": "Bouquet", 
+      "lavender": "Lavender", 
+      "herbs": "Herbal honey", 
+      "acacia": "Acacia honey"
+    }, 
+    "dashboard": {
+      "empty": "No data yet.", 
+      "title": "Market indicators (recent days)"
+    }, 
+    "filters": {
+      "sort": {
+        "priceDesc": "Price ↓", 
+        "newest": "Newest", 
+        "priceAsc": "Price ↑"
+      }, 
+      "searchPlaceholder": "Search by title, region, product, producer", 
+      "negotiableOnly": "Negotiable only", 
+      "sortLabel": "Sort by:", 
+      "regionAll": "All regions", 
+      "label": "Filters", 
+      "productAll": "All products", 
+      "maxPlaceholder": "Max BGN/kg", 
+      "type": {
+        "sell": "Selling", 
+        "all": "All", 
+        "buy": "Buying"
+      }, 
+      "minPlaceholder": "Min BGN/kg"
+    }, 
+    "cta": "Post a listing"
+  }, 
+  "common": {
+    "pagination": {
+      "next": "Next", 
+      "previous": "Previous"
+    }, 
+    "actions": {
+      "contact": "Contact", 
+      "details": "Details"
+    }, 
+    "language": {
+      "bg": "Bulgarian", 
+      "en": "English"
+    }, 
+    "languageSwitcher": {
+      "label": "Language"
     }
+  }, 
+  "auth": {
+    "login": "Sign in", 
+    "register": "Sign up", 
+    "logout": "Sign out", 
+    "greeting": "Hello, {name}"
   }
 }

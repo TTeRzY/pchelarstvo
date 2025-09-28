@@ -1,8 +1,7 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "leaflet/dist/leaflet.css";
 import "./globals.css";
-import { Providers } from "@/store/Providers";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import AuthProvider from "@/context/AuthProvider";
@@ -11,6 +10,8 @@ import ModalProvider from "@/components/modal/ModalProvider";
 import ReportSwarmModal from "@/components/swarm/ReportSwarmModal";
 import SwarmTicker from "@/components/swarm/SwarmTicker";
 import LocaleProvider from "@/context/LocaleProvider";
+import MainContent from "@/components/layout/MainContent";
+import ContactSellerModal from "@/components/market/ContactSellerModal";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -33,10 +34,11 @@ export default function RootLayout({
             <AuthProvider>
               <Header />
               <SwarmTicker />
-              <Providers>{children}</Providers>
+              <MainContent>{children}</MainContent>
               <Footer />
               {/* Modal root lives once, at the end */}
               <AuthModal />
+              <ContactSellerModal />
               <ReportSwarmModal />
             </AuthProvider>
           </ModalProvider>
@@ -45,3 +47,4 @@ export default function RootLayout({
     </html>
   );
 }
+

@@ -3,6 +3,9 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import { useAuth } from "@/context/AuthProvider";
+import { useModal } from "@/components/modal/ModalProvider";
+import { useTranslations } from "next-intl";
 import { fetchListing, type Listing } from "@/lib/listings";
 
 type NumericField = number | string | null | undefined;
@@ -17,10 +20,34 @@ export default function ListingDetailsPage() {
   const params = useParams<{ id: string }>();
   const id = params.id;
 
+  const { user } = useAuth();
+  const { open } = useModal();
+  const tCommon = useTranslations("common");
+
   const [listing, setListing] = useState<Listing | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchListing(id).then((l) => setListing(l));
+    let cancelled = false;
+    setLoading(true);
+    setError(null);
+    fetchListing(id)
+      .then((l) => {
+        if (cancelled) return;
+        setListing(l ?? null);
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setError("load-failed");
+        setListing(null);
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
   }, [id]);
 
   const pricePerKg = useMemo(() => toNumber(listing?.pricePerKg ?? (listing as any)?.price_per_kg), [listing]);
@@ -32,13 +59,24 @@ export default function ListingDetailsPage() {
     return Number.isFinite(total) ? total.toFixed(2) : null;
   }, [pricePerKg, quantityKg]);
 
+  if (loading) {
+    return (
+      <div className="min-h-[60vh] flex items-center justify-center px-4">
+        <div className="flex flex-col items-center gap-3 text-gray-800" role="status" aria-live="polite">
+          <div className="h-10 w-10 animate-spin rounded-full border-4 border-amber-400 border-t-transparent" aria-hidden="true" />
+          <p className="text-sm font-medium">Зареждане…</p>
+        </div>
+      </div>
+    );
+  }
+
   if (!listing) {
     return (
       <div className="min-h-[60vh] flex items-center justify-center px-4">
         <div className="text-center space-y-3">
           <h1 className="text-xl font-bold">Обявата не е намерена</h1>
           <p className="text-sm text-gray-600">
-            Възможно е да е изтрита или да е въведен грешен адрес.
+            {error ? "В момента не можем да заредим обявата. Опитайте отново." : "Възможно е да е изтрита или да е въведен грешен адрес."}
           </p>
           <Link href="/marketplace" className="text-amber-600 underline">
             Виж всички обяви
@@ -98,9 +136,29 @@ export default function ListingDetailsPage() {
             </div>
           )}
 
-          {/* Actions (contact disabled until backend supports) */}
-          <div className="flex gap-2 pt-2">
+          {/* Actions */}
+          <div className="flex gap-2 pt-2 flex-wrap">
             <button
+              type="button"
+              onClick={() => {
+                if (!user) {
+                  open("login");
+                  return;
+                }
+                open("contactSeller", {
+                  listingId: listing.id,
+                  listingTitle: listing.title,
+                  sellerName: listing.user?.name ?? null,
+                  sellerEmail: listing.contactEmail ?? listing.user?.email ?? null,
+                  sellerPhone: listing.contactPhone ?? null,
+                });
+              }}
+              className="rounded-xl bg-amber-500 px-3 py-2 text-sm font-medium text-gray-900 hover:bg-amber-400"
+            >
+              {tCommon("actions.contact")}
+            </button>
+            <button
+              type="button"
               onClick={() => navigator.clipboard.writeText(location.href)}
               className="border px-3 py-2 rounded text-sm hover:bg-gray-50"
             >
@@ -117,3 +175,4 @@ export default function ListingDetailsPage() {
     </div>
   );
 }
+

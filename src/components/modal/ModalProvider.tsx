@@ -1,21 +1,30 @@
-// components/modal/ModalProvider.tsx
+﻿// components/modal/ModalProvider.tsx
 "use client";
 import { createContext, useContext, useCallback, useState, useEffect } from "react";
 
-type ModalType = "login" | "register" | "forgotPassword" | "reportSwarm" | null;
+type ModalType = "login" | "register" | "forgotPassword" | "reportSwarm" | "contactSeller" | null;
 type ModalCtx = {
-  open: (type: Exclude<ModalType, null>) => void;
+  open: (type: Exclude<ModalType, null>, payload?: unknown) => void;
   close: () => void;
   type: ModalType;
+  payload: unknown;
 };
 
 const Ctx = createContext<ModalCtx | null>(null);
 
 export default function ModalProvider({ children }: { children: React.ReactNode }) {
   const [type, setType] = useState<ModalType>(null);
+  const [payload, setPayload] = useState<unknown>(null);
 
-  const open = useCallback((t: Exclude<ModalType, null>) => setType(t), []);
-  const close = useCallback(() => setType(null), []);
+  const open = useCallback((t: Exclude<ModalType, null>, data?: unknown) => {
+    setType(t);
+    setPayload(data ?? null);
+  }, []);
+
+  const close = useCallback(() => {
+    setType(null);
+    setPayload(null);
+  }, []);
 
   // Close on ESC
   useEffect(() => {
@@ -24,7 +33,7 @@ export default function ModalProvider({ children }: { children: React.ReactNode 
     return () => window.removeEventListener("keydown", onKey);
   }, [close]);
 
-  return <Ctx.Provider value={{ open, close, type }}>{children}</Ctx.Provider>;
+  return <Ctx.Provider value={{ open, close, type, payload }}>{children}</Ctx.Provider>;
 }
 
 export function useModal() {
@@ -32,4 +41,3 @@ export function useModal() {
   if (!ctx) throw new Error("useModal must be used within <ModalProvider>");
   return ctx;
 }
-

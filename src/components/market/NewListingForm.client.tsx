@@ -9,9 +9,10 @@ type ProductType =
   | "Акациев мед"
   | "Липов мед"
   | "Манов мед"
-  | "Пчелен прашец"
-  | "Пчелно млечице"
-  | "Прополис";
+  | "Букет"
+  | "Слънчогледов мед"
+  | "Билков мед"
+  | "Лавандула";
 
 type FormState = {
   type: ListingType;
@@ -141,9 +142,10 @@ export default function NewListingForm({ onCreated }: { onCreated?: (id: string)
             <option>Акациев мед</option>
             <option>Липов мед</option>
             <option>Манов мед</option>
-            <option>Пчелен прашец</option>
-            <option>Пчелно млечице</option>
-            <option>Прополис</option>
+            <option>Букет</option>
+            <option>Слънчогледов мед</option>
+            <option>Билков мед</option>
+            <option>Лавандула</option>
           </select>
           {errors.product && <p className="text-xs text-red-600 mt-1">{errors.product}</p>}
         </div>

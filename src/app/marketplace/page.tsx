@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 import { useAuth } from "@/context/AuthProvider";
+import { useModal } from "@/components/modal/ModalProvider";
 import PriceChart from "@/components/market/PriceChart";
 import { fetchListings, type Listing as ApiListing } from "@/lib/listings";
 
@@ -21,6 +22,9 @@ type ListingVM = {
   status?: "active" | "completed";
   image?: string;
   sellerName?: string;
+  sellerEmail?: string | null;
+  sellerPhone?: string | null;
+  sellerId?: string | null;
 };
 
 type ProductOption = {
@@ -75,6 +79,9 @@ function useMarketListings() {
         status: l.status,
         image: undefined,
         sellerName: l.user?.name,
+        sellerEmail: l.contactEmail ?? l.user?.email ?? null,
+        sellerPhone: l.contactPhone ?? null,
+        sellerId: l.user?.id ?? null,
       })),
     [raw]
   );
@@ -143,6 +150,7 @@ function seriesFromListings(items: ListingVM[], product: string, days: number) {
 
 export default function MarketplacePage() {
   const { user } = useAuth();
+  const { open } = useModal();
   const { items: live, loading } = useMarketListings();
   const t = useTranslations("marketplace");
   const tCommon = useTranslations("common");
@@ -402,7 +410,25 @@ export default function MarketplacePage() {
                     <div className="text-xs text-gray-500">{l.sellerName}</div>
                     <div className="mt-2 flex justify-end gap-2">
                       <Link href={`/marketplace/${l.id}`} className="rounded-xl border px-3 py-1.5 text-sm hover:bg-gray-50">{tCommon("actions.details")}</Link>
-                      <button className="rounded-xl bg-yellow-400 hover:bg-yellow-500 px-3 py-1.5 text-sm font-medium">{tCommon("actions.contact")}</button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (!user) {
+                            open("login");
+                            return;
+                          }
+                          open("contactSeller", {
+                            listingId: l.id,
+                            listingTitle: l.title,
+                            sellerName: l.sellerName ?? null,
+                            sellerEmail: l.sellerEmail ?? null,
+                            sellerPhone: l.sellerPhone ?? null,
+                          });
+                        }}
+                        className="rounded-xl bg-yellow-400 hover:bg-yellow-500 px-3 py-1.5 text-sm font-medium"
+                      >
+                        {tCommon("actions.contact")}
+                      </button>
                     </div>
                   </div>
                 </div>
