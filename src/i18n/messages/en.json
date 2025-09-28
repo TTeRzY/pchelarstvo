@@ -1,0 +1,96 @@
+{
+  "common": {
+    "language": {
+      "bg": "Bulgarian",
+      "en": "English"
+    },
+    "languageSwitcher": {
+      "label": "Language"
+    },
+    "actions": {
+      "details": "Details",
+      "contact": "Contact"
+    },
+    "pagination": {
+      "previous": "Previous",
+      "next": "Next"
+    }
+  },
+  "auth": {
+    "login": "Sign in",
+    "register": "Sign up",
+    "greeting": "Hello, {name}",
+    "logout": "Sign out"
+  },
+  "header": {
+    "nav": {
+      "home": "Home",
+      "marketplace": "Marketplace",
+      "map": "Apiary map",
+      "news": "News",
+      "contacts": "Contacts"
+    }
+  },
+  "marketplace": {
+    "title": "Marketplace (honey data)",
+    "subtitle": "Track, compare and analyze the market for Bulgarian honey, bee products and services.",
+    "cta": "Post a listing",
+    "dashboard": {
+      "title": "Market indicators (recent days)",
+      "empty": "No data yet."
+    },
+    "charts": {
+      "title": "Product charts",
+      "range": {
+        "7d": "7 days",
+        "30d": "30 days",
+        "1y": "1 year"
+      },
+      "priceTitle": "{product} ({unit})"
+    },
+    "filters": {
+      "label": "Filters",
+      "searchPlaceholder": "Search by title, region, product, producer",
+      "type": {
+        "all": "All",
+        "sell": "Selling",
+        "buy": "Buying"
+      },
+      "regionAll": "All regions",
+      "productAll": "All products",
+      "minPlaceholder": "Min BGN/kg",
+      "maxPlaceholder": "Max BGN/kg",
+      "negotiableOnly": "Negotiable only",
+      "sortLabel": "Sort by:",
+      "sort": {
+        "newest": "Newest",
+        "priceAsc": "Price ↑",
+        "priceDesc": "Price ↓"
+      }
+    },
+    "listings": {
+      "heading": "Listings ({count})",
+      "signinPrompt": "Sign in to publish a listing.",
+      "badge": {
+        "sell": "Selling",
+        "buy": "Buying"
+      },
+      "quantity": "Quantity: {value} kg",
+      "published": "Published: {date}",
+      "statusCompleted": "Status: completed",
+      "empty": "No listings match the current filters."
+    },
+    "price": {
+      "unitShort": "BGN/kg"
+    },
+    "products": {
+      "acacia": "Acacia honey",
+      "linden": "Linden honey",
+      "honeydew": "Honeydew honey",
+      "bouquet": "Bouquet",
+      "sunflower": "Sunflower honey",
+      "herbs": "Herbal honey",
+      "lavender": "Lavender"
+    }
+  }
+}

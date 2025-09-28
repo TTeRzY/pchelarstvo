@@ -1,0 +1,96 @@
+{
+  "common": {
+    "language": {
+      "bg": "Български",
+      "en": "English"
+    },
+    "languageSwitcher": {
+      "label": "Избор на език"
+    },
+    "actions": {
+      "details": "Детайли",
+      "contact": "Свържи се"
+    },
+    "pagination": {
+      "previous": "Назад",
+      "next": "Напред"
+    }
+  },
+  "auth": {
+    "login": "Вход",
+    "register": "Регистрация",
+    "greeting": "Здравей, {name}",
+    "logout": "Изход"
+  },
+  "header": {
+    "nav": {
+      "home": "Начало",
+      "marketplace": "Пчелна борса",
+      "map": "Карта на пчелините",
+      "news": "Новини",
+      "contacts": "Контакти"
+    }
+  },
+  "marketplace": {
+    "title": "Пазар (данни за мед)",
+    "subtitle": "Проследявайте, сравнявайте и анализирайте пазара на български мед, пчелни продукти и услуги.",
+    "cta": "Добавете обява",
+    "dashboard": {
+      "title": "Пазарни индикатори (последни дни)",
+      "empty": "Все още няма информация."
+    },
+    "charts": {
+      "title": "Графики по продукти",
+      "range": {
+        "7d": "7 дни",
+        "30d": "30 дни",
+        "1y": "1 година"
+      },
+      "priceTitle": "{product} ({unit})"
+    },
+    "filters": {
+      "label": "Филтри",
+      "searchPlaceholder": "Търсете по заглавие, регион, продукт, производител",
+      "type": {
+        "all": "Всички",
+        "sell": "Продавам",
+        "buy": "Купувам"
+      },
+      "regionAll": "Всички региони",
+      "productAll": "Всички продукти",
+      "minPlaceholder": "Мин лв/кг",
+      "maxPlaceholder": "Макс лв/кг",
+      "negotiableOnly": "Само с договаряне",
+      "sortLabel": "Сортиране:",
+      "sort": {
+        "newest": "Най-нови",
+        "priceAsc": "Цена ↑",
+        "priceDesc": "Цена ↓"
+      }
+    },
+    "listings": {
+      "heading": "Обяви ({count})",
+      "signinPrompt": "Влезте, за да публикувате обява.",
+      "badge": {
+        "sell": "Продавам",
+        "buy": "Купувам"
+      },
+      "quantity": "Количество: {value} кг",
+      "published": "Публикувана: {date}",
+      "statusCompleted": "Статус: приключена",
+      "empty": "Няма обяви за текущите филтри."
+    },
+    "price": {
+      "unitShort": "лв/кг"
+    },
+    "products": {
+      "acacia": "Акациев мед",
+      "linden": "Липов мед",
+      "honeydew": "Манов мед",
+      "bouquet": "Букет",
+      "sunflower": "Слънчогледов мед",
+      "herbs": "Билков мед",
+      "lavender": "Лавандула"
+    }
+  }
+}
