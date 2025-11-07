@@ -1,5 +1,4 @@
-﻿export type ListingType = "sell" | "buy";
-
+﻿
 export type Listing = {
   id: string;
   createdAt?: string;
@@ -35,16 +34,68 @@ async function auth<T>(method: string, url: string, body: any, token: string): P
   return res.json() as Promise<T>;
 }
 
-export async function fetchListings(params?: { type?: ListingType; region?: string; page?: number; perPage?: number }): Promise<Listing[]> {
+export type FetchListingsParams = {
+  type?: ListingType;
+  region?: string;
+  q?: string;
+  product?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  sort?: string;
+  page?: number;
+  perPage?: number;
+};
+
+export type FetchListingsResponse = {
+  items: Listing[];
+  total: number;
+  page: number;
+  perPage: number;
+};
+
+export async function fetchListings(params?: FetchListingsParams): Promise<FetchListingsResponse> {
   const qs = new URLSearchParams();
   if (params?.type) qs.set("type", params.type);
   if (params?.region) qs.set("region", params.region);
+  if (params?.q) qs.set("q", params.q);
+  if (params?.product) qs.set("product", params.product);
+  if (typeof params?.minPrice === "number") qs.set("minPrice", String(params.minPrice));
+  if (typeof params?.maxPrice === "number") qs.set("maxPrice", String(params.maxPrice));
+  if (params?.sort) qs.set("sort", params.sort);
   if (typeof params?.page === "number") qs.set("page", String(params.page));
   if (typeof params?.perPage === "number") qs.set("perPage", String(params.perPage));
+  
   const resp = await get<any>(`/api/listings${qs.toString() ? `?${qs}` : ""}`);
-  if (Array.isArray(resp?.items)) return resp.items as Listing[];
-  if (Array.isArray(resp?.data)) return resp.data as Listing[]; // Laravel paginator
-  return [];
+  
+  // Handle paginated response
+  if (resp?.items && typeof resp?.total === "number") {
+    return {
+      items: resp.items as Listing[],
+      total: resp.total,
+      page: resp.page || 1,
+      perPage: resp.perPage || 20,
+    };
+  }
+  
+  // Backward compatibility: if response is just an array or old format
+  if (Array.isArray(resp?.items)) {
+    return {
+      items: resp.items as Listing[],
+      total: resp.items.length,
+      page: 1,
+      perPage: resp.items.length,
+    };
+  }
+  if (Array.isArray(resp?.data)) {
+    return {
+      items: resp.data as Listing[],
+      total: resp.data.length,
+      page: 1,
+      perPage: resp.data.length,
+    };
+  }
+  
+  return { items: [], total: 0, page: 1, perPage: 20 };
 }
 
 export async function fetchListing(id: string): Promise<Listing | null> {

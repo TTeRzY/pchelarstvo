@@ -160,10 +160,10 @@ export default function HomePage() {
     let cancelled = false;
     setMarketChartLoading(true);
 
-    fetchListings()
-      .then((items) => {
+    fetchListings({ perPage: 500 })
+      .then((response) => {
         if (cancelled) return;
-        setMarketListings(items ?? []);
+        setMarketListings(response.items ?? []);
         setMarketChartError(null);
       })
       .catch(() => {

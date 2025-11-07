@@ -8,6 +8,143 @@
       "map": "Карта на пчелините"
     }
   }, 
+  "admin": {
+    "nav": {
+      "dashboard": "Табло",
+      "users": "Потребители",
+      "listings": "Обяви",
+      "pending": "Чакащи обяви",
+      "approved": "Одобрени обяви",
+      "flagged": "Сигнализирано съдържание",
+      "reports": "Отчети",
+      "backToSite": "Обратно към сайта",
+      "logout": "Изход"
+    },
+    "dashboard": {
+      "title": "Табло",
+      "totalUsers": "Общо потребители",
+      "pendingListings": "Чакащи обяви",
+      "totalListings": "Общо обяви",
+      "flaggedContent": "Сигнализирано съдържание",
+      "quickActions": "Бързи действия",
+      "reviewPending": "Преглед на чакащи",
+      "checkFlagged": "Проверка на сигнализирани",
+      "manageUsers": "Управление на потребители",
+      "usersByRole": "Потребители по роля",
+      "usersByStatus": "Потребители по статус",
+      "listingsByStatus": "Обяви по статус",
+      "recentActivity": "Последна активност",
+      "noActivity": "Няма последна активност",
+      "today": "днес"
+    },
+    "errors": {
+      "backendUnavailable": "Не може да се свърже с базата данни",
+      "configMissing": "Моля, уверете се, че Laravel backend е стартиран и NEXT_PUBLIC_API_BASE е конфигурирана в .env.local",
+      "unauthorized": "Нямате права за това действие",
+      "retry": "Опитай отново"
+    },
+    "users": {
+      "title": "Управление на потребители",
+      "name": "Име",
+      "email": "Имейл",
+      "filters": "Филтри",
+      "search": "Търсене",
+      "searchPlaceholder": "Име или имейл...",
+      "role": "Роля",
+      "roleFilter": "Роля",
+      "status": "Статус",
+      "statusFilter": "Статус",
+      "allRoles": "Всички роли",
+      "allStatuses": "Всички статуси",
+      "trustLevel": "Ниво на доверие",
+      "verified": "Верифициран",
+      "joined": "Регистрация",
+      "showing": "Показани",
+      "usersCount": "потребител(и)",
+      "showingResults": "Показани {count} потребител(и)",
+      "userDetails": "Детайли за потребител",
+      "changeRole": "Промяна на роля",
+      "actions": "Действия",
+      "verifyUser": "Верифицирай потребител",
+      "suspendUser": "Спри потребител",
+      "reactivateUser": "Реактивирай потребител",
+      "banUser": "Баннай потребител",
+      "deleteUser": "Изтрий потребител",
+      "suspendReason": "Моля, посочете причина за спиране на този потребител:",
+      "suspend": "Спри",
+      "cancel": "Отказ",
+      "loading": "Зареждане на потребители...",
+      "notFound": "Потребителят не е намерен"
+    },
+    "listings": {
+      "title": "Обяви",
+      "pending": "Чакащи модерация",
+      "approved": "одобрени обяви",
+      "flagged": "Сигнализирани обяви",
+      "allCaughtUp": "Всичко е наред!",
+      "noPending": "Няма чакащи обяви за преглед.",
+      "allClear": "Всичко е чисто!",
+      "noFlagged": "Няма сигнализирани обяви за преглед.",
+      "noApproved": "Няма намерени одобрени обяви.",
+      "awaitingModeration": "обява(и) чакат модерация",
+      "requireAttention": "сигнализирана(и) обява(и) изискват внимание",
+      "flaggedCount": "{count} сигнализирана(и) обява(и) изискват внимание",
+      "approvedCount": "{count} одобрена(и) обява(и)",
+      "approve": "Одобри",
+      "reject": "Отхвърли",
+      "edit": "Редактирай",
+      "delete": "Изтрий",
+      "cancel": "Отказ",
+      "rejectTitle": "Отхвърляне на обява",
+      "rejectReason": "Моля, посочете причина за отхвърляне на тази обява:",
+      "reasonPlaceholder": "Причина за отхвърляне...",
+      "postedBy": "Публикувано от:",
+      "flaggedTimes": "Тази обява е била сигнализирана {count} път(и)",
+      "loading": "Зареждане на обяви...",
+      "approveSuccess": "Обявата е одобрена успешно",
+      "rejectSuccess": "Обявата е отхвърлена",
+      "error": "Неуспешно изпълнение на действието",
+      "previous": "Предишна",
+      "next": "Следваща",
+      "page": "Страница",
+      "of": "от"
+    },
+    "reports": {
+      "title": "Отчети и анализи",
+      "overview": "Общи статистики",
+      "totalUsers": "Общо потребители",
+      "verifiedUsers": "Верифицирани потребители",
+      "totalListings": "Общо обяви",
+      "userAnalytics": "Анализ на потребителите",
+      "listingAnalytics": "Анализ на обявите",
+      "distributionByRole": "Разпределение по роля",
+      "distributionByStatus": "Разпределение по статус",
+      "todayActivity": "Днешна активност",
+      "newRegistrations": "Нови регистрации",
+      "newListings": "Нови обяви",
+      "platformHealth": "Здраве на платформата",
+      "verificationRate": "Процент верификация",
+      "approvalRate": "Процент одобрение",
+      "loading": "Зареждане на отчети...",
+      "error": "Неуспешно зареждане на отчети"
+    },
+    "status": {
+      "active": "Активен",
+      "suspended": "Спрян",
+      "banned": "Баннат",
+      "pending": "Чакащ",
+      "approved": "Одобрен",
+      "rejected": "Отхвърлен",
+      "completed": "Завършен",
+      "flagged": "Сигнализиран"
+    },
+    "roles": {
+      "user": "Потребител",
+      "moderator": "Модератор",
+      "admin": "Администратор",
+      "super_admin": "Супер администратор"
+    }
+  },
   "marketplace": {
     "subtitle": "Проследявайте, сравнявайте и анализирайте пазара на български мед, пчелни продукти и услуги.", 
     "title": "Пазар (данни за мед)", 
@@ -20,11 +157,22 @@
       "published": "Публикувана: {date}", 
       "badge": {
         "sell": "Продавам", 
-        "buy": "Купувам"
+        "buy": "Купувам",
+        "new": "НОВО"
       }, 
       "heading": "Обяви ({count})", 
       "empty": "Няма обяви за текущите филтри.", 
-      "quantity": "Количество: {value} кг"
+      "quantity": "Количество: {value} кг",
+      "stats": {
+        "showing": "Показани {shown} от {total}",
+        "average": "Средна цена: {price}",
+        "range": "Диапазон: {min} - {max}"
+      },
+      "view": {
+        "list": "Списък",
+        "grid": "Мрежа",
+        "compact": "Компактен"
+      }
     }, 
     "charts": {
       "priceTitle": "{product} ({unit})", 
@@ -88,7 +236,16 @@
         "all": "Всички", 
         "buy": "Купувам"
       }, 
-      "minPlaceholder": "Мин лв/кг"
+      "minPlaceholder": "Мин лв/кг",
+      "clearAll": "Изчисти всички",
+      "mobileOpen": "Филтри",
+      "mobileClose": "Затвори",
+      "apply": "Приложи",
+      "active": "Активни филтри",
+      "typeLabel": "Тип:",
+      "productLabel": "Продукт:",
+      "regionLabel": "Регион:",
+      "priceLabel": "Ценови диапазон:"
     }, 
     "cta": "Добавете обява"
   }, 

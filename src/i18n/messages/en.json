@@ -8,6 +8,131 @@
       "map": "Apiary map"
     }
   }, 
+  "admin": {
+    "nav": {
+      "dashboard": "Dashboard",
+      "users": "Users",
+      "listings": "Listings",
+      "pending": "Pending Listings",
+      "approved": "Approved Listings",
+      "flagged": "Flagged Content",
+      "reports": "Reports",
+      "backToSite": "Back to Site",
+      "logout": "Logout"
+    },
+    "dashboard": {
+      "title": "Dashboard",
+      "totalUsers": "Total Users",
+      "pendingListings": "Pending Listings",
+      "totalListings": "Total Listings",
+      "flaggedContent": "Flagged Content",
+      "quickActions": "Quick Actions",
+      "reviewPending": "Review Pending",
+      "checkFlagged": "Check Flagged",
+      "manageUsers": "Manage Users",
+      "usersByRole": "Users by Role",
+      "usersByStatus": "Users by Status",
+      "listingsByStatus": "Listings by Status",
+      "recentActivity": "Recent Activity",
+      "noActivity": "No recent activity",
+      "today": "today"
+    },
+    "errors": {
+      "backendUnavailable": "Cannot connect to database",
+      "configMissing": "Please ensure Laravel backend is running and NEXT_PUBLIC_API_BASE is configured in .env.local",
+      "unauthorized": "You don't have permission for this action",
+      "retry": "Retry"
+    },
+    "users": {
+      "title": "User Management",
+      "filters": "Filters",
+      "search": "Search",
+      "searchPlaceholder": "Name or email...",
+      "role": "Role",
+      "status": "Status",
+      "allRoles": "All Roles",
+      "allStatuses": "All Statuses",
+      "trustLevel": "Trust Level",
+      "verified": "Verified",
+      "joined": "Joined",
+      "showingResults": "Showing {count} user(s)",
+      "userDetails": "User Details",
+      "changeRole": "Change Role",
+      "actions": "Actions",
+      "verifyUser": "Verify User",
+      "suspendUser": "Suspend User",
+      "reactivateUser": "Reactivate User",
+      "banUser": "Ban User",
+      "deleteUser": "Delete User",
+      "suspendReason": "Please provide a reason for suspending this user:",
+      "suspend": "Suspend",
+      "cancel": "Cancel",
+      "loading": "Loading users...",
+      "notFound": "User not found"
+    },
+    "listings": {
+      "title": "Listings",
+      "pending": "Pending Moderation",
+      "approved": "Approved Listings",
+      "flagged": "Flagged Listings",
+      "allCaughtUp": "All Caught Up!",
+      "noPending": "There are no pending listings to review.",
+      "allClear": "All Clear!",
+      "noFlagged": "There are no flagged listings to review.",
+      "awaitingModeration": "{count} listing(s) awaiting moderation",
+      "flaggedCount": "{count} flagged listing(s) requiring attention",
+      "approvedCount": "{count} approved listing(s)",
+      "noApproved": "No approved listings found.",
+      "approve": "Approve",
+      "reject": "Reject",
+      "edit": "Edit",
+      "delete": "Delete",
+      "rejectTitle": "Reject Listing",
+      "rejectReason": "Please provide a reason for rejecting this listing:",
+      "reasonPlaceholder": "Reason for rejection...",
+      "postedBy": "Posted by:",
+      "flaggedTimes": "This listing has been flagged {count} time(s)",
+      "loading": "Loading listings...",
+      "approveSuccess": "Listing approved successfully",
+      "rejectSuccess": "Listing rejected",
+      "error": "Failed to perform action"
+    },
+    "reports": {
+      "title": "Reports & Analytics",
+      "overview": "Overview Stats",
+      "totalUsers": "Total Users",
+      "verifiedUsers": "Verified Users",
+      "totalListings": "Total Listings",
+      "userAnalytics": "User Analytics",
+      "listingAnalytics": "Listing Analytics",
+      "distributionByRole": "Distribution by Role",
+      "distributionByStatus": "Distribution by Status",
+      "todayActivity": "Today's Activity",
+      "newRegistrations": "New Registrations",
+      "newListings": "New Listings",
+      "platformHealth": "Platform Health",
+      "verificationRate": "Verification Rate",
+      "approvalRate": "Approval Rate",
+      "loading": "Loading reports...",
+      "error": "Failed to load reports"
+    },
+    "status": {
+      "active": "Active",
+      "suspended": "Suspended",
+      "banned": "Banned",
+      "pending": "Pending",
+      "approved": "Approved",
+      "rejected": "Rejected",
+      "completed": "Completed",
+      "flagged": "Flagged"
+    },
+    "roles": {
+      "user": "User",
+      "moderator": "Moderator",
+      "admin": "Admin",
+      "super_admin": "Super Admin"
+    }
+  },
   "marketplace": {
     "subtitle": "Track, compare and analyze the market for Bulgarian honey, bee products and services.", 
     "title": "Marketplace (honey data)", 
@@ -20,11 +145,22 @@
       "published": "Published: {date}", 
       "badge": {
         "sell": "Selling", 
-        "buy": "Buying"
+        "buy": "Buying",
+        "new": "NEW"
       }, 
       "heading": "Listings ({count})", 
       "empty": "No listings match the current filters.", 
-      "quantity": "Quantity: {value} kg"
+      "quantity": "Quantity: {value} kg",
+      "stats": {
+        "showing": "Showing {shown} of {total}",
+        "average": "Average price: {price}",
+        "range": "Range: {min} - {max}"
+      },
+      "view": {
+        "list": "List",
+        "grid": "Grid",
+        "compact": "Compact"
+      }
     }, 
     "charts": {
       "priceTitle": "{product} ({unit})", 
@@ -88,7 +224,16 @@
         "all": "All", 
         "buy": "Buying"
       }, 
-      "minPlaceholder": "Min BGN/kg"
+      "minPlaceholder": "Min BGN/kg",
+      "clearAll": "Clear all",
+      "mobileOpen": "Filters",
+      "mobileClose": "Close",
+      "apply": "Apply",
+      "active": "Active filters",
+      "typeLabel": "Type:",
+      "productLabel": "Product:",
+      "regionLabel": "Region:",
+      "priceLabel": "Price range:"
     }, 
     "cta": "Post a listing"
   }, 
