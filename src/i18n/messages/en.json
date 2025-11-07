@@ -5,9 +5,113 @@
       "marketplace": "Marketplace", 
       "contacts": "Contacts", 
       "news": "News", 
-      "map": "Apiary map"
+      "map": "Apiary map",
+      "admin": "Administration"
     }
+  },
+  "apiary": {
+    "addApiary": "Add Apiary",
+    "close": "Close",
+    "name": "Name",
+    "namePlaceholder": "e.g. Vitosha",
+    "nameRequired": "Please provide a name for the apiary.",
+    "latitude": "Latitude (lat)",
+    "longitude": "Longitude (lng)",
+    "coordsInvalid": "Latitude and longitude must be valid numbers.",
+    "useMyLocation": "Use my current location",
+    "gettingLocation": "Getting location...",
+    "geolocationNotSupported": "Geolocation is not supported by your browser",
+    "locationPermissionDenied": "Location permission denied. Please enable location access in your browser.",
+    "locationUnavailable": "Location information is unavailable.",
+    "locationTimeout": "Location request timed out.",
+    "region": "Region",
+    "regionPlaceholder": "Region or district",
+    "hives": "Hives",
+    "hivesInvalid": "Hive count must be a valid number.",
+    "flora": "Primary flora",
+    "floraPlaceholder": "Linden, Acacia",
+    "visibility": "Visibility",
+    "visibilityPublic": "Public (visible to everyone)",
+    "visibilityUnlisted": "Unlisted (shared via link)",
+    "notes": "Notes",
+    "notesPlaceholder": "Optional additional details",
+    "save": "Save",
+    "saving": "Saving...",
+    "cancel": "Cancel",
+    "createError": "Failed to create apiary. Please try again."
   }, 
+  "profile": {
+    "title": "Profile",
+    "editProfile": "Edit Profile",
+    "personalInfo": "Personal Information",
+    "security": "Security",
+    "privacy": "Privacy",
+    "displayName": "Display Name",
+    "phone": "Phone",
+    "region": "Region",
+    "city": "City",
+    "bio": "Short Bio",
+    "bioPlaceholder": "Tell us about yourself...",
+    "privacySettings": "Privacy Settings",
+    "privacyPublic": "Public",
+    "privacyMembers": "Members Only",
+    "privacyPrivate": "Private",
+    "saveChanges": "Save Changes",
+    "saving": "Saving...",
+    "saved": "Changes saved successfully.",
+    "saveFailed": "Error saving. Please try again.",
+    "reset": "Reset",
+    "lastSaved": "Last saved",
+    "memberSince": "Member since",
+    "newMember": "New member",
+    "registeredApiaries": "registered apiaries",
+    "viewPublicProfile": "View public profile",
+    "addApiary": "Add Apiary",
+    "statistics": {
+      "apiaries": "Apiaries",
+      "activeListings": "Active Listings",
+      "trustLevel": "Trust Level",
+      "sharedPublicly": "shared publicly",
+      "last30Days": "last 30 days",
+      "verifiedProfile": "verified profile",
+      "unverifiedProfile": "unverified profile"
+    },
+    "security": {
+      "title": "Security",
+      "password": "Password",
+      "lastPasswordChange": "Last changed",
+      "neverChanged": "Never changed",
+      "changePassword": "Change Password",
+      "twoFactor": "Two-Factor Authentication",
+      "twoFactorEnabled": "2FA is enabled. Your profile is additionally protected.",
+      "twoFactorDisabled": "2FA is disabled. Enable it for additional protection.",
+      "enable2FA": "Enable 2FA",
+      "disable2FA": "Disable 2FA",
+      "comingSoon": "Functionality coming soon",
+      "sessionsInfo": "Full list of active sessions and device management planned for version 2."
+    },
+    "quickTips": {
+      "title": "Quick Tips",
+      "tip1": "Review your profile data at the beginning of each season.",
+      "tip2": "Add apiary coordinates only after on-site verification.",
+      "tip3": "A short bio and clear trust level help partners."
+    },
+    "support": {
+      "title": "Need Help?",
+      "message": "Email us at support@pchelarstvo.bg or call +359 88 123 4567 if you need assistance."
+    },
+    "trustLevels": {
+      "bronze": "Bronze Level",
+      "silver": "Silver Level",
+      "gold": "Gold Level"
+    },
+    "loginRequired": {
+      "title": "Login Required",
+      "message": "Sign in to view and edit your profile information.",
+      "login": "Login",
+      "register": "Create Account"
+    }
+  },
   "admin": {
     "nav": {
       "dashboard": "Dashboard",
@@ -20,8 +124,29 @@
       "backToSite": "Back to Site",
       "logout": "Logout"
     },
+    "reports": {
+      "loading": "Loading reports...",
+      "loadFailed": "Failed to load reports",
+      "unableToLoad": "Unable to Load Reports",
+      "ensureBackend": "Please ensure the backend is running and configured correctly.",
+      "notAuthenticated": "Not authenticated",
+      "totalUsers": "Total Users",
+      "verifiedUsers": "Verified Users",
+      "totalListings": "Total Listings",
+      "userAnalytics": "User Analytics",
+      "distributionByRole": "Distribution by Role",
+      "distributionByStatus": "Distribution by Status",
+      "listingAnalytics": "Listing Analytics",
+      "todayActivity": "Today's Activity",
+      "newRegistrations": "New Registrations",
+      "newListings": "New Listings",
+      "platformHealth": "Platform Health",
+      "verificationRate": "Verification Rate",
+      "approvalRate": "Approval Rate"
+    },
     "dashboard": {
       "title": "Dashboard",
+      "loading": "Loading...",
       "totalUsers": "Total Users",
       "pendingListings": "Pending Listings",
       "totalListings": "Total Listings",
@@ -68,7 +193,53 @@
       "suspend": "Suspend",
       "cancel": "Cancel",
       "loading": "Loading users...",
-      "notFound": "User not found"
+      "noUsers": "No users found",
+      "details": {
+        "loading": "Loading user...",
+        "notFound": "User not found",
+        "userId": "User ID",
+        "lastLogin": "Last Login",
+        "never": "Never",
+        "notVerified": "Not verified",
+        "changeRole": "Change Role",
+        "actions": "Actions",
+        "verifyUser": "Verify User",
+        "suspendUser": "Suspend User",
+        "reactivateUser": "Reactivate User",
+        "banUser": "Ban User",
+        "deleteUser": "Delete User",
+        "suspendModal": {
+          "title": "Suspend User",
+          "description": "Please provide a reason for suspending this user:",
+          "placeholder": "Reason for suspension...",
+          "confirm": "Suspend",
+          "cancel": "Cancel"
+        },
+        "success": {
+          "title": "Success",
+          "ok": "OK",
+          "updated": "User updated successfully",
+          "verified": "User verified successfully",
+          "suspended": "User suspended successfully",
+          "deleted": "User deleted successfully"
+        },
+        "error": {
+          "title": "Error",
+          "ok": "OK",
+          "notAuthenticated": "Not authenticated",
+          "updateFailed": "Failed to update user",
+          "verifyFailed": "Failed to verify user",
+          "suspendFailed": "Failed to suspend user",
+          "deleteFailed": "Failed to delete user"
+        },
+        "confirm": {
+          "title": "Confirm Action",
+          "confirm": "Confirm",
+          "cancel": "Cancel",
+          "banMessage": "Are you sure you want to ban this user?",
+          "deleteMessage": "Are you sure you want to delete this user? This action cannot be undone."
+        }
+      }
     },
     "listings": {
       "title": "Listings",

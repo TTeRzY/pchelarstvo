@@ -18,6 +18,18 @@ export type User = {
   trustLevel: TrustLevel;
   createdAt: string;
   lastLoginAt: string | null;
+  // Profile-specific fields
+  phone?: string;
+  region?: string;
+  city?: string;
+  bio?: string;
+  privacy?: 'public' | 'members' | 'private';
+  avatarUrl?: string;
+  memberSince?: string;
+  apiariesCount?: number;
+  activeListingsCount?: number;
+  lastPasswordChange?: string;
+  twoFactorEnabled?: boolean;
 };
 
 // Helper function to check if user is admin

@@ -17,8 +17,10 @@ export default function AdminLayout({
   const pathname = usePathname();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
+    setIsMounted(true);
     // Check if user is authenticated and has admin role
     authClient.me().then(user => {
       if (!user || !isAdmin(user)) {
@@ -33,10 +35,12 @@ export default function AdminLayout({
     });
   }, [router]);
 
-  if (isLoading) {
+  if (!isMounted || isLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-gray-900 text-xl">{t('dashboard.loading')}</div>
+        <div className="text-gray-900 text-xl" suppressHydrationWarning>
+          {isMounted ? t('dashboard.loading') : 'Loading...'}
+        </div>
       </div>
     );
   }
@@ -148,7 +152,7 @@ export default function AdminLayout({
             </h2>
             <div className="text-sm text-gray-600 flex items-center gap-2">
               <span>📅</span>
-              <span>
+              <span suppressHydrationWarning>
                 {new Date().toLocaleDateString('bg-BG', { 
                   weekday: 'long', 
                   year: 'numeric', 

@@ -4,9 +4,11 @@ import Link from "next/link";
 import { useTranslations } from "next-intl";
 import AuthNav from "./AuthNav";
 import LanguageSwitcher from "@/components/language/LanguageSwitcher";
+import { useAuth } from "@/context/AuthProvider";
+import { canAccessAdmin } from "@/types/user";
 
 type NavItem = {
-  key: "home" | "marketplace" | "map" | "news" | "contacts";
+  key: "home" | "marketplace" | "map" | "news" | "contacts" | "admin";
   path: string;
 };
 
@@ -20,6 +22,8 @@ const NAV_ITEMS: NavItem[] = [
 
 export default function Header() {
   const t = useTranslations("header.nav");
+  const { user } = useAuth();
+  const showAdmin = canAccessAdmin(user);
 
   return (
     <header className="bg-yellow-400 shadow sticky top-0 z-50 text-black">
@@ -33,6 +37,14 @@ export default function Header() {
           ))}
         </nav>
         <div className="flex items-center gap-3">
+          {showAdmin && (
+            <Link 
+              href="/admin" 
+              className="hover:underline flex items-center gap-1 text-purple-700 hover:text-purple-900 text-sm font-bold uppercase"
+            >
+              ⚙️ {t("admin")}
+            </Link>
+          )}
           <LanguageSwitcher />
           <AuthNav />
         </div>

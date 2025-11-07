@@ -6,6 +6,9 @@ import { useAuth } from "@/context/AuthProvider";
 import { useModal } from "@/components/modal/ModalProvider";
 import ChangePasswordModal, { type ChangePasswordData } from "@/components/profile/ChangePasswordModal";
 import { authClient } from "@/lib/authClient";
+import { userClient } from "@/lib/userClient";
+import type { User } from "@/types/user";
+import RoleBadge from "@/components/profile/RoleBadge";
 
 const quickTips = [
   "Преглеждайте профилните си данни в началото на всеки сезон.",
@@ -59,7 +62,7 @@ function formatDate(value: string) {
 }
 
 export default function ProfilePage() {
-  const { user } = useAuth();
+  const { user, setUser } = useAuth();
   const { open } = useModal();
 
   const [form, setForm] = useState<ProfileFormState>(initialState);
@@ -69,26 +72,59 @@ export default function ProfilePage() {
   const [changePasswordOpen, setChangePasswordOpen] = useState(false);
   const [passwordMessage, setPasswordMessage] = useState<string | null>(null);
   const [passwordError, setPasswordError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [profileData, setProfileData] = useState<User | null>(null);
 
+  // Fetch full profile data on mount
   useEffect(() => {
-    if (!user) return;
-    setForm((prev) => ({
-      ...prev,
-      displayName: prev.displayName || user.name,
-      bio:
-        prev.bio ||
-        "Пчелар от 2015 г., специализиран в производство на акациев и липов мед.",
-    }));
+    async function loadProfile() {
+      if (!user) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const profile = await userClient.getProfile();
+        setProfileData(profile);
+        
+        // Populate form with profile data
+        setForm({
+          displayName: profile.name || "",
+          phone: profile.phone || "",
+          region: profile.region || "",
+          city: profile.city || "",
+          privacy: profile.privacy || "members",
+          bio: profile.bio || "",
+        });
+        
+        setLoading(false);
+      } catch (error) {
+        console.error("Failed to load profile:", error);
+        // Fallback to basic user data
+        setProfileData(user);
+        setForm((prev) => ({
+          ...prev,
+          displayName: user.name,
+        }));
+        setLoading(false);
+      }
+    }
+
+    loadProfile();
   }, [user]);
 
-  const quickSummary = useMemo(
-    () => [
-      { id: "apiaries", label: "Пчелини", value: "5", hint: "споделени публично" },
-      { id: "listings", label: "Активни обяви", value: "2", hint: "последни 30 дни" },
-      { id: "trust", label: "Ниво на доверие", value: "Златно", hint: "верифициран профил" },
-    ],
-    []
-  );
+  const quickSummary = useMemo(() => {
+    const apiariesCount = profileData?.apiariesCount ?? 0;
+    const listingsCount = profileData?.activeListingsCount ?? 0;
+    const trustLevel = profileData?.trustLevel || "bronze";
+    const trustLevelLabel = trustLevel === "gold" ? "Златно" : trustLevel === "silver" ? "Сребърно" : "Бронзово";
+
+    return [
+      { id: "apiaries", label: "Пчелини", value: String(apiariesCount), hint: "споделени публично" },
+      { id: "listings", label: "Активни обяви", value: String(listingsCount), hint: "последни 30 дни" },
+      { id: "trust", label: "Ниво на доверие", value: trustLevelLabel, hint: profileData?.verifiedAt ? "верифициран профил" : "неверифициран профил" },
+    ];
+  }, [profileData]);
 
   const trustValue = quickSummary.find((item) => item.id === "trust")?.value;
   const trustBadge = resolveTrustBadge(trustValue);
@@ -97,16 +133,36 @@ export default function ProfilePage() {
     setForm((prev) => ({ ...prev, [key]: value }));
   }
 
-  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setSaving(true);
     setMessage(null);
-    setTimeout(() => {
-      setSaving(false);
+
+    try {
+      const updatedProfile = await userClient.updateProfile({
+        name: form.displayName,
+        phone: form.phone,
+        region: form.region,
+        city: form.city,
+        bio: form.bio,
+        privacy: form.privacy,
+      });
+
+      setProfileData(updatedProfile);
+      // Update auth context if name changed
+      if (setUser && updatedProfile.name !== user?.name) {
+        setUser(updatedProfile);
+      }
+
       const ts = new Date().toISOString();
       setLastSaved(ts);
-      setMessage("Промените са записани локално. Интеграция с API предстои.");
-    }, 700);
+      setMessage("Промените са запазени успешно.");
+      setSaving(false);
+    } catch (error: any) {
+      console.error("Failed to save profile:", error);
+      setMessage("Грешка при запазване. Опитайте отново.");
+      setSaving(false);
+    }
   }
 
   async function handlePasswordSubmit(data: ChangePasswordData) {
@@ -193,7 +249,11 @@ export default function ProfilePage() {
               <div className="space-y-3">
                 <div className="rounded-xl border bg-gray-50 p-4 space-y-2">
                   <h3 className="font-semibold">Парола</h3>
-                  <p className="text-sm text-gray-600">Последна промяна: 12.08.2025 г.</p>
+                  <p className="text-sm text-gray-600">
+                    {profileData?.lastPasswordChange 
+                      ? `Последна промяна: ${new Date(profileData.lastPasswordChange).toLocaleDateString('bg-BG')}`
+                      : "Не е променяна"}
+                  </p>
                   <button
                     onClick={() => setChangePasswordOpen(true)}
                     className="rounded-xl border px-3 py-2 text-sm hover:bg-gray-100"
@@ -206,10 +266,20 @@ export default function ProfilePage() {
                 <div className="rounded-xl border bg-gray-50 p-4 space-y-2">
                   <h3 className="font-semibold">Двуфакторна защита</h3>
                   <p className="text-sm text-gray-600">
-                    2FA е изключена. Активирайте я за допълнителна защита.
+                    {profileData?.twoFactorEnabled 
+                      ? "2FA е активирана. Вашият профил е допълнително защитен."
+                      : "2FA е изключена. Активирайте я за допълнителна защита."}
                   </p>
-                  <button className="rounded-xl bg-emerald-500 px-3 py-2 text-sm font-medium text-white hover:bg-emerald-400">
-                    Активирай 2FA
+                  <button 
+                    className={`rounded-xl px-3 py-2 text-sm font-medium text-white ${
+                      profileData?.twoFactorEnabled 
+                        ? "bg-rose-500 hover:bg-rose-400" 
+                        : "bg-emerald-500 hover:bg-emerald-400"
+                    }`}
+                    disabled
+                    title="Функционалността ще бъде добавена скоро"
+                  >
+                    {profileData?.twoFactorEnabled ? "Деактивирай 2FA" : "Активирай 2FA"}
                   </button>
                 </div>
                 <p className="text-xs text-gray-500">
@@ -236,7 +306,11 @@ export default function ProfilePage() {
               <div>
                 <h1 className="text-2xl font-extrabold">Здравейте, {user.name}</h1>
                 <p className="text-sm text-gray-600">{user.email}</p>
-                <p className="text-sm text-gray-600 mt-1">Член от 2020 г. · 5 регистрирани пчелина</p>
+                <p className="text-sm text-gray-600 mt-1">
+                  {profileData?.memberSince 
+                    ? `Член от ${new Date(profileData.memberSince).getFullYear()} г.` 
+                    : "Нов член"} · {profileData?.apiariesCount ?? 0} регистрирани пчелина
+                </p>
               </div>
             </div>
             <div className="flex gap-3">
@@ -246,6 +320,12 @@ export default function ProfilePage() {
               </button>
             </div>
           </div>
+          {profileData?.role && (
+            <div className="flex items-center gap-2 pb-2 border-b">
+              <span className="text-sm text-gray-600 font-medium">Роля в системата:</span>
+              <RoleBadge role={profileData.role} />
+            </div>
+          )}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {quickSummary.map((item) => (
               <div key={item.id} className="rounded-2xl border bg-gray-50 p-4">

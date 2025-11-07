@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import { createApiary, type Apiary, type CreateApiaryPayload } from "@/lib/apiaries";
 
 const DEFAULT_CENTER = { lat: 42.6977, lng: 23.3219 };
@@ -24,6 +25,7 @@ export default function AddApiaryModal({
   onCreate: (a: Apiary) => void;
   defaultCoords?: { lat: number; lng: number } | null;
 }) {
+  const t = useTranslations('apiary');
   const dialogRef = useRef<HTMLDivElement>(null);
 
   const [name, setName] = useState("");
@@ -36,6 +38,7 @@ export default function AddApiaryModal({
   const [notes, setNotes] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [loadingLocation, setLoadingLocation] = useState(false);
 
   const resetForm = () => {
     setName("");
@@ -66,19 +69,62 @@ export default function AddApiaryModal({
   if (!open) return null;
 
   const validate = (): string | null => {
-    if (!name.trim()) return "Please provide a name for the apiary.";
+    if (!name.trim()) return t('nameRequired');
     const latNum = Number(lat);
     const lngNum = Number(lng);
     if (!Number.isFinite(latNum) || !Number.isFinite(lngNum)) {
-      return "Latitude and longitude must be valid numbers.";
+      return t('coordsInvalid');
     }
     if (hiveCount.trim()) {
       const hivesNum = Number(hiveCount);
       if (!Number.isFinite(hivesNum)) {
-        return "Hive count must be a valid number.";
+        return t('hivesInvalid');
       }
     }
     return null;
+  };
+
+  const handleUseMyLocation = () => {
+    if (!navigator.geolocation) {
+      setError(t('geolocationNotSupported'));
+      return;
+    }
+
+    setLoadingLocation(true);
+    setError(null);
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const latitude = position.coords.latitude.toFixed(6);
+        const longitude = position.coords.longitude.toFixed(6);
+        setLat(latitude);
+        setLng(longitude);
+        setLoadingLocation(false);
+      },
+      (error) => {
+        let errorMessage = t('geolocationNotSupported');
+        
+        switch (error.code) {
+          case error.PERMISSION_DENIED:
+            errorMessage = t('locationPermissionDenied');
+            break;
+          case error.POSITION_UNAVAILABLE:
+            errorMessage = t('locationUnavailable');
+            break;
+          case error.TIMEOUT:
+            errorMessage = t('locationTimeout');
+            break;
+        }
+        
+        setError(errorMessage);
+        setLoadingLocation(false);
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0,
+      }
+    );
   };
 
   const handleSubmit = async (event: React.FormEvent) => {
@@ -112,37 +158,61 @@ export default function AddApiaryModal({
       resetForm();
       onClose();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to create apiary. Please try again.");
+      setError(err instanceof Error ? err.message : t('createError'));
     } finally {
       setSubmitting(false);
     }
   };
 
   return (
-    <div className="fixed inset-0 z-[999]" role="dialog" aria-modal="true" aria-label="Add apiary">
+    <div className="fixed inset-0 z-[999]" role="dialog" aria-modal="true" aria-label={t('addApiary')}>
       <div className="absolute inset-0 bg-black/50" onClick={onClose} />
       <div className="absolute inset-0 flex items-center justify-center px-4">
         <div ref={dialogRef} className="w-full max-w-lg rounded-2xl bg-white shadow-lg">
           <div className="flex items-center justify-between px-6 pt-5">
-            <h2 className="text-xl font-semibold">Add apiary</h2>
-            <button onClick={onClose} className="rounded-lg px-2 py-1 text-sm hover:bg-gray-100" aria-label="Close">
+            <h2 className="text-xl font-semibold">{t('addApiary')}</h2>
+            <button onClick={onClose} className="rounded-lg px-2 py-1 text-sm hover:bg-gray-100" aria-label={t('close')}>
               x
             </button>
           </div>
           <form onSubmit={handleSubmit} className="p-6 flex flex-col gap-4">
             <div>
-              <label className="block text-sm mb-1">Name *</label>
+              <label className="block text-sm mb-1">{t('name')} *</label>
               <input
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 className="w-full rounded-xl border px-3 py-2"
-                placeholder="e.g. Vitosha"
+                placeholder={t('namePlaceholder')}
                 required
               />
             </div>
+            
+            <div>
+              <button
+                type="button"
+                onClick={handleUseMyLocation}
+                disabled={loadingLocation}
+                className="flex items-center gap-2 rounded-xl border border-blue-500 bg-blue-50 px-4 py-2 text-sm font-medium text-blue-700 hover:bg-blue-100 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
+              >
+                {loadingLocation ? (
+                  <>
+                    <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    {t('gettingLocation')}
+                  </>
+                ) : (
+                  <>
+                    📍 {t('useMyLocation')}
+                  </>
+                )}
+              </button>
+            </div>
+
             <div className="flex gap-3">
               <div className="flex-1">
-                <label className="block text-sm mb-1">Latitude (lat) *</label>
+                <label className="block text-sm mb-1">{t('latitude')} *</label>
                 <input
                   value={lat}
                   onChange={(e) => setLat(e.target.value)}
@@ -153,7 +223,7 @@ export default function AddApiaryModal({
                 />
               </div>
               <div className="flex-1">
-                <label className="block text-sm mb-1">Longitude (lng) *</label>
+                <label className="block text-sm mb-1">{t('longitude')} *</label>
                 <input
                   value={lng}
                   onChange={(e) => setLng(e.target.value)}
@@ -166,16 +236,16 @@ export default function AddApiaryModal({
             </div>
             <div className="flex gap-3">
               <div className="flex-1">
-                <label className="block text-sm mb-1">Region</label>
+                <label className="block text-sm mb-1">{t('region')}</label>
                 <input
                   value={region}
                   onChange={(e) => setRegion(e.target.value)}
                   className="w-full rounded-xl border px-3 py-2"
-                  placeholder="Region or district"
+                  placeholder={t('regionPlaceholder')}
                 />
               </div>
               <div className="w-40">
-                <label className="block text-sm mb-1">Hives</label>
+                <label className="block text-sm mb-1">{t('hives')}</label>
                 <input
                   value={hiveCount}
                   onChange={(e) => setHiveCount(e.target.value)}
@@ -186,33 +256,33 @@ export default function AddApiaryModal({
               </div>
             </div>
             <div>
-              <label className="block text-sm mb-1">Primary flora</label>
+              <label className="block text-sm mb-1">{t('flora')}</label>
               <input
                 value={flora}
                 onChange={(e) => setFlora(e.target.value)}
                 className="w-full rounded-xl border px-3 py-2"
-                placeholder="Linden, Acacia"
+                placeholder={t('floraPlaceholder')}
               />
             </div>
             <div>
-              <label className="block text-sm mb-1">Visibility</label>
+              <label className="block text-sm mb-1">{t('visibility')}</label>
               <select
                 value={visibility}
                 onChange={(e) => setVisibility(e.target.value as "public" | "unlisted")}
                 className="w-full rounded-xl border px-3 py-2"
               >
-                <option value="public">Public (visible to everyone)</option>
-                <option value="unlisted">Unlisted (shared via link)</option>
+                <option value="public">{t('visibilityPublic')}</option>
+                <option value="unlisted">{t('visibilityUnlisted')}</option>
               </select>
             </div>
             <div>
-              <label className="block text-sm mb-1">Notes</label>
+              <label className="block text-sm mb-1">{t('notes')}</label>
               <textarea
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 rows={3}
                 className="w-full rounded-xl border px-3 py-2"
-                placeholder="Optional additional details"
+                placeholder={t('notesPlaceholder')}
               />
             </div>
 
@@ -223,7 +293,7 @@ export default function AddApiaryModal({
                 disabled={submitting}
                 className="rounded-xl bg-amber-500 px-4 py-2 text-sm font-medium text-gray-900 hover:bg-amber-400 disabled:opacity-60"
               >
-                {submitting ? "Saving..." : "Save"}
+                {submitting ? t('saving') : t('save')}
               </button>
               <button
                 type="button"
@@ -233,7 +303,7 @@ export default function AddApiaryModal({
                 }}
                 className="rounded-xl border px-4 py-2 text-sm hover:bg-gray-50"
               >
-                Cancel
+                {t('cancel')}
               </button>
             </div>
           </form>

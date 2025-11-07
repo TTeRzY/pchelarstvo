@@ -8,6 +8,7 @@ type AuthCtx = {
   login: (email: string, password: string) => Promise<void>;
   register: (name: string, email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
+  setUser: (user: User | null) => void;
 };
 
 const Ctx = createContext<AuthCtx | undefined>(undefined);
@@ -23,6 +24,7 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
 
   const value = useMemo<AuthCtx>(() => ({
     user, loading,
+    setUser,
     async login(email, password) {
       setLoading(true);
       try {

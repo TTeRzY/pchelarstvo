@@ -1,5 +1,37 @@
 @import "tailwindcss";
 
+/* Global cursor styles for interactive elements */
+button,
+a[href],
+[role="button"],
+label[for],
+input[type="submit"],
+input[type="button"],
+input[type="reset"],
+select {
+  cursor: pointer;
+}
+
+/* Keep default cursor for disabled elements */
+button:disabled,
+input:disabled,
+select:disabled,
+[disabled] {
+  cursor: not-allowed;
+}
+
+/* Keep default cursor for text inputs */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+input[type="tel"],
+input[type="url"],
+input[type="search"],
+textarea {
+  cursor: text;
+}
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
