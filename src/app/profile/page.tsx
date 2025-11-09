@@ -5,8 +5,10 @@ import PageShell from "@/components/layout/PageShell";
 import { useAuth } from "@/context/AuthProvider";
 import { useModal } from "@/components/modal/ModalProvider";
 import ChangePasswordModal, { type ChangePasswordData } from "@/components/profile/ChangePasswordModal";
+import AddApiaryModal from "@/components/map/AddApiaryModal";
 import { authClient } from "@/lib/authClient";
 import { userClient } from "@/lib/userClient";
+import { createApiary, fetchUserApiaries, type Apiary } from "@/lib/apiaries";
 import type { User } from "@/types/user";
 import RoleBadge from "@/components/profile/RoleBadge";
 
@@ -74,6 +76,9 @@ export default function ProfilePage() {
   const [passwordError, setPasswordError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [profileData, setProfileData] = useState<User | null>(null);
+  const [addApiaryOpen, setAddApiaryOpen] = useState(false);
+  const [userApiaries, setUserApiaries] = useState<Apiary[]>([]);
+  const [apiariesLoading, setApiariesLoading] = useState(false);
 
   // Fetch full profile data on mount
   useEffect(() => {
@@ -113,8 +118,32 @@ export default function ProfilePage() {
     loadProfile();
   }, [user]);
 
+  // Fetch user's apiaries AFTER profile data is loaded
+  useEffect(() => {
+    async function loadUserApiaries() {
+      // Wait for profile to be loaded first
+      if (!user || !profileData || loading) {
+        return;
+      }
+
+      setApiariesLoading(true);
+      try {
+        const apiaries = await fetchUserApiaries();
+        setUserApiaries(apiaries);
+      } catch (error) {
+        console.error("Failed to load user apiaries:", error);
+        setUserApiaries([]);
+      } finally {
+        setApiariesLoading(false);
+      }
+    }
+
+    loadUserApiaries();
+  }, [user, profileData, loading]);
+
   const quickSummary = useMemo(() => {
-    const apiariesCount = profileData?.apiariesCount ?? 0;
+    // Use actual fetched apiaries count instead of backend count
+    const apiariesCount = userApiaries.length;
     const listingsCount = profileData?.activeListingsCount ?? 0;
     const trustLevel = profileData?.trustLevel || "bronze";
     const trustLevelLabel = trustLevel === "gold" ? "Златно" : trustLevel === "silver" ? "Сребърно" : "Бронзово";
@@ -124,7 +153,7 @@ export default function ProfilePage() {
       { id: "listings", label: "Активни обяви", value: String(listingsCount), hint: "последни 30 дни" },
       { id: "trust", label: "Ниво на доверие", value: trustLevelLabel, hint: profileData?.verifiedAt ? "верифициран профил" : "неверифициран профил" },
     ];
-  }, [profileData]);
+  }, [profileData, userApiaries]);
 
   const trustValue = quickSummary.find((item) => item.id === "trust")?.value;
   const trustBadge = resolveTrustBadge(trustValue);
@@ -191,6 +220,26 @@ export default function ProfilePage() {
         // ignore JSON parse errors
       }
       setPasswordError(raw || "Възникна грешка. Опитайте отново.");
+    }
+  }
+
+  async function handleCreateApiary(apiary: Apiary) {
+    // Note: The modal already created the apiary on the backend
+    // We just need to update our local state
+    setAddApiaryOpen(false);
+    setMessage("Пчелинът беше добавен успешно!");
+    
+    // Optimistically add the apiary to the list
+    setUserApiaries((prev) => [apiary, ...prev]);
+    
+    // Update profile data in background
+    if (user) {
+      try {
+        const profile = await userClient.getProfile();
+        setProfileData(profile);
+      } catch (error) {
+        console.error("Failed to reload profile data:", error);
+      }
     }
   }
 
@@ -304,18 +353,25 @@ export default function ProfilePage() {
                 </span>
               </div>
               <div>
-                <h1 className="text-2xl font-extrabold">Здравейте, {user.name}</h1>
-                <p className="text-sm text-gray-600">{user.email}</p>
+                <h1 className="text-2xl font-extrabold">
+                  Здравейте, {profileData?.name || user.name}
+                </h1>
+                <p className="text-sm text-gray-600">
+                  {profileData?.email || user.email}
+                </p>
                 <p className="text-sm text-gray-600 mt-1">
                   {profileData?.memberSince 
                     ? `Член от ${new Date(profileData.memberSince).getFullYear()} г.` 
-                    : "Нов член"} · {profileData?.apiariesCount ?? 0} регистрирани пчелина
+                    : "Нов член"} · {userApiaries.length} регистрирани пчелина
                 </p>
               </div>
             </div>
             <div className="flex gap-3">
               <button className="rounded-xl border px-4 py-2 text-sm hover:bg-gray-50">Виж публичния профил</button>
-              <button className="rounded-xl bg-amber-500 px-4 py-2 text-sm font-medium text-gray-900 hover:bg-amber-400">
+              <button 
+                onClick={() => setAddApiaryOpen(true)}
+                className="rounded-xl bg-amber-500 px-4 py-2 text-sm font-medium text-gray-900 hover:bg-amber-400"
+              >
                 Добави пчелин
               </button>
             </div>
@@ -352,7 +408,7 @@ export default function ProfilePage() {
                   value={form.displayName}
                   onChange={(e) => updateForm("displayName", e.target.value)}
                   className="w-full rounded-xl border px-3 py-2 text-sm"
-                  placeholder="Антон Терзийски"
+                  placeholder="Вашето име"
                 />
               </div>
               <div>
@@ -361,7 +417,7 @@ export default function ProfilePage() {
                   value={form.phone}
                   onChange={(e) => updateForm("phone", e.target.value)}
                   className="w-full rounded-xl border px-3 py-2 text-sm"
-                  placeholder="+359 88 000 0000"
+                  placeholder="+359 ..."
                 />
               </div>
               <div>
@@ -370,7 +426,7 @@ export default function ProfilePage() {
                   value={form.region}
                   onChange={(e) => updateForm("region", e.target.value)}
                   className="w-full rounded-xl border px-3 py-2 text-sm"
-                  placeholder="Югозападен"
+                  placeholder="Регион"
                 />
               </div>
               <div>
@@ -379,7 +435,7 @@ export default function ProfilePage() {
                   value={form.city}
                   onChange={(e) => updateForm("city", e.target.value)}
                   className="w-full rounded-xl border px-3 py-2 text-sm"
-                  placeholder="Самоков"
+                  placeholder="Град/село"
                 />
               </div>
             </div>
@@ -390,7 +446,7 @@ export default function ProfilePage() {
                 onChange={(e) => updateForm("bio", e.target.value)}
                 rows={4}
                 className="w-full rounded-xl border px-3 py-2 text-sm"
-                placeholder="Разкажете накратко за себе си..."
+                placeholder="Опишете вашата дейност..."
               />
             </div>
             <div>
@@ -427,12 +483,125 @@ export default function ProfilePage() {
             </div>
           </form>
         </section>
+
+        {/* User's Apiaries Section */}
+        <section className="rounded-2xl border shadow-sm bg-white p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold">Моите пчелини</h2>
+            <button
+              onClick={() => setAddApiaryOpen(true)}
+              className="text-sm text-amber-600 hover:text-amber-700 font-medium"
+            >
+              + Добави нов
+            </button>
+          </div>
+
+          {apiariesLoading ? (
+            <div className="text-center py-8 text-gray-500">
+              <div className="animate-spin w-8 h-8 border-4 border-amber-500 border-t-transparent rounded-full mx-auto mb-2"></div>
+              Зареждане...
+            </div>
+          ) : userApiaries.length === 0 ? (
+            <div className="text-center py-8 text-gray-500 bg-gray-50 rounded-lg">
+              <div className="text-4xl mb-2">🏺</div>
+              <p className="text-sm">Все още нямате добавени пчелини</p>
+              <button
+                onClick={() => setAddApiaryOpen(true)}
+                className="mt-3 text-sm text-amber-600 hover:text-amber-700 font-medium"
+              >
+                Добави първия си пчелин
+              </button>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {userApiaries.map((apiary) => (
+                <div
+                  key={apiary.id}
+                  className="border rounded-lg p-4 hover:bg-gray-50 transition-colors"
+                >
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-gray-900">{apiary.name}</h3>
+                      <div className="flex flex-wrap gap-3 mt-2 text-sm text-gray-600">
+                        {apiary.region && (
+                          <span className="flex items-center gap-1">
+                            <span>📍</span>
+                            {apiary.region}
+                            {apiary.city && `, ${apiary.city}`}
+                          </span>
+                        )}
+                        {apiary.hiveCount && (
+                          <span className="flex items-center gap-1">
+                            <span>🏺</span>
+                            {apiary.hiveCount} кошера
+                          </span>
+                        )}
+                        {apiary.visibility && (
+                          <span className="flex items-center gap-1">
+                            <span>{apiary.visibility === "public" ? "👁️" : "🔒"}</span>
+                            {apiary.visibility === "public" ? "Публичен" : "Скрит"}
+                          </span>
+                        )}
+                      </div>
+                      {apiary.flora && apiary.flora.length > 0 && (
+                        <div className="mt-2 flex flex-wrap gap-1">
+                          {apiary.flora.map((plant, idx) => (
+                            <span
+                              key={idx}
+                              className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full"
+                            >
+                              {plant}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                      {apiary.notes && (
+                        <p className="mt-2 text-sm text-gray-500 italic">{apiary.notes}</p>
+                      )}
+                    </div>
+                    <div className="flex gap-2 ml-4">
+                      <button
+                        onClick={() => {
+                          // TODO: Implement edit functionality
+                          alert("Редактиране скоро ще бъде налично!");
+                        }}
+                        className="text-sm text-gray-600 hover:text-gray-900 px-2 py-1"
+                        title="Редактирай"
+                      >
+                        ✏️
+                      </button>
+                      <button
+                        onClick={() => {
+                          if (confirm(`Сигурни ли сте, че искате да изтриете пчелина "${apiary.name}"?`)) {
+                            // TODO: Implement delete functionality
+                            alert("Изтриване скоро ще бъде налично!");
+                          }
+                        }}
+                        className="text-sm text-red-600 hover:text-red-900 px-2 py-1"
+                        title="Изтрий"
+                      >
+                        🗑️
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
       </PageShell>
 
       <ChangePasswordModal
         open={changePasswordOpen}
         onClose={() => setChangePasswordOpen(false)}
         onSubmit={handlePasswordSubmit}
+      />
+
+      <AddApiaryModal
+        open={addApiaryOpen}
+        onClose={() => setAddApiaryOpen(false)}
+        onCreate={handleCreateApiary}
+        defaultCoords={null}
       />
     </>
   );

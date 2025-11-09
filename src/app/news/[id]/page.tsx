@@ -1,7 +1,8 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import PageShell from "@/components/layout/PageShell";
 import Link from "next/link";
-import { fetchNews, fetchNewsItem, type NewsItem } from "@/lib/news";
+import { fetchNews, fetchNewsItem } from "@/lib/news";
+import type { NewsItem } from "@/types/news";
 
 function formatMeta(n: NewsItem) {
   const date = new Date(n.updatedAt).toLocaleDateString("bg-BG");
@@ -9,9 +10,15 @@ function formatMeta(n: NewsItem) {
   return { date, length, kind: n.type === "article" ? "Статия" : n.type === "video" ? "Видео" : "Подкаст" };
 }
 
-export default async function NewsDetailPage({ params }: { params: { id: string } }) {
-  const item = await fetchNewsItem(params.id);
+export default async function NewsDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const resolvedParams = await params;
+  const item = await fetchNewsItem(resolvedParams.id);
   if (!item) return notFound();
+  
+  // If it's an RSS article with external link, redirect to source
+  if (item.link) {
+    redirect(item.link);
+  }
 
   const meta = formatMeta(item);
   const all = await fetchNews();

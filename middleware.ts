@@ -41,12 +41,12 @@ export function middleware(request: NextRequest) {
       return NextResponse.redirect(url);
     }
 
-    // Check if user has admin or super_admin role
+    // Check if user has moderator, admin, or super_admin role
     // In production, get actual role from decoded JWT
-    const isAdmin = user.role === 'admin' || user.role === 'super_admin';
+    const canAccess = user.role === 'moderator' || user.role === 'admin' || user.role === 'super_admin';
     
-    if (!isAdmin) {
-      // Return 404 to hide admin panel existence
+    if (!canAccess) {
+      // Return 404 to hide admin panel existence from regular users
       const url = request.nextUrl.clone();
       url.pathname = '/404';
       return NextResponse.rewrite(url);

@@ -74,9 +74,9 @@ function mapApiListing(l: any): ListingVM {
     created_at: (l.created_at ?? l.createdAt ?? l.updated_at) as string | undefined,
     status: l.status,
     image: undefined,
-    sellerName: l.user?.name,
+    sellerName: l.user?.name || (l as any).contactName || "Анонимен",
     sellerEmail: l.contactEmail ?? l.user?.email ?? null,
-    sellerPhone: l.contactPhone ?? null,
+    sellerPhone: l.contactPhone ?? (l as any).phone ?? null,
     sellerId: l.user?.id ?? null,
   };
 }

@@ -5,7 +5,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { authClient } from '@/lib/authClient';
-import { isAdmin } from '@/types/user';
+import { canAccessAdmin } from '@/types/user';
 
 export default function AdminLayout({
   children,
@@ -21,9 +21,9 @@ export default function AdminLayout({
 
   useEffect(() => {
     setIsMounted(true);
-    // Check if user is authenticated and has admin role
+    // Check if user is authenticated and has access (moderator, admin, or super_admin)
     authClient.me().then(user => {
-      if (!user || !isAdmin(user)) {
+      if (!user || !canAccessAdmin(user)) {
         router.push('/');
       } else {
         setIsAuthenticated(true);

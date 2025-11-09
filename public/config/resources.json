@@ -1,0 +1,348 @@
+{
+  "practices": {
+    "enabled": true,
+    "categories": [
+      {
+        "id": "basics",
+        "title": {
+          "bg": "Основи и ръководства",
+          "en": "Basics and Guides"
+        },
+        "description": {
+          "bg": "Базови материали и пълни ръководства",
+          "en": "Basic materials and complete guides"
+        },
+        "resources": [
+          {
+            "title": {
+              "bg": "БАБХ - Болести на пчелите",
+              "en": "BFSA - Bee Diseases"
+            },
+            "description": {
+              "bg": "Официална информация за болести, надзор и контрол от Българската агенция по безопасност на храните.",
+              "en": "Official information about diseases, monitoring and control from the Bulgarian Food Safety Agency."
+            },
+            "url": "https://bfsa.egov.bg/wps/portal/bfsa-web/activities/animal.health.and.welfare/animal-health/current.information.on.animal.diseases/bee.diseases",
+            "type": {
+              "bg": "Институция",
+              "en": "Institution"
+            },
+            "icon": "🐝",
+            "free": true,
+            "language": "bg",
+            "verified": true
+          },
+          {
+            "title": {
+              "bg": "Регистрация на пчелин",
+              "en": "Apiary Registration"
+            },
+            "description": {
+              "bg": "Изисквания и процедури за регистрация на пчелини и кандидатстване за субсидии.",
+              "en": "Requirements and procedures for apiary registration and subsidy applications."
+            },
+            "url": "https://www.naas.government.bg/vprosi-i-otgovori/publikuvani-otgovori/kakvi-sa-iziskvaniyata-za-registraciyata-na-pchelin-i-kandidatstvane-za-subsidii",
+            "type": {
+              "bg": "Статия",
+              "en": "Article"
+            },
+            "icon": "📋",
+            "free": true,
+            "language": "bg",
+            "verified": true
+          },
+          {
+            "title": {
+              "bg": "Биологично пчеларство",
+              "en": "Organic Beekeeping"
+            },
+            "description": {
+              "bg": "Информация за биологичното пчеларство, включително изисквания и насоки за сертифициране.",
+              "en": "Information about organic beekeeping, including requirements and certification guidelines."
+            },
+            "url": "https://sp2023.bg/index.php/bg/intervencii/ii-a-9-biologicno-pcelarstvo",
+            "type": {
+              "bg": "Ръководство",
+              "en": "Guide"
+            },
+            "icon": "🌱",
+            "free": true,
+            "language": "bg",
+            "verified": true
+          }
+        ]
+      },
+      {
+        "id": "organizations",
+        "title": {
+          "bg": "Организации и институции",
+          "en": "Organizations and Institutions"
+        },
+        "description": {
+          "bg": "Професионални сдружения и официални институции",
+          "en": "Professional associations and official institutions"
+        },
+        "resources": [
+          {
+            "title": {
+              "bg": "БПРА - Развъдна асоциация",
+              "en": "BBBA - Breeding Association"
+            },
+            "description": {
+              "bg": "Българска Пчеларска Развъдна Асоциация. Професионални практики, майкопроизводство и нови технологии.",
+              "en": "Bulgarian Beekeeping Breeding Association. Professional practices, queen breeding and new technologies."
+            },
+            "url": "https://bpra.bg",
+            "type": {
+              "bg": "Асоциация",
+              "en": "Association"
+            },
+            "icon": "🏛️",
+            "free": true,
+            "language": "bg",
+            "verified": true
+          },
+          {
+            "title": {
+              "bg": "Конфедерация на българските пчелари",
+              "en": "Confederation of Bulgarian Beekeepers"
+            },
+            "description": {
+              "bg": "Организира защита на интереси, участва в Националната програма и разработва стандарти.",
+              "en": "Organizes protection of interests, participates in the National Program and develops standards."
+            },
+            "url": "https://cbb.bg",
+            "type": {
+              "bg": "Конфедерация",
+              "en": "Confederation"
+            },
+            "icon": "🤝",
+            "free": true,
+            "language": "bg",
+            "verified": true
+          },
+          {
+            "title": {
+              "bg": "Програми и субсидии",
+              "en": "Programs and Subsidies"
+            },
+            "description": {
+              "bg": "Финансова подкрепа и програми за развитие на пчеларството от ДФЗ.",
+              "en": "Financial support and beekeeping development programs from State Fund Agriculture."
+            },
+            "url": "https://www.dfz.bg/beekeeping/",
+            "type": {
+              "bg": "Институция",
+              "en": "Institution"
+            },
+            "icon": "💰",
+            "free": true,
+            "language": "bg",
+            "verified": true
+          }
+        ]
+      },
+      {
+        "id": "publications",
+        "title": {
+          "bg": "Актуални публикации",
+          "en": "Current Publications"
+        },
+        "description": {
+          "bg": "Статии, новини и практически съвети",
+          "en": "Articles, news and practical advice"
+        },
+        "resources": [
+          {
+            "title": {
+              "bg": "Български Фермер - Пчеларство",
+              "en": "Bulgarian Farmer - Beekeeping"
+            },
+            "description": {
+              "bg": "Актуални статии, практически съвети и новини от пчеларския сектор.",
+              "en": "Current articles, practical advice and news from the beekeeping sector."
+            },
+            "url": "https://www.bgfermer.bg",
+            "type": {
+              "bg": "Издание",
+              "en": "Publication"
+            },
+            "icon": "📰",
+            "free": true,
+            "language": "bg",
+            "verified": true
+          },
+          {
+            "title": {
+              "bg": "Закон за пчеларството",
+              "en": "Beekeeping Law"
+            },
+            "description": {
+              "bg": "Официален законодателен документ регулиращ пчеларската дейност в България.",
+              "en": "Official legislative document regulating beekeeping activities in Bulgaria."
+            },
+            "url": "https://www.mzh.government.bg/odz-razgrad/Libraries/%D0%97%D0%B0%D0%BA%D0%BE%D0%BD%D0%B8/ZPch.sflb.ashx",
+            "type": {
+              "bg": "Документ",
+              "en": "Document"
+            },
+            "icon": "📖",
+            "free": true,
+            "language": "bg",
+            "verified": true
+          }
+        ]
+      }
+    ]
+  },
+  "health": {
+    "enabled": true,
+    "categories": [
+      {
+        "id": "diseases",
+        "title": {
+          "bg": "Болести и паразити",
+          "en": "Diseases and Parasites"
+        },
+        "description": {
+          "bg": "Разпознаване, превенция и лечение на основните заболявания",
+          "en": "Recognition, prevention and treatment of major diseases"
+        },
+        "resources": [
+          {
+            "title": {
+              "bg": "БАБХ - Болести по пчелите",
+              "en": "BFSA - Bee Diseases"
+            },
+            "description": {
+              "bg": "Официална информация за наблюдавани болести, епизоотична обстановка и мерки за контрол от БАБХ.",
+              "en": "Official information about monitored diseases, epizootic situation and control measures from BFSA."
+            },
+            "url": "https://bfsa.egov.bg/wps/portal/bfsa-web/activities/animal.health.and.welfare/animal-health/current.information.on.animal.diseases/bee.diseases",
+            "type": {
+              "bg": "Институция",
+              "en": "Institution"
+            },
+            "icon": "🏛️",
+            "free": true,
+            "language": "bg",
+            "verified": true
+          },
+          {
+            "title": {
+              "bg": "БАБХ Главна страница",
+              "en": "BFSA Main Portal"
+            },
+            "description": {
+              "bg": "Главен портал на Българската агенция по безопасност на храните - актуална информация и ресурси.",
+              "en": "Main portal of the Bulgarian Food Safety Agency - current information and resources."
+            },
+            "url": "https://bfsa.egov.bg",
+            "type": {
+              "bg": "Портал",
+              "en": "Portal"
+            },
+            "icon": "🏛️",
+            "free": true,
+            "language": "bg",
+            "verified": true
+          },
+          {
+            "title": {
+              "bg": "Практическо пчеларство - Здраве",
+              "en": "Practical Beekeeping - Health"
+            },
+            "description": {
+              "bg": "Информация за болести, профилактика и лечение на пчелни семейства.",
+              "en": "Information about diseases, prevention and treatment of bee colonies."
+            },
+            "url": "https://beeshopbg.com/category/knigi/",
+            "type": {
+              "bg": "Магазин",
+              "en": "Shop"
+            },
+            "icon": "📚",
+            "free": false,
+            "language": "bg",
+            "verified": true
+          }
+        ]
+      },
+      {
+        "id": "organizations",
+        "title": {
+          "bg": "Организации и институции",
+          "en": "Organizations and Institutions"
+        },
+        "description": {
+          "bg": "Професионални сдружения и официални институции",
+          "en": "Professional associations and official institutions"
+        },
+        "resources": [
+          {
+            "title": {
+              "bg": "БПРА - Развъдна асоциация",
+              "en": "BBBA - Breeding Association"
+            },
+            "description": {
+              "bg": "Българска Пчеларска Развъдна Асоциация. Професионални практики, майкопроизводство и нови технологии.",
+              "en": "Bulgarian Beekeeping Breeding Association. Professional practices, queen breeding and new technologies."
+            },
+            "url": "https://bpra.bg",
+            "type": {
+              "bg": "Асоциация",
+              "en": "Association"
+            },
+            "icon": "🏛️",
+            "free": true,
+            "language": "bg",
+            "verified": true
+          },
+          {
+            "title": {
+              "bg": "Конфедерация на българските пчелари",
+              "en": "Confederation of Bulgarian Beekeepers"
+            },
+            "description": {
+              "bg": "Организира защита на интереси, участва в Националната програма и разработва стандарти.",
+              "en": "Organizes protection of interests, participates in the National Program and develops standards."
+            },
+            "url": "https://cbb.bg",
+            "type": {
+              "bg": "Конфедерация",
+              "en": "Confederation"
+            },
+            "icon": "🤝",
+            "free": true,
+            "language": "bg",
+            "verified": true
+          },
+          {
+            "title": {
+              "bg": "Министерство на земеделието",
+              "en": "Ministry of Agriculture"
+            },
+            "description": {
+              "bg": "Официална информация за пчеларството, програми и политики от МЗХ.",
+              "en": "Official information about beekeeping, programs and policies from Ministry of Agriculture."
+            },
+            "url": "https://www.mzh.government.bg/bg/politiki-i-programi/zhivotnovadstvo/pchelarstvo/",
+            "type": {
+              "bg": "Институция",
+              "en": "Institution"
+            },
+            "icon": "🏛️",
+            "free": true,
+            "language": "bg",
+            "verified": true
+          }
+        ]
+      }
+    ]
+  },
+  "honey": {
+    "enabled": false,
+    "categories": []
+  }
+}
+

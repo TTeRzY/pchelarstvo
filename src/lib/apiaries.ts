@@ -275,6 +275,26 @@ export async function fetchApiaries(params?: {
   return normalizeApiaryList(data);
 }
 
+export async function fetchUserApiaries(): Promise<Apiary[]> {
+  const token = authStorage.getToken();
+  if (!token) {
+    throw new Error("Login required to fetch user apiaries.");
+  }
+
+  const headers = new Headers();
+  headers.set("Authorization", `Bearer ${token}`);
+  headers.set("Accept", "application/json");
+
+  // Fetch from Laravel backend: /api/apiaries?user=me
+  const data = await apiRequest<any>(`${APIARY_LIST_PATH}?user=me`, {
+    method: "GET",
+    headers,
+    cache: "no-store",
+  });
+
+  return normalizeApiaryList(data);
+}
+
 export async function createApiary(payload: CreateApiaryPayload): Promise<Apiary> {
   const token = authStorage.getToken();
   if (!token) {

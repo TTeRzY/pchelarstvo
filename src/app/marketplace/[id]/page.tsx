@@ -104,6 +104,55 @@ export default function ListingDetailsPage() {
           </Link>
         </div>
 
+        {/* Seller Info with Contact */}
+        {(listing.user?.name || (listing as any).contactName) && (
+          <div className="bg-white rounded-2xl shadow p-5">
+            <div className="flex flex-col md:flex-row md:items-center gap-4">
+              {/* Seller Name */}
+              <div className="flex items-center gap-3 flex-1">
+                <div className="w-12 h-12 rounded-full bg-amber-100 flex items-center justify-center text-2xl shrink-0">
+                  👤
+                </div>
+                <div>
+                  <div className="text-xs text-gray-500">Публикувано от:</div>
+                  <div className="font-semibold text-gray-900">
+                    {listing.user?.name || (listing as any).contactName || "Анонимен"}
+                  </div>
+                </div>
+              </div>
+              
+              {/* Contact Info */}
+              <div className="flex flex-wrap gap-3">
+                {/* Phone */}
+                {((listing as any).phone || listing.contactPhone) && (
+                  <a 
+                    href={`tel:${(listing as any).phone || listing.contactPhone}`}
+                    className="flex items-center gap-2 px-4 py-2 bg-amber-50 border border-amber-200 rounded-lg hover:bg-amber-100 transition-colors"
+                  >
+                    <span className="text-lg">📞</span>
+                    <span className="text-sm font-medium text-gray-900">
+                      {(listing as any).phone || listing.contactPhone}
+                    </span>
+                  </a>
+                )}
+                
+                {/* Email */}
+                {((listing as any).email || listing.contactEmail || listing.user?.email) && (
+                  <a 
+                    href={`mailto:${(listing as any).email || listing.contactEmail || listing.user?.email}`}
+                    className="flex items-center gap-2 px-4 py-2 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors"
+                  >
+                    <span className="text-lg">✉️</span>
+                    <span className="text-sm font-medium text-gray-900 truncate max-w-[200px]">
+                      {(listing as any).email || listing.contactEmail || listing.user?.email}
+                    </span>
+                  </a>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Details */}
         <div className="bg-white rounded-2xl shadow p-5 space-y-5">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">

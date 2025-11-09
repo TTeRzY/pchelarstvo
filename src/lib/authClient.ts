@@ -93,17 +93,6 @@ export const authClient = {
     const token = authStorage.getToken();
     if (!token) return null;
     try {
-      return {
-        id: '1',
-        name: 'Test Admin',
-        email: 'admin@example.com',
-        role: 'admin', // or 'super_admin'
-        status: 'active',
-        verifiedAt: new Date().toISOString(),
-        trustLevel: 'gold',
-        createdAt: new Date().toISOString(),
-        lastLoginAt: new Date().toISOString(),
-      };
       return await request<User>("GET", "/api/auth/me", undefined, token);
     } catch {
       return null;

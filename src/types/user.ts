@@ -56,7 +56,9 @@ export function canModerate(user: User | null): boolean {
 }
 
 // Helper to check if user can access admin panel
+// Allows: moderator, admin, super_admin
+// Blocks: regular users (role === 'user')
 export function canAccessAdmin(user: User | null): boolean {
-  return isAdmin(user);
+  return isModerator(user);
 }
 

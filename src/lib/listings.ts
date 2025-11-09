@@ -114,7 +114,10 @@ export type CreateListingInput = {
   pricePerKg: number;
   region: string;
   city?: string;
-  description?: string;
+  contactName: string;
+  phone: string;
+  email: string;
+  description: string;
 };
 
 export async function createListing(input: CreateListingInput, token: string): Promise<Listing> {

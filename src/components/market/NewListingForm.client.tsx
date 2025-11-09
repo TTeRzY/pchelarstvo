@@ -49,7 +49,7 @@ export default function NewListingForm({ onCreated }: { onCreated?: (id: string)
   const [okMsg, setOkMsg] = useState("");
 
   const canSubmit = useMemo(() => {
-    const required = ["product", "title", "quantityKg", "pricePerKg", "region"] as const;
+    const required = ["product", "title", "quantityKg", "pricePerKg", "region", "contactName", "phone", "email", "description"] as const;
     return required.every((k) => String(form[k]).trim() !== "");
   }, [form]);
 
@@ -62,8 +62,12 @@ export default function NewListingForm({ onCreated }: { onCreated?: (id: string)
     const price = Number(form.pricePerKg);
     if (!price || price <= 0) e.pricePerKg = "Цена/kg трябва да е > 0";
     if (!form.region.trim()) e.region = "Регионът е задължителен";
+    if (!form.contactName.trim()) e.contactName = "Името за контакт е задължително";
+    if (!form.phone.trim()) e.phone = "Телефонът е задължителен";
     if (form.phone && !/^[0-9+()\-.\s]{6,}$/.test(form.phone)) e.phone = "Телефонът е невалиден";
+    if (!form.email.trim()) e.email = "Имейлът е задължителен";
     if (form.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) e.email = "Имейлът е невалиден";
+    if (!form.description.trim()) e.description = "Описанието е задължително";
     setErrors(e);
     return Object.keys(e).length === 0;
   }
@@ -87,7 +91,10 @@ export default function NewListingForm({ onCreated }: { onCreated?: (id: string)
           pricePerKg: Number(form.pricePerKg),
           region: form.region.trim(),
           city: form.city.trim() || undefined,
-          description: form.description.trim() || undefined,
+          contactName: form.contactName.trim(),
+          phone: form.phone.trim(),
+          email: form.email.trim(),
+          description: form.description.trim(),
         },
         token
       );
@@ -182,24 +189,26 @@ export default function NewListingForm({ onCreated }: { onCreated?: (id: string)
 
       <div className="flex flex-wrap gap-3">
         <div className="flex-1 min-w-[200px]">
-          <label className={label}>Контакт име (по желание)</label>
-          <input className={field} placeholder="Име" {...input("contactName")} />
+          <label className={label}>Контакт име *</label>
+          <input className={field} placeholder="Вашето име" {...input("contactName")} />
+          {errors.contactName && <p className="text-xs text-red-600 mt-1">{errors.contactName}</p>}
         </div>
         <div className="flex-1 min-w-[200px]">
-          <label className={label}>Телефон (по желание)</label>
+          <label className={label}>Телефон *</label>
           <input className={field} placeholder="+359 88 123 4567" {...input("phone")} />
           {errors.phone && <p className="text-xs text-red-600 mt-1">{errors.phone}</p>}
         </div>
         <div className="flex-1 min-w-[200px]">
-          <label className={label}>Email (по желание)</label>
+          <label className={label}>Email *</label>
           <input className={field} placeholder="user@mail.bg" {...input("email")} />
           {errors.email && <p className="text-xs text-red-600 mt-1">{errors.email}</p>}
         </div>
       </div>
 
       <div>
-        <label className={label}>Описание (по желание)</label>
-        <textarea className={fieldArea} rows={4} placeholder="Допълнителна информация..." {...input("description")} />
+        <label className={label}>Описание *</label>
+        <textarea className={fieldArea} rows={4} placeholder="Опишете продукта подробно..." {...input("description")} />
+        {errors.description && <p className="text-xs text-red-600 mt-1">{errors.description}</p>}
       </div>
 
       {errors.submit && <p className="text-sm text-red-600">{errors.submit}</p>}

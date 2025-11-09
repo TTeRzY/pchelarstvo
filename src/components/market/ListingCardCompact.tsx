@@ -35,7 +35,7 @@ export default function ListingCardCompact({
       )}
 
       {/* Desktop Layout */}
-      <div className="hidden md:flex items-center gap-4">
+      <div className={`hidden md:flex items-center gap-4 ${isNew ? 'pt-6' : ''}`}>
         {/* Title & Badges */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
@@ -82,7 +82,7 @@ export default function ListingCardCompact({
       </div>
 
       {/* Mobile Layout */}
-      <div className="md:hidden space-y-2">
+      <div className={`md:hidden space-y-2 ${isNew ? 'pt-6' : ''}`}>
         {/* Title & Badges */}
         <div>
           <div className="flex items-center gap-2 flex-wrap">

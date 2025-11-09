@@ -21,8 +21,9 @@ async function get<T>(path: string): Promise<T> {
   return res.json() as Promise<T>;
 }
 
-export async function fetchNews(): Promise<NewsItem[]> {
-  const data = await get<any>(`/api/news`);
+export async function fetchNews(queryString?: string): Promise<NewsItem[]> {
+  const url = queryString ? `/api/news?${queryString}` : '/api/news';
+  const data = await get<any>(url);
   // Support multiple shapes: {items:[...]}, {items:{data:[...]}}, {data:[...]}, or top-level array
   if (Array.isArray(data)) return data as NewsItem[];
   if (Array.isArray(data.items)) return data.items as NewsItem[];

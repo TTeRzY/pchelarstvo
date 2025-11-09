@@ -1,41 +1,38 @@
-import { NextResponse } from 'next/server';
-import { newsSample, type NewsItem, type NewsTopic, type NewsType } from '@/data/news';
+import { NextRequest, NextResponse } from 'next/server';
+import { fetchRSSWithFilters } from '@/lib/rssFetcher';
+import type { NewsTopic } from '@/types/news';
 
-function filterNews(params: URLSearchParams): NewsItem[] {
-  let arr = [...newsSample];
-  const q = params.get('q')?.toLowerCase().trim();
-  const topic = params.get('topic') as NewsTopic | null;
-  const type = params.get('type') as NewsType | null;
-  const sort = params.get('sort'); // 'newest' | 'top'
-  const limit = params.get('limit');
+export const dynamic = 'force-dynamic'; // Disable static generation
+export const revalidate = 1800; // Revalidate every 30 minutes
 
-  if (q) {
-    arr = arr.filter(
-      (n) =>
-        n.title.toLowerCase().includes(q) ||
-        n.summary.toLowerCase().includes(q) ||
-        (n.source ?? '').toLowerCase().includes(q)
+export async function GET(req: NextRequest) {
+  try {
+    const url = new URL(req.url);
+    const params = {
+      q: url.searchParams.get('q') || undefined,
+      topic: (url.searchParams.get('topic') as NewsTopic) || undefined,
+      type: url.searchParams.get('type') || undefined,
+      limit: url.searchParams.get('limit')
+        ? Number(url.searchParams.get('limit'))
+        : undefined,
+    };
+
+    const items = await fetchRSSWithFilters(params);
+
+    return NextResponse.json(
+      { items, count: items.length },
+      {
+        headers: {
+          'Cache-Control': 'public, s-maxage=1800, stale-while-revalidate=3600',
+        },
+      }
+    );
+  } catch (error) {
+    console.error('[API] RSS fetch error:', error);
+    return NextResponse.json(
+      { error: 'Failed to fetch news', items: [], count: 0 },
+      { status: 500 }
     );
   }
-  if (topic) arr = arr.filter((n) => n.topic === topic);
-  if (type) arr = arr.filter((n) => n.type === type);
-
-  if (sort === 'newest') {
-    arr.sort((a, b) => +new Date(b.updatedAt) - +new Date(a.updatedAt));
-  } else if (sort === 'top') {
-    arr.sort((a, b) => (b.views ?? 0) - (a.views ?? 0));
-  }
-
-  if (limit) {
-    const l = Number(limit);
-    if (!Number.isNaN(l) && l > 0) arr = arr.slice(0, l);
-  }
-  return arr;
-}
-
-export async function GET(req: Request) {
-  const url = new URL(req.url);
-  const items = filterNews(url.searchParams);
-  return NextResponse.json({ items, count: items.length });
 }
 

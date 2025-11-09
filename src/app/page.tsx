@@ -8,8 +8,10 @@ import NewsList from "@/components/news/NewsList";
 import Categories from "@/components/categories/Categories";
 import ApiariesMapClient, { type Pin as ApiaryPin } from "@/components/map/ApiariesMap";
 import PriceChart from "@/components/market/PriceChart";
+import OfficialResources from "@/components/resources/OfficialResources";
 
-import { news, categories } from "@/data/sample";
+import { categories } from "@/data/sample";
+import type { NewsItem } from "@/types/news";
 import { calendarMonths, type MonthKey } from "@/data/calendar";
 import { demoForecast, type ForecastEntry } from "@/data/forecast";
 import { fetchApiaries } from "@/lib/apiaries";
@@ -115,6 +117,12 @@ export default function HomePage() {
   const [forecastLoading, setForecastLoading] = useState(true);
   const [forecastError, setForecastError] = useState<string | null>(null);
 
+  // 🚧 NEWS TEMPORARILY HIDDEN - Waiting for Bulgarian RSS sources
+  // To re-enable: Uncomment these lines and the news section below
+  // const [newsItems, setNewsItems] = useState<NewsItem[]>([]);
+  // const [newsLoading, setNewsLoading] = useState(true);
+  // const [newsError, setNewsError] = useState<string | null>(null);
+
   const months = useMemo(() => Object.values(calendarMonths), []);
   const initialMonth = months[0]?.key ?? (Object.keys(calendarMonths)[0] as MonthKey);
   const [activeMonth, setActiveMonth] = useState<MonthKey>(initialMonth);
@@ -212,6 +220,38 @@ export default function HomePage() {
     };
   }, []);
 
+  // 🚧 NEWS TEMPORARILY HIDDEN - Waiting for Bulgarian RSS sources
+  // To re-enable: Uncomment the entire useEffect below
+  /*
+  useEffect(() => {
+    let cancelled = false;
+    setNewsLoading(true);
+
+    fetch("/api/news?limit=3")
+      .then(async (res) => {
+        if (!res.ok) throw new Error("Failed to fetch news");
+        const data = await res.json();
+        if (cancelled) return;
+        setNewsItems(data.items || []);
+        setNewsError(null);
+      })
+      .catch((error) => {
+        if (!cancelled) {
+          console.error("Failed to fetch news:", error);
+          setNewsItems([]);
+          setNewsError("Новините не успяха да се заредят.");
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setNewsLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+  */
+
   const marketChartData = useMemo(
     () => buildSeries(marketListings, selectedProduct, MARKET_DAYS),
     [marketListings, selectedProduct]
@@ -253,9 +293,8 @@ export default function HomePage() {
     {
       key: "findBeekeeper",
       title: "Намери пчелар",
-      description: "Каталогът с контакти е в подготовка.",
-      disabled: true,
-      tooltip: "Очаквайте скоро",
+      description: "Разгледай опитни пчелари във вашия регион.",
+      onClick: () => router.push('/beekeepers'),
     },
     {
       key: "buyHoney",
@@ -354,6 +393,7 @@ export default function HomePage() {
                     Виж детайлна прогноза
                   </button> */}
                 </section>
+
                 <section className="rounded-2xl border border-gray-200 shadow-sm p-5 space-y-4">
                   <div>
                     <h2 className="text-lg font-semibold text-gray-900">Календар на задачите</h2>
@@ -437,15 +477,30 @@ export default function HomePage() {
                   </div>
                 </section>
 
+                {/* 🚧 NEWS SECTION TEMPORARILY HIDDEN - Waiting for Bulgarian RSS sources
+                    To re-enable: Uncomment this section and the state/useEffect above
                 <section className="rounded-2xl border border-gray-200 shadow-sm">
                   <div className="p-5 border-b">
                     <h2 className="text-xl font-semibold text-gray-900">Новини и полезни материали</h2>
                     <p className="text-sm text-gray-500">Акценти от общността и специализирани статии</p>
                   </div>
                   <div className="p-5">
-                    <NewsList items={news} />
+                    {newsLoading ? (
+                      <div className="space-y-4">
+                        <div className="h-32 rounded-lg bg-gray-100 animate-pulse" />
+                        <div className="h-32 rounded-lg bg-gray-100 animate-pulse" />
+                        <div className="h-32 rounded-lg bg-gray-100 animate-pulse" />
+                      </div>
+                    ) : newsError ? (
+                      <div className="text-center py-8 text-amber-700 bg-amber-50 rounded-lg border border-amber-100">
+                        {newsError}
+                      </div>
+                    ) : (
+                      <NewsList items={newsItems} />
+                    )}
                   </div>
                 </section>
+                */}
 
                 <section className="rounded-2xl border border-gray-200 shadow-sm">
                   <div className="p-5 border-b">
@@ -459,6 +514,9 @@ export default function HomePage() {
               </main>
 
               <aside className="col-span-12 lg:col-span-3 flex flex-col gap-8">
+                {/* Official Resources - БАБХ and Government Links - FIRST POSITION */}
+                <OfficialResources />
+
                 <section className="rounded-2xl border border-gray-200 shadow-sm p-5">
                   <h2 className="text-lg font-semibold text-gray-900 mb-3">Преглед на картата</h2>
                   {mapLoading ? (

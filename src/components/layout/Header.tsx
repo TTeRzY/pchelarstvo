@@ -8,7 +8,7 @@ import { useAuth } from "@/context/AuthProvider";
 import { canAccessAdmin } from "@/types/user";
 
 type NavItem = {
-  key: "home" | "marketplace" | "map" | "news" | "contacts" | "admin";
+  key: "home" | "marketplace" | "map" | "beekeepers" | "news" | "contacts" | "admin";
   path: string;
 };
 
@@ -16,7 +16,10 @@ const NAV_ITEMS: NavItem[] = [
   { key: "home", path: "/" },
   { key: "marketplace", path: "/marketplace" },
   { key: "map", path: "/map" },
-  { key: "news", path: "/news" },
+  { key: "beekeepers", path: "/beekeepers" },
+  // 🚧 NEWS TEMPORARILY HIDDEN - Waiting for Bulgarian RSS sources
+  // To re-enable: Uncomment the line below
+  // { key: "news", path: "/news" },
   { key: "contacts", path: "/contacts" },
 ];
 
@@ -40,7 +43,7 @@ export default function Header() {
           {showAdmin && (
             <Link 
               href="/admin" 
-              className="hover:underline flex items-center gap-1 text-purple-700 hover:text-purple-900 text-sm font-bold uppercase"
+              className="flex items-center gap-1 text-sm font-bold uppercase"
             >
               ⚙️ {t("admin")}
             </Link>

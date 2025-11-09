@@ -23,19 +23,27 @@ export const categories = [
   {
     id: 1,
     title: "Практики в пчеларството",
-    img: "https://images.unsplash.com/photo-1503481766315-7a586b20f66b?q=80&w=1200&auto=format&fit=crop",
+    img: "https://images.unsplash.com/photo-1516979187457-637abb4f9353?q=80&w=1200&auto=format&fit=crop",
     price: null,
+    href: "/guides/praktiki-v-pchelarstvoto",
+    description: "Полезни български ресурси и ръководства",
   },
-  {
-    id: 2,
-    title: "Рецепти и продукти с мед",
-    img: "https://images.unsplash.com/photo-1529400971008-f566de0e6dfc?q=80&w=1200&auto=format&fit=crop",
-    price: null,
-  },
+  // 🚧 TEMPORARILY HIDDEN - Waiting for verified resources
+  // To re-enable: Uncomment and set enabled: true in public/config/resources.json
+  // {
+  //   id: 2,
+  //   title: "Рецепти и продукти с мед",
+  //   img: "https://images.unsplash.com/photo-1587049352847-19543f5e34c3?q=80&w=1200&auto=format&fit=crop",
+  //   price: null,
+  //   href: "/guides/recepti-i-produkti-s-med",
+  //   description: "Кулинарни идеи и употреба на пчелни продукти",
+  // },
   {
     id: 3,
     title: "Здраве на пчелните семейства",
-    img: "https://images.unsplash.com/photo-1514996937319-344454492b37?q=80&w=1200&auto=format&fit=crop",
+    img: "https://images.unsplash.com/photo-1568526381923-caf3fd520382?q=80&w=1200&auto=format&fit=crop",
     price: null,
+    href: "/guides/zdrave-na-pchelinite",
+    description: "Болести, профилактика и лечение",
   },
 ];
