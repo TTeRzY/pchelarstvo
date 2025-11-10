@@ -23,6 +23,7 @@ export default function ListingDetailsPage() {
   const { user } = useAuth();
   const { open } = useModal();
   const tCommon = useTranslations("common");
+  const t = useTranslations("listingDetails");
 
   const [listing, setListing] = useState<Listing | null>(null);
   const [loading, setLoading] = useState(true);
@@ -64,7 +65,7 @@ export default function ListingDetailsPage() {
       <div className="min-h-[60vh] flex items-center justify-center px-4">
         <div className="flex flex-col items-center gap-3 text-gray-800" role="status" aria-live="polite">
           <div className="h-10 w-10 animate-spin rounded-full border-4 border-amber-400 border-t-transparent" aria-hidden="true" />
-          <p className="text-sm font-medium">Зареждане…</p>
+          <p className="text-sm font-medium">{t("loading")}</p>
         </div>
       </div>
     );
@@ -74,12 +75,12 @@ export default function ListingDetailsPage() {
     return (
       <div className="min-h-[60vh] flex items-center justify-center px-4">
         <div className="text-center space-y-3">
-          <h1 className="text-xl font-bold">Обявата не е намерена</h1>
+          <h1 className="text-xl font-bold">{t("notFound")}</h1>
           <p className="text-sm text-gray-600">
-            {error ? "В момента не можем да заредим обявата. Опитайте отново." : "Възможно е да е изтрита или да е въведен грешен адрес."}
+            {error ? t("loadError") : t("deletedOrWrongUrl")}
           </p>
           <Link href="/marketplace" className="text-amber-600 underline">
-            Виж всички обяви
+            {t("viewAllListings")}
           </Link>
         </div>
       </div>
@@ -100,7 +101,7 @@ export default function ListingDetailsPage() {
             </p>
           </div>
           <Link href="/marketplace" className="text-amber-600 underline">
-            Обратно към обявите
+            {t("backToListings")}
           </Link>
         </div>
 
@@ -114,9 +115,9 @@ export default function ListingDetailsPage() {
                   👤
                 </div>
                 <div>
-                  <div className="text-xs text-gray-500">Публикувано от:</div>
+                  <div className="text-xs text-gray-500">{t("postedBy")}</div>
                   <div className="font-semibold text-gray-900">
-                    {listing.user?.name || (listing as any).contactName || "Анонимен"}
+                    {listing.user?.name || (listing as any).contactName || t("anonymous")}
                   </div>
                 </div>
               </div>
@@ -157,30 +158,30 @@ export default function ListingDetailsPage() {
         <div className="bg-white rounded-2xl shadow p-5 space-y-5">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
             <div>
-              <span className="text-gray-500">Тип:</span>{" "}
-              <b>{listing.type === "sell" ? "Продажба" : "Покупка"}</b>
+              <span className="text-gray-500">{t("type")}</span>{" "}
+              <b>{listing.type === "sell" ? t("sell") : t("buy")}</b>
             </div>
             <div>
-              <span className="text-gray-500">Продукт:</span> <b>{listing.product}</b>
+              <span className="text-gray-500">{t("product")}</span> <b>{listing.product}</b>
             </div>
             <div>
-              <span className="text-gray-500">Количество:</span>{" "}
-              <b>{quantityKg != null ? `${quantityKg} кг` : "-"}</b>
+              <span className="text-gray-500">{t("quantity")}</span>{" "}
+              <b>{quantityKg != null ? `${quantityKg} ${t("kg")}` : "-"}</b>
             </div>
             <div>
-              <span className="text-gray-500">Цена/kg:</span>{" "}
-              <b>{pricePerKg != null ? `${pricePerKg.toFixed(2)} лв` : "-"}</b>
+              <span className="text-gray-500">{t("pricePerKg")}</span>{" "}
+              <b>{pricePerKg != null ? `${pricePerKg.toFixed(2)} ${t("bgn")}` : "-"}</b>
             </div>
             {totalValue && (
               <div>
-                <span className="text-gray-500">Обща стойност:</span> <b>{totalValue} лв</b>
+                <span className="text-gray-500">{t("totalValue")}</span> <b>{totalValue} {t("bgn")}</b>
               </div>
             )}
           </div>
 
           {listing.description && (
             <div className="pt-2">
-              <h3 className="font-bold mb-1">Описание</h3>
+              <h3 className="font-bold mb-1">{t("description")}</h3>
               <p className="text-gray-800 whitespace-pre-line">{listing.description}</p>
             </div>
           )}
@@ -211,14 +212,13 @@ export default function ListingDetailsPage() {
               onClick={() => navigator.clipboard.writeText(location.href)}
               className="border px-3 py-2 rounded text-sm hover:bg-gray-50"
             >
-              Копирай връзката към обявата
+              {t("copyLink")}
             </button>
           </div>
         </div>
 
         <p className="text-xs text-gray-500">
-          Забележка: платформата не носи отговорност за съдържанието на потребителските обяви.
-          Проверявайте партньорите си преди финализиране на сделка.
+          {t("disclaimer")}
         </p>
       </div>
     </div>
