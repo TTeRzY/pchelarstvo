@@ -31,3 +31,14 @@ global.localStorage = localStorageMock;
 // Mock fetch
 global.fetch = jest.fn();
 
+// Mock next-intl to avoid ESM issues
+jest.mock('next-intl', () => ({
+  useTranslations: () => (key) => key,
+  useLocale: () => 'bg',
+  useFormatter: () => ({
+    dateTime: (date) => date.toISOString(),
+    number: (num) => num.toString(),
+  }),
+  NextIntlClientProvider: ({ children }) => children,
+}));
+

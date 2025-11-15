@@ -12,6 +12,9 @@ import SwarmTicker from "@/components/swarm/SwarmTicker";
 import LocaleProvider from "@/context/LocaleProvider";
 import MainContent from "@/components/layout/MainContent";
 import ContactSellerModal from "@/components/market/ContactSellerModal";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
+// Validate environment variables on server startup
+import "@/lib/env";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -29,20 +32,22 @@ export default function RootLayout({
   return (
     <html lang="bg">
       <body className={inter.className} suppressHydrationWarning>
-        <LocaleProvider>
-          <ModalProvider>
-            <AuthProvider>
-              <Header />
-              <SwarmTicker />
-              <MainContent>{children}</MainContent>
-              <Footer />
-              {/* Modal root lives once, at the end */}
-              <AuthModal />
-              <ContactSellerModal />
-              <ReportSwarmModal />
-            </AuthProvider>
-          </ModalProvider>
-        </LocaleProvider>
+        <ErrorBoundary>
+          <LocaleProvider>
+            <ModalProvider>
+              <AuthProvider>
+                <Header />
+                <SwarmTicker />
+                <MainContent>{children}</MainContent>
+                <Footer />
+                {/* Modal root lives once, at the end */}
+                <AuthModal />
+                <ContactSellerModal />
+                <ReportSwarmModal />
+              </AuthProvider>
+            </ModalProvider>
+          </LocaleProvider>
+        </ErrorBoundary>
       </body>
     </html>
   );

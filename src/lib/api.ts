@@ -3,6 +3,8 @@
  * Provides reusable HTTP methods for making API calls
  */
 
+import { handleApiError, handleNetworkError, logError, type AppError } from './errorHandler';
+
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE ?? ''; // For direct API calls, otherwise uses Next.js API routes
 
 /**
@@ -43,12 +45,13 @@ function buildUrl(path: string, params?: Record<string, string>): string {
 }
 
 /**
- * Handle API response
+ * Handle API response with centralized error handling
  */
 async function handleResponse<T>(response: Response): Promise<T> {
   if (!response.ok) {
-    const text = await response.text();
-    throw new Error(text || `HTTP ${response.status}: ${response.statusText}`);
+    const error = await handleApiError(response);
+    logError(error);
+    throw error;
   }
 
   // Handle empty responses (204 No Content)
@@ -67,14 +70,20 @@ export async function get<T>(
   params?: Record<string, string>,
   includeAuth: boolean = true
 ): Promise<T> {
-  const url = buildUrl(path, params);
-  const response = await fetch(url, {
-    method: 'GET',
-    headers: buildHeaders(includeAuth),
-    cache: 'no-store',
-  });
+  try {
+    const url = buildUrl(path, params);
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: buildHeaders(includeAuth),
+      cache: 'no-store',
+    });
 
-  return handleResponse<T>(response);
+    return handleResponse<T>(response);
+  } catch (error) {
+    const appError = handleNetworkError(error);
+    logError(appError);
+    throw appError;
+  }
 }
 
 /**
@@ -85,14 +94,20 @@ export async function post<T>(
   body?: unknown,
   includeAuth: boolean = true
 ): Promise<T> {
-  const url = `${API_BASE}${path}`;
-  const response = await fetch(url, {
-    method: 'POST',
-    headers: buildHeaders(includeAuth),
-    body: body !== undefined ? JSON.stringify(body) : undefined,
-  });
+  try {
+    const url = `${API_BASE}${path}`;
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: buildHeaders(includeAuth),
+      body: body !== undefined ? JSON.stringify(body) : undefined,
+    });
 
-  return handleResponse<T>(response);
+    return handleResponse<T>(response);
+  } catch (error) {
+    const appError = handleNetworkError(error);
+    logError(appError);
+    throw appError;
+  }
 }
 
 /**

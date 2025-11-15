@@ -5,6 +5,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { authClient } from '@/lib/authClient';
+import { useAuth } from '@/context/AuthProvider';
 import { canAccessAdmin } from '@/types/user';
 
 export default function AdminLayout({
@@ -15,6 +16,7 @@ export default function AdminLayout({
   const t = useTranslations('admin');
   const router = useRouter();
   const pathname = usePathname();
+  const { logout } = useAuth();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isMounted, setIsMounted] = useState(false);
@@ -130,10 +132,7 @@ export default function AdminLayout({
             <span className="font-medium">{t('nav.backToSite')}</span>
           </Link>
           <button
-            onClick={() => {
-              authClient.logout();
-              router.push('/');
-            }}
+            onClick={() => logout()}
             className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 hover:bg-gray-100 transition-colors mt-1"
           >
             <span className="text-xl">🚪</span>

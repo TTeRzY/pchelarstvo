@@ -1,5 +1,6 @@
 "use client";
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { authClient, User } from "@/lib/authClient";
 
 type AuthCtx = {
@@ -16,6 +17,7 @@ const Ctx = createContext<AuthCtx | undefined>(undefined);
 export default function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
   useEffect(() => {
     // Auto-restore from token (mock) or httpOnly cookie (Sanctum)
@@ -48,11 +50,13 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
       try {
         await authClient.logout();
         setUser(null);
+        // Always redirect to home page after logout
+        router.push('/');
       } finally {
         setLoading(false);
       }
     },
-  }), [user, loading]);
+  }), [user, loading, router]);
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }
 

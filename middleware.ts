@@ -1,36 +1,56 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { decodeToken } from './src/lib/jwt';
 
-// Mock function to decode and verify token
-// In production, this would verify JWT or check session
-function getUserFromRequest(request: NextRequest): { role: string } | null {
-  const token = request.cookies.get('token')?.value || 
-                request.headers.get('authorization')?.replace('Bearer ', '');
+/**
+ * Get user information from request token
+ * Verifies JWT token and extracts user role
+ */
+async function getUserFromRequest(request: NextRequest): Promise<{ id: string; role: string } | null> {
+  // Try to get token from cookie first (httpOnly cookies are more secure)
+  let token = request.cookies.get('token')?.value;
+  
+  // Fallback to Authorization header (for client-side tokens)
+  if (!token) {
+    const authHeader = request.headers.get('authorization');
+    if (authHeader?.startsWith('Bearer ')) {
+      token = authHeader.replace('Bearer ', '');
+    }
+  }
   
   if (!token) {
-    // Check localStorage token from header (for client-side auth)
     return null;
   }
 
-  // TODO: Replace with actual JWT verification
-  // For now, we'll use a simple mock that checks if token exists
-  // In production, decode JWT and extract user role
-  
   try {
-    // Mock: assume token format contains role info
-    // Real implementation would use jwt.verify()
-    return { role: 'user' }; // Default to user role
+    // Decode and verify JWT token
+    const decoded = decodeToken(token);
+    
+    if (!decoded) {
+      return null;
+    }
+
+    // Extract user information
+    const id = decoded.id as string | undefined;
+    const role = decoded.role as string | undefined;
+
+    if (!id || !role) {
+      return null;
+    }
+
+    return { id, role };
   } catch {
+    // Token is invalid or expired
     return null;
   }
 }
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Protect /admin routes
   if (pathname.startsWith('/admin')) {
-    const user = getUserFromRequest(request);
+    const user = await getUserFromRequest(request);
     
     // Check if user is authenticated
     if (!user) {
@@ -42,8 +62,8 @@ export function middleware(request: NextRequest) {
     }
 
     // Check if user has moderator, admin, or super_admin role
-    // In production, get actual role from decoded JWT
-    const canAccess = user.role === 'moderator' || user.role === 'admin' || user.role === 'super_admin';
+    const allowedRoles = ['moderator', 'admin', 'super_admin'];
+    const canAccess = allowedRoles.includes(user.role);
     
     if (!canAccess) {
       // Return 404 to hide admin panel existence from regular users
@@ -53,7 +73,25 @@ export function middleware(request: NextRequest) {
     }
   }
 
-  return NextResponse.next();
+  // Add security headers to all responses
+  const response = NextResponse.next();
+  
+  // Security headers
+  response.headers.set('X-DNS-Prefetch-Control', 'on');
+  response.headers.set('X-Frame-Options', 'SAMEORIGIN');
+  response.headers.set('X-Content-Type-Options', 'nosniff');
+  response.headers.set('X-XSS-Protection', '1; mode=block');
+  response.headers.set('Referrer-Policy', 'origin-when-cross-origin');
+  
+  // HSTS (only in production with HTTPS)
+  if (process.env.NODE_ENV === 'production') {
+    response.headers.set(
+      'Strict-Transport-Security',
+      'max-age=63072000; includeSubDomains; preload'
+    );
+  }
+
+  return response;
 }
 
 // Configure which routes to run middleware on
