@@ -16,7 +16,7 @@ type Listing = {
   phone: string;
   email?: string;
   description?: string;
-  status?: 'active' | 'completed';
+  status?: 'pending' | 'approved' | 'rejected' | 'active' | 'completed' | 'flagged';
   secret?: string; // simple edit token returned on create
 };
 

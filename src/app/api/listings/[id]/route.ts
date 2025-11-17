@@ -23,20 +23,22 @@ const STORE = projectPath('data', 'listings.json');
 
 export async function GET(
   _req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
   const all = await readJsonFile<Listing[]>(STORE, []);
-  const item = all.find((l) => l.id === params.id);
+  const item = all.find((l) => l.id === id);
   if (!item) return NextResponse.json({ error: 'Not found' }, { status: 404 });
   return NextResponse.json(item);
 }
 
-export async function PATCH(req: Request, { params }: { params: { id: string } }) {
+export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const body = await req.json().catch(() => null) as Partial<Listing> & { secret?: string } | null;
   if (!body) return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
 
   const all = await readJsonFile<Listing[]>(STORE, []);
-  const idx = all.findIndex((l) => l.id === params.id);
+  const idx = all.findIndex((l) => l.id === id);
   if (idx === -1) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
   const existing = all[idx];

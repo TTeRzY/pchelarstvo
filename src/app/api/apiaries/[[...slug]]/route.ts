@@ -63,28 +63,33 @@ async function forward(req: NextRequest, slug: string[] = []) {
   }
 }
 
-type RouteContext = { params: { slug?: string[] } };
+type RouteContext = { params: Promise<{ slug?: string[] }> };
+
+async function resolveSlug(context: RouteContext): Promise<string[]> {
+  const { slug } = await context.params;
+  return sanitizeSlug(slug);
+}
 
 export async function GET(req: NextRequest, context: RouteContext) {
-  return forward(req, sanitizeSlug(context.params.slug));
+  return forward(req, await resolveSlug(context));
 }
 
 export async function POST(req: NextRequest, context: RouteContext) {
-  return forward(req, sanitizeSlug(context.params.slug));
+  return forward(req, await resolveSlug(context));
 }
 
 export async function PUT(req: NextRequest, context: RouteContext) {
-  return forward(req, sanitizeSlug(context.params.slug));
+  return forward(req, await resolveSlug(context));
 }
 
 export async function PATCH(req: NextRequest, context: RouteContext) {
-  return forward(req, sanitizeSlug(context.params.slug));
+  return forward(req, await resolveSlug(context));
 }
 
 export async function DELETE(req: NextRequest, context: RouteContext) {
-  return forward(req, sanitizeSlug(context.params.slug));
+  return forward(req, await resolveSlug(context));
 }
 
 export async function OPTIONS(req: NextRequest, context: RouteContext) {
-  return forward(req, sanitizeSlug(context.params.slug));
+  return forward(req, await resolveSlug(context));
 }

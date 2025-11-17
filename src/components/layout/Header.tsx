@@ -8,7 +8,7 @@ import { useAuth } from "@/context/AuthProvider";
 import { canAccessAdmin } from "@/types/user";
 
 type NavItem = {
-  key: "home" | "marketplace" | "map" | "beekeepers" | "news" | "contacts" | "admin";
+  key: "home" | "marketplace" | "map" | "beekeepers" | "news" | "contacts" | "admin" | "treatments";
   path: string;
 };
 
@@ -17,6 +17,7 @@ const NAV_ITEMS: NavItem[] = [
   { key: "marketplace", path: "/marketplace" },
   { key: "map", path: "/map" },
   { key: "beekeepers", path: "/beekeepers" },
+  { key: "treatments", path: "/treatments" },
   // 🚧 NEWS TEMPORARILY HIDDEN - Waiting for Bulgarian RSS sources
   // To re-enable: Uncomment the line below
   // { key: "news", path: "/news" },

@@ -31,11 +31,10 @@ const REQUIRED_PROD_VARS = [
 
 /**
  * Required environment variables for all environments
+ * Note: Default values are provided, so these are only warnings in development
  */
 const REQUIRED_VARS = [
-  'NEXT_PUBLIC_DEFAULT_LAT',
-  'NEXT_PUBLIC_DEFAULT_LNG',
-  'NEXT_PUBLIC_DEFAULT_REGION',
+  // These have defaults, so only warn in production
 ] as const;
 
 /**
@@ -68,16 +67,22 @@ export function validateEnv(): { valid: boolean; errors: string[] } {
     }
   }
 
-  // Validate numeric values
-  const lat = Number(process.env.NEXT_PUBLIC_DEFAULT_LAT);
-  const lng = Number(process.env.NEXT_PUBLIC_DEFAULT_LNG);
+  // Validate numeric values (only if provided)
+  const latStr = process.env.NEXT_PUBLIC_DEFAULT_LAT;
+  const lngStr = process.env.NEXT_PUBLIC_DEFAULT_LNG;
   
-  if (isNaN(lat) || lat < -90 || lat > 90) {
-    errors.push('NEXT_PUBLIC_DEFAULT_LAT must be a valid latitude (-90 to 90)');
+  if (latStr) {
+    const lat = Number(latStr);
+    if (isNaN(lat) || lat < -90 || lat > 90) {
+      errors.push('NEXT_PUBLIC_DEFAULT_LAT must be a valid latitude (-90 to 90)');
+    }
   }
   
-  if (isNaN(lng) || lng < -180 || lng > 180) {
-    errors.push('NEXT_PUBLIC_DEFAULT_LNG must be a valid longitude (-180 to 180)');
+  if (lngStr) {
+    const lng = Number(lngStr);
+    if (isNaN(lng) || lng < -180 || lng > 180) {
+      errors.push('NEXT_PUBLIC_DEFAULT_LNG must be a valid longitude (-180 to 180)');
+    }
   }
 
   return {

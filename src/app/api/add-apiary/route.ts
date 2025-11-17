@@ -50,12 +50,10 @@ async function forward(req: NextRequest) {
   }
 }
 
-type RouteContext = { params: Record<string, never> };
-
-export async function POST(req: NextRequest, _context: RouteContext) {
+export async function POST(req: NextRequest) {
   return forward(req);
 }
 
-export async function OPTIONS(req: NextRequest, _context: RouteContext) {
+export async function OPTIONS(req: NextRequest) {
   return forward(req);
 }

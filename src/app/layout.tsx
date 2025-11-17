@@ -9,6 +9,8 @@ import AuthModal from "@/components/auth/AuthModal";
 import ModalProvider from "@/components/modal/ModalProvider";
 import ReportSwarmModal from "@/components/swarm/ReportSwarmModal";
 import SwarmTicker from "@/components/swarm/SwarmTicker";
+import ReportTreatmentModal from "@/components/treatments/ReportTreatmentModal";
+import TreatmentTicker from "@/components/treatments/TreatmentTicker";
 import LocaleProvider from "@/context/LocaleProvider";
 import MainContent from "@/components/layout/MainContent";
 import ContactSellerModal from "@/components/market/ContactSellerModal";
@@ -21,7 +23,7 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "Pchelarstvo.bg",
   description:
-    "?'???>??????????? ???????'???> ???? ?????>???????'????, ???????????, ?????>???? ?+???????? ?? ??????'?? ???? ?????>?????'??.",
+    "Българският портал за пчеларство. Намерете пчелари, разгледайте пчелна борса, карта на пчелините, новини и ресурси за пчелари.",
 };
 
 export default function RootLayout({
@@ -38,12 +40,14 @@ export default function RootLayout({
               <AuthProvider>
                 <Header />
                 <SwarmTicker />
+                <TreatmentTicker />
                 <MainContent>{children}</MainContent>
                 <Footer />
                 {/* Modal root lives once, at the end */}
                 <AuthModal />
                 <ContactSellerModal />
                 <ReportSwarmModal />
+                <ReportTreatmentModal />
               </AuthProvider>
             </ModalProvider>
           </LocaleProvider>

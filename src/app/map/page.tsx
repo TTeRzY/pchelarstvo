@@ -5,16 +5,21 @@ import dynamic from "next/dynamic";
 const ApiariesMapClient = dynamic(() => import("@/components/map/ApiariesMap"), { ssr: false });
 import { useAuth } from "@/context/AuthProvider";
 import AddApiaryModal from "@/components/map/AddApiaryModal";
+import { useModal } from "@/components/modal/ModalProvider";
 import { useEffect, useMemo, useState } from "react";
 import { fetchApiaries, type Apiary } from "@/lib/apiaries";
+import type { TreatmentReport } from "@/components/treatments/TreatmentTicker";
 
 type ViewMode = "clusters" | "heatmap" | "points";
 
 export default function MapPage() {
   const { user } = useAuth();
+  const { open } = useModal();
 
   // Данни
   const [apiaries, setApiaries] = useState<Apiary[]>([]);
+  const [treatments, setTreatments] = useState<TreatmentReport[]>([]);
+  const [showTreatments, setShowTreatments] = useState(true);
   const [query, setQuery] = useState("");
   const [region, setRegion] = useState<string | "Всички">("Всички");
   const [flora, setFlora] = useState<string | "Всички">("Всички");
@@ -38,6 +43,22 @@ export default function MapPage() {
     fetchApiaries()
       .then(setApiaries)
       .catch(() => setApiaries([]));
+  }, []);
+
+  useEffect(() => {
+    fetch("/api/treatment-reports", { cache: "no-store" })
+      .then((res) => res.json())
+      .then((data) => setTreatments(data ?? []))
+      .catch(() => setTreatments([]));
+    
+    const handler = () => {
+      fetch("/api/treatment-reports", { cache: "no-store" })
+        .then((res) => res.json())
+        .then((data) => setTreatments(data ?? []))
+        .catch(() => setTreatments([]));
+    };
+    window.addEventListener("treatment:updated", handler);
+    return () => window.removeEventListener("treatment:updated", handler);
   }, []);
 
   const regions = useMemo(() => {
@@ -142,24 +163,49 @@ export default function MapPage() {
         <aside className="flex flex-col gap-6" aria-label="Подробности за избрания пчелин">
           {/* Подробности */}
           <section className="rounded-2xl border p-5 shadow-sm">
-            <h2 className="text-lg font-semibold">Подробности</h2>
+            <h2 className="text-lg font-semibold">Подробности за пчелина</h2>
             {!selected ? (
               <p className="text-sm text-gray-600 mt-2">Изберете пчелин от картата или списъка.</p>
             ) : (
               <div className="mt-3 text-sm">
                 <div className="font-semibold">{selected.name}</div>
                 <div className="mt-2 space-y-1">
-                  <div><span className="text-gray-500">Номер:</span> {selected.code ?? "-"}</div>
-                  <div><span className="text-gray-500">Капацитет:</span> {typeof selected.hiveCount === "number" ? selected.hiveCount : "-"}</div>
-                  <div><span className="text-gray-500">Населено място (ОЕЗ):</span> {selected.city ?? "-"}</div>
-                  <div><span className="text-gray-500">Улица/сграда (ОЕЗ):</span> {selected.address ?? "-"}</div>
-                  <div><span className="text-gray-500">Оператор:</span> {selected.owner ?? selected.contact?.name ?? "-"}</div>
+                  <div>
+                    <span className="text-gray-500">Код / номер:</span> {selected.code ?? "-"}
+                  </div>
+                  <div>
+                    <span className="text-gray-500">Регион:</span> {selected.region ?? "—"}
+                  </div>
+                  <div>
+                    <span className="text-gray-500">Населено място:</span> {selected.city ?? "—"}
+                  </div>
+                  <div>
+                    <span className="text-gray-500">Адрес / местност:</span> {selected.address ?? "—"}
+                  </div>
+                  <div>
+                    <span className="text-gray-500">Собственик / пчелар:</span>{" "}
+                    {selected.owner ?? selected.contact?.name ?? "—"}
+                  </div>
+                  <div>
+                    <span className="text-gray-500">Брой кошери:</span>{" "}
+                    {typeof selected.hiveCount === "number" ? selected.hiveCount : "—"}
+                  </div>
                 </div>
-                <div className="text-gray-600">{selected.region ?? "—"}</div>
-                {selected.flora?.length ? <div className="mt-1">Флора: {selected.flora.join(", ")}</div> : null}
-                {selected.hiveCount ? <div>Кошери: {selected.hiveCount}</div> : null}
-                <div className="text-xs text-gray-500 mt-1">Обновено: {new Date(selected.updatedAt).toLocaleDateString("bg-BG")}</div>
-                {selected.notes && <div className="mt-2 text-gray-700">{selected.notes}</div>}
+                {selected.flora?.length ? (
+                  <div className="mt-2">
+                    <span className="text-gray-500">Флора:</span> {selected.flora.join(", ")}
+                  </div>
+                ) : null}
+                {selected.notes && (
+                  <div className="mt-2 text-gray-700">
+                    <span className="text-gray-500">Бележки:</span> {selected.notes}
+                  </div>
+                )}
+                {selected.updatedAt && (
+                  <div className="text-xs text-gray-500 mt-2">
+                    Обновено: {new Date(selected.updatedAt).toLocaleDateString("bg-BG")}
+                  </div>
+                )}
               </div>
             )}
           </section>
@@ -191,6 +237,14 @@ export default function MapPage() {
               Точки
             </button>
             <div className="w-px h-6 bg-gray-200" />
+            <button 
+              onClick={() => setShowTreatments(!showTreatments)} 
+              className={`rounded-xl border px-3 py-1 hover:bg-gray-50 ${showTreatments ? "bg-red-50 border-red-300" : ""}`}
+              title="Покажи/скрий сигнали за третиране"
+            >
+              {showTreatments ? "⚠️ Третирания" : "⚠️ Третирания (скрити)"}
+            </button>
+            <div className="w-px h-6 bg-gray-200" />
             <button
               onClick={() =>
                 defaultCoords &&
@@ -210,8 +264,17 @@ export default function MapPage() {
             </button>
           </div>
 
-          <button onClick={handleAddClicked} className="rounded-xl bg-amber-500 px-3 py-2 text-sm font-medium text-gray-900 hover:bg-amber-400">
-              Добави пчелин
+          {user && (
+            <button onClick={handleAddClicked} className="rounded-xl bg-amber-500 px-3 py-2 text-sm font-medium text-gray-900 hover:bg-amber-400">
+                Добави пчелин
+            </button>
+          )}
+          <button 
+            onClick={() => open("reportTreatment")} 
+            className="rounded-xl bg-orange-500 px-3 py-2 text-sm font-medium text-white hover:bg-orange-600"
+            title="Съобщи за третиране с растителнозащитни препарати"
+          >
+              ⚠️ Съобщи за третиране
           </button>
         </div>
       </section>
@@ -225,20 +288,45 @@ export default function MapPage() {
         {/* Списък (по избор) */}
         <div className="flex flex-wrap gap-4">
           {filtered.map((a) => (
-            <button key={a.id} onClick={() => setSelected(a)} className="text-left flex-1 min-w-[240px] max-w-[320px] rounded-2xl border p-4 hover:shadow-sm">
+            <button
+              key={a.id}
+              onClick={() => setSelected(a)}
+              className="text-left flex-1 min-w-[240px] max-w-[320px] rounded-2xl border p-4 hover:shadow-sm"
+            >
               <div className="text-sm font-semibold">{a.name}</div>
               <div className="mt-2 space-y-1 text-xs text-gray-700">
-                <div><span className="text-gray-500">Номер:</span> {a.code ?? "-"}</div>
-                <div><span className="text-gray-500">Капацитет:</span> {typeof a.hiveCount === "number" ? a.hiveCount : "-"}</div>
-                <div><span className="text-gray-500">Населено място (ОЕЗ):</span> {a.city ?? "-"}</div>
-                <div><span className="text-gray-500">Улица/сграда (ОЕЗ):</span> {a.address ?? "-"}</div>
-                <div><span className="text-gray-500">Оператор:</span> {a.owner ?? a.contact?.name ?? "-"}</div>
+                <div>
+                  <span className="text-gray-500">Код / номер:</span> {a.code ?? "-"}
+                </div>
+                <div>
+                  <span className="text-gray-500">Регион:</span> {a.region ?? "—"}
+                </div>
+                <div>
+                  <span className="text-gray-500">Населено място:</span> {a.city ?? "—"}
+                </div>
+                <div>
+                  <span className="text-gray-500">Адрес / местност:</span> {a.address ?? "—"}
+                </div>
+                <div>
+                  <span className="text-gray-500">Собственик / пчелар:</span>{" "}
+                  {a.owner ?? a.contact?.name ?? "—"}
+                </div>
+                <div>
+                  <span className="text-gray-500">Брой кошери:</span>{" "}
+                  {typeof a.hiveCount === "number" ? a.hiveCount : "—"}
+                </div>
               </div>
-              <div className="text-xs text-gray-600">{a.region ?? "—"} · {a.visibility === "public" ? "Публичен" : "Скрит"}</div>
-              {a.flora?.length ? <div className="text-xs text-gray-600 mt-1">Флора: {a.flora.join(", ")}</div> : null}
+              {a.flora?.length ? (
+                <div className="text-xs text-gray-600 mt-1">Флора: {a.flora.join(", ")}</div>
+              ) : null}
+              <div className="text-xs text-gray-600 mt-1">
+                Видимост: {a.visibility === "public" ? "Публичен" : "Скрит"}
+              </div>
             </button>
           ))}
-          {filtered.length === 0 && <div className="text-sm text-gray-600">Няма резултати за текущите филтри.</div>}
+          {filtered.length === 0 && (
+            <div className="text-sm text-gray-600">Няма резултати за текущите филтри.</div>
+          )}
         </div>
       </section>
 

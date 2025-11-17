@@ -1,7 +1,7 @@
 ﻿"use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
+import { useEffect, useMemo, useState, useRef } from "react";
+import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import L from "leaflet";
 
 // Fix default marker icons for Next.js bundling
@@ -14,11 +14,25 @@ L.Icon.Default.mergeOptions({
   shadowUrl: markerShadow as unknown as string,
 });
 
-export type Pin = { id: string; lat: number; lng: number; label?: string };
+export type Pin = { 
+  id: string; 
+  lat: number; 
+  lng: number; 
+  label?: string;
+  type?: "apiary" | "treatment"; // Marker type for different styling
+};
 
 type Theme = "light" | "dark";
 export type ApiariesMapProps = {
+  /**
+   * Initial center of the map.
+   * Defaults to a country‑level view over Bulgaria.
+   */
   center?: [number, number];
+  /**
+   * Initial zoom level.
+   * Defaults to 7 for a national overview (not zoomed into a specific city/region).
+   */
   zoom?: number;
   pins?: Pin[];
   heightClass?: string; // e.g. "h-72" | "h-96"
@@ -26,7 +40,8 @@ export type ApiariesMapProps = {
   theme?: Theme;
 };
 
-const DEFAULT_CENTER: [number, number] = [42.6977, 23.3219]; // Sofia
+// Approximate geographic center of Bulgaria for a country‑level overview
+const DEFAULT_CENTER: [number, number] = [42.75, 25.0];
 const TILE_LAYERS: Record<Theme, { url: string; attribution: string }> = {
   light: {
     url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
@@ -38,24 +53,9 @@ const TILE_LAYERS: Record<Theme, { url: string; attribution: string }> = {
   },
 };
 
-function FitToPins({ pins }: { pins: Pin[] }) {
-  const map = useMap();
-  useEffect(() => {
-    if (!pins?.length) return;
-    const valid = pins.filter((p) => Number.isFinite(p.lat) && Number.isFinite(p.lng));
-    if (valid.length === 0) return;
-    if (valid.length === 1) {
-      const z = Math.max(map.getZoom?.() ?? 7, 10);
-      map.setView([valid[0].lat, valid[0].lng], z);
-      return;
-    }
-    const bounds = L.latLngBounds(valid.map((p) => [p.lat, p.lng] as [number, number]));
-    if (bounds.isValid()) {
-      map.fitBounds(bounds, { padding: [20, 20] });
-    }
-  }, [pins, map]);
-  return null;
-}
+// NOTE: We intentionally do NOT auto‑fit to pins anymore.
+// This keeps the map at a stable, country‑level zoom so users
+// always see Bulgaria as a whole rather than zooming into a specific region.
 
 export default function ApiariesMapInner({
   center = DEFAULT_CENTER,
@@ -71,28 +71,57 @@ export default function ApiariesMapInner({
 }: ApiariesMapProps) {
   const tile = TILE_LAYERS[theme] ?? TILE_LAYERS.light;
   const [mounted, setMounted] = useState(false);
+  const [iconReady, setIconReady] = useState(false);
+  const treatmentIconRef = useRef<L.Icon | null>(null);
 
   useEffect(() => {
     setMounted(true);
+    // Create treatment icon only after component mounts (when Leaflet is ready)
+    if (!treatmentIconRef.current && typeof window !== "undefined") {
+      const svgString = `<svg width="25" height="41" viewBox="0 0 25 41" xmlns="http://www.w3.org/2000/svg"><path fill="#ef4444" stroke="#dc2626" stroke-width="2" d="M12.5 0C5.6 0 0 5.6 0 12.5c0 8.5 12.5 28.5 12.5 28.5S25 21 25 12.5C25 5.6 19.4 0 12.5 0z"/><circle fill="white" cx="12.5" cy="12.5" r="6"/><text x="12.5" y="16" font-size="10" fill="#ef4444" text-anchor="middle" font-weight="bold">⚠</text></svg>`;
+      treatmentIconRef.current = new L.Icon({
+        iconUrl: "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svgString),
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [0, -41],
+      });
+      setIconReady(true);
+    }
   }, []);
 
-  const toolbarPlaceholders = [
-    "Search location",
-    "Region",
-    "Filters demo",
-  ];
+  const toolbarPlaceholders = ["Търсене", "Регион", "Филтри"];
 
-  const markers = useMemo(
-    () =>
-      (pins ?? [])
-        .filter((p): p is Pin => !!p && Number.isFinite(p.lat) && Number.isFinite(p.lng))
-        .map((p) => (
-          <Marker key={p.id} position={[p.lat, p.lng]}>
+  const markers = useMemo(() => {
+    return (pins ?? [])
+      .filter((p): p is Pin => {
+        // Filter out invalid pins
+        if (!p || !Number.isFinite(p.lat) || !Number.isFinite(p.lng)) {
+          return false;
+        }
+        // If it's a treatment marker, only include it if icon is ready
+        if (p.type === "treatment" && !treatmentIconRef.current) {
+          return false;
+        }
+        return true;
+      })
+      .map((p) => {
+        // Only pass icon prop if it's defined (for treatment markers)
+        // For apiary markers, don't pass icon prop (use default)
+        const markerProps: { position: [number, number]; icon?: L.Icon } = {
+          position: [p.lat, p.lng],
+        };
+        
+        if (p.type === "treatment" && treatmentIconRef.current) {
+          markerProps.icon = treatmentIconRef.current;
+        }
+        
+        return (
+          <Marker key={p.id} {...markerProps}>
             {p.label && <Popup>{p.label}</Popup>}
           </Marker>
-        )),
-    [pins]
-  );
+        );
+      });
+  }, [pins, iconReady]);
 
   return (
     <section aria-labelledby="map-title">
@@ -113,7 +142,6 @@ export default function ApiariesMapInner({
           {mounted ? (
             <MapContainer center={center} zoom={zoom} className="h-full w-full" scrollWheelZoom={scrollWheelZoom}>
               <TileLayer attribution={tile.attribution} url={tile.url} />
-              <FitToPins pins={pins ?? []} />
               {markers}
             </MapContainer>
           ) : (

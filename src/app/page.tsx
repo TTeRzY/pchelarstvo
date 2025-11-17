@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 
 import Hero from "@/components/layout/Hero";
 import NewsList from "@/components/news/NewsList";
@@ -28,15 +29,6 @@ type QuickAction = {
   onClick?: () => void;
 };
 
-const PRODUCT_OPTIONS = [
-  "Акациев мед",
-  "Полифлорен мед",
-  "Липов мед",
-  "Слънчогледов мед",
-  "Манов мед",
-] as const;
-
-const DEFAULT_PRODUCT = PRODUCT_OPTIONS[0];
 const MARKET_DAYS = 30;
 
 function buildSeries(items: Listing[], product: string, days: number) {
@@ -103,6 +95,17 @@ export default function HomePage() {
   const router = useRouter();
   const { user } = useAuth();
   const { open } = useModal();
+  const t = useTranslations("homePage");
+
+  const PRODUCT_OPTIONS = [
+    t("products.acaciaHoney"),
+    t("products.multifloralHoney"),
+    t("products.lindenHoney"),
+    t("products.sunflowerHoney"),
+    t("products.honeydewHoney"),
+  ] as const;
+
+  const DEFAULT_PRODUCT = PRODUCT_OPTIONS[0];
 
   const [mapPins, setMapPins] = useState<ApiaryPin[]>([]);
   const [mapLoading, setMapLoading] = useState(true);
@@ -136,14 +139,20 @@ export default function HomePage() {
       .then((items) => {
         if (cancelled) return;
         const pins = (items ?? [])
-          .filter(
-            (item): item is { id: string; lat: number; lng: number; name: string } =>
-              item != null && typeof item.id === "string" && typeof item.lat === "number" && typeof item.lng === "number"
-          )
+          .filter((item) => {
+            return (
+              item != null &&
+              typeof item.id === "string" &&
+              typeof item.lat === "number" &&
+              typeof item.lng === "number" &&
+              Number.isFinite(item.lat) &&
+              Number.isFinite(item.lng)
+            );
+          })
           .map<ApiaryPin>((item) => ({
             id: item.id,
-            lat: item.lat,
-            lng: item.lng,
+            lat: item.lat!,
+            lng: item.lng!,
             label: item.name,
           }));
         setMapPins(pins);
@@ -152,7 +161,7 @@ export default function HomePage() {
       .catch(() => {
         if (!cancelled) {
           setMapPins([]);
-          setMapError("В момента не успяваме да заредим пчелините. Опитайте отново по-късно.");
+          setMapError(t("mapLoadError"));
         }
       })
       .finally(() => {
@@ -177,7 +186,7 @@ export default function HomePage() {
       .catch(() => {
         if (!cancelled) {
           setMarketListings([]);
-          setMarketChartError("Пазарните данни не успяха да се заредят.");
+          setMarketChartError(t("marketDataLoadError"));
         }
       })
       .finally(() => {
@@ -199,16 +208,16 @@ export default function HomePage() {
         if (cancelled) return;
         if (payload?.forecast) {
           setForecast(payload.forecast as ForecastEntry);
-          setForecastError(payload.source === "fallback" ? "Показани са примерни стойности." : null);
+          setForecastError(payload.source === "fallback" ? t("forecastFallback") : null);
         } else {
           setForecast(demoForecast);
-          setForecastError("Използваме примерна прогноза.");
+          setForecastError(t("forecastDemo"));
         }
       })
       .catch(() => {
         if (!cancelled) {
           setForecast(demoForecast);
-          setForecastError("Не успяхме да заредим прогнозата. Показваме примерни данни.");
+          setForecastError(t("forecastLoadError"));
         }
       })
       .finally(() => {
@@ -239,7 +248,8 @@ export default function HomePage() {
         if (!cancelled) {
           console.error("Failed to fetch news:", error);
           setNewsItems([]);
-          setNewsError("Новините не успяха да се заредят.");
+          // setNewsError(t("newsLoadError")); // Translation key to be added when news section is enabled
+          setNewsError("Новините не успяха да се заредят."); // TODO: Replace with translation when uncommented
         }
       })
       .finally(() => {
@@ -277,36 +287,46 @@ export default function HomePage() {
     open("reportSwarm");
   }
 
+  function handleReportTreatment() {
+    open("reportTreatment");
+  }
+
   const quickActions: QuickAction[] = [
     {
       key: "map",
-      title: "Разгледай картата",
-      description: "Виж споделените пчелини и добави своя.",
+      title: t("viewMap"),
+      description: t("viewMapDesc"),
       onClick: handleGoToMap,
     },
     {
       key: "submit",
-      title: "Публикувай обява",
-      description: "Предложи или потърси продукти, оборудване и услуги.",
+      title: t("postListing"),
+      description: t("postListingDesc"),
       onClick: handleSubmitListing,
     },
     {
       key: "findBeekeeper",
-      title: "Намери пчелар",
-      description: "Разгледай опитни пчелари във вашия регион.",
+      title: t("findBeekeeper"),
+      description: t("findBeekeeperDesc"),
       onClick: () => router.push('/beekeepers'),
     },
     {
       key: "buyHoney",
-      title: "Пазарувай мед",
-      description: "Разгледай последните предложения в пазарната секция.",
+      title: t("shopHoney"),
+      description: t("shopHoneyDesc"),
       onClick: handleBuyHoney,
     },
     {
       key: "reportSwarm",
-      title: "Сигнализирай за рояк",
-      description: "Помогни на доброволците да реагират навреме.",
+      title: t("reportSwarm"),
+      description: t("reportSwarmDesc"),
       onClick: handleReportSwarm,
+    },
+    {
+      key: "reportTreatment",
+      title: t("reportTreatment"),
+      description: t("reportTreatmentDesc"),
+      onClick: handleReportTreatment,
     },
   ];
 
@@ -341,16 +361,16 @@ export default function HomePage() {
               <aside className="hidden lg:flex col-span-12 lg:col-span-3 flex-col gap-6 sticky top-6 h-fit">
                 <section className="rounded-2xl border border-gray-200 shadow-sm p-5 space-y-4">
                   <div className="flex items-center justify-between">
-                    <h2 className="text-lg font-semibold text-gray-900">Прогноза и паши</h2>
+                    <h2 className="text-lg font-semibold text-gray-900">{t("forecastAndPasture")}</h2>
                     {forecastLoading ? (
-                      <span className="rounded-full bg-gray-100 text-gray-500 text-xs font-semibold px-3 py-1">зареждане…</span>
+                      <span className="rounded-full bg-gray-100 text-gray-500 text-xs font-semibold px-3 py-1">{t("loading")}</span>
                     ) : (
                       <span className="rounded-full bg-amber-100 text-amber-700 text-xs font-semibold px-3 py-1">
                         {forecast.nectarLevel.toUpperCase()}
                       </span>
                     )}
                   </div>
-                  <p className="text-sm text-gray-600">Обобщена информация за района.</p>
+                  <p className="text-sm text-gray-600">{t("summaryInfo")}</p>
                   {forecastError ? (
                     <div className="rounded-xl bg-orange-50 border border-orange-100 px-3 py-2 text-xs text-orange-800">
                       {forecastError}
@@ -365,19 +385,19 @@ export default function HomePage() {
                   ) : (
                     <ul className="space-y-2 text-sm text-gray-700">
                       <li>
-                        <span className="font-medium">Регион:</span> {forecast.region}
+                        <span className="font-medium">{t("regionLabel")}</span> {forecast.region}
                       </li>
                       <li>
-                        <span className="font-medium">Температура:</span> {forecast.temperatureC}°C
+                        <span className="font-medium">{t("temperatureLabel")}</span> {forecast.temperatureC}°C
                       </li>
                       <li>
-                        <span className="font-medium">Вятър:</span> {forecast.wind}
+                        <span className="font-medium">{t("windLabel")}</span> {forecast.wind}
                       </li>
                       <li>
-                        <span className="font-medium">Влажност:</span> {forecast.humidity}%
+                        <span className="font-medium">{t("humidityLabel")}</span> {forecast.humidity}%
                       </li>
                       <li>
-                        <span className="font-medium">Следващи валежи:</span> {forecast.nextRain}
+                        <span className="font-medium">{t("nextRainLabel")}</span> {forecast.nextRain}
                       </li>
                     </ul>
                   )}
@@ -390,14 +410,14 @@ export default function HomePage() {
                     type="button"
                     className="w-full rounded-xl border px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
                   >
-                    Виж детайлна прогноза
+                    {t("viewDetailedForecast")}
                   </button> */}
                 </section>
 
                 <section className="rounded-2xl border border-gray-200 shadow-sm p-5 space-y-4">
                   <div>
-                    <h2 className="text-lg font-semibold text-gray-900">Календар на задачите</h2>
-                    <p className="text-sm text-gray-600">Актуални препоръки за грижи през месеца.</p>
+                    <h2 className="text-lg font-semibold text-gray-900">{t("tasksCalendar")}</h2>
+                    <p className="text-sm text-gray-600">{t("monthlyRecommendations")}</p>
                   </div>
                   <div className="flex gap-2 overflow-x-auto pb-1">
                     {months.map((month) => (
@@ -422,7 +442,7 @@ export default function HomePage() {
                     </div>
                     {activeMonthData?.flow ? (
                       <div>
-                        <h3 className="text-sm uppercase font-semibold text-gray-700">Цъфтеж и паша</h3>
+                        <h3 className="text-sm uppercase font-semibold text-gray-700">{t("bloomAndPasture")}</h3>
                         <p className="mt-1 text-gray-700">{activeMonthData.flow}</p>
                       </div>
                     ) : null}
@@ -438,12 +458,12 @@ export default function HomePage() {
                   <div className="p-5 border-b">
                     <div className="flex flex-wrap items-center gap-3">
                       <div>
-                        <h2 className="text-xl font-semibold text-gray-900">Цени на пазара</h2>
-                        <p className="text-sm text-gray-500">Последни сделки за {MARKET_DAYS} дни</p>
+                        <h2 className="text-xl font-semibold text-gray-900">{t("marketPrices")}</h2>
+                        <p className="text-sm text-gray-500">{t("lastDealsForDays", { days: MARKET_DAYS })}</p>
                       </div>
                       <div className="flex items-center gap-2 ml-auto">
                         <label htmlFor="market-product" className="text-sm text-gray-500">
-                          Продукт
+                          {t("productLabel")}
                         </label>
                         <select
                           id="market-product"
@@ -469,10 +489,10 @@ export default function HomePage() {
                       </div>
                     ) : marketChartData.length === 0 ? (
                       <div className="h-72 rounded-xl border border-dashed border-gray-300 grid place-items-center text-sm text-gray-500">
-                        Все още няма завършени сделки за избрания продукт.
+                        {t("noCompletedDeals")}
                       </div>
                     ) : (
-                      <PriceChart data={marketChartData} title={`${selectedProduct} (лв./kg)`} />
+                      <PriceChart data={marketChartData} title={`${selectedProduct} (${t("priceUnit")})`} />
                     )}
                   </div>
                 </section>
@@ -481,8 +501,8 @@ export default function HomePage() {
                     To re-enable: Uncomment this section and the state/useEffect above
                 <section className="rounded-2xl border border-gray-200 shadow-sm">
                   <div className="p-5 border-b">
-                    <h2 className="text-xl font-semibold text-gray-900">Новини и полезни материали</h2>
-                    <p className="text-sm text-gray-500">Акценти от общността и специализирани статии</p>
+                    <h2 className="text-xl font-semibold text-gray-900">{t("newsPage.latestMaterials")}</h2>
+                    <p className="text-sm text-gray-500">TODO: Add translation key for news subtitle</p>
                   </div>
                   <div className="p-5">
                     {newsLoading ? (
@@ -504,8 +524,8 @@ export default function HomePage() {
 
                 <section className="rounded-2xl border border-gray-200 shadow-sm">
                   <div className="p-5 border-b">
-                    <h2 className="text-xl font-semibold text-gray-900">Категории и ръководства</h2>
-                    <p className="text-sm text-gray-500">Избрани теми за обучение и вдъхновение</p>
+                    <h2 className="text-xl font-semibold text-gray-900">{t("categoriesAndGuides")}</h2>
+                    <p className="text-sm text-gray-500">{t("topicsForLearning")}</p>
                   </div>
                   <div className="p-5">
                     <Categories items={categories} />
@@ -518,7 +538,7 @@ export default function HomePage() {
                 <OfficialResources />
 
                 <section className="rounded-2xl border border-gray-200 shadow-sm p-5">
-                  <h2 className="text-lg font-semibold text-gray-900 mb-3">Преглед на картата</h2>
+                  <h2 className="text-lg font-semibold text-gray-900 mb-3">{t("mapPreview")}</h2>
                   {mapLoading ? (
                     <div className="h-80 w-full rounded-xl bg-gray-100 animate-pulse" aria-hidden="true" />
                   ) : mapError ? (
@@ -527,7 +547,7 @@ export default function HomePage() {
                     </div>
                   ) : mapPins.length === 0 ? (
                     <div className="h-80 w-full rounded-xl border border-dashed border-gray-300 grid place-items-center text-sm text-gray-500">
-                      Все още няма заредени пчелини.
+                      {t("noApiariesLoaded")}
                     </div>
                   ) : (
                     <ApiariesMapClient pins={mapPins} heightClass="h-80" scrollWheelZoom={false} />

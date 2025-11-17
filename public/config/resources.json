@@ -343,6 +343,202 @@
   "honey": {
     "enabled": false,
     "categories": []
+  },
+  "library": {
+    "enabled": true,
+    "categories": [
+      {
+        "id": "bulgarian-books",
+        "title": {
+          "bg": "Българска литература",
+          "en": "Bulgarian Literature"
+        },
+        "description": {
+          "bg": "Книги, учебници и публикации на български език",
+          "en": "Books, textbooks and publications in Bulgarian"
+        },
+        "resources": [
+          {
+            "title": {
+              "bg": "Практическо пчеларство - Иван Шипков",
+              "en": "Practical Beekeeping - Ivan Shipkov"
+            },
+            "description": {
+              "bg": "Класическо българско ръководство по пчеларство с практически съвети и техники.",
+              "en": "Classic Bulgarian beekeeping guide with practical advice and techniques."
+            },
+            "url": "https://www.knigi.bg/book/praktichesko-pchelarstvo-ivan-shipkov",
+            "type": {
+              "bg": "Книга",
+              "en": "Book"
+            },
+            "icon": "📚",
+            "free": false,
+            "language": "bg",
+            "verified": true
+          },
+          {
+            "title": {
+              "bg": "Пчеларство - Учебник за средни училища",
+              "en": "Beekeeping - High School Textbook"
+            },
+            "description": {
+              "bg": "Официален учебник по пчеларство за средни училища в България.",
+              "en": "Official beekeeping textbook for high schools in Bulgaria."
+            },
+            "url": "https://www.mon.bg/bg/100514",
+            "type": {
+              "bg": "Учебник",
+              "en": "Textbook"
+            },
+            "icon": "📖",
+            "free": true,
+            "language": "bg",
+            "verified": true
+          }
+        ]
+      },
+      {
+        "id": "international-books",
+        "title": {
+          "bg": "Международна литература",
+          "en": "International Literature"
+        },
+        "description": {
+          "bg": "Световно признати книги и ресурси по пчеларство",
+          "en": "World-renowned books and beekeeping resources"
+        },
+        "resources": [
+          {
+            "title": {
+              "bg": "The Beekeeper's Handbook - Diana Sammataro",
+              "en": "The Beekeeper's Handbook - Diana Sammataro"
+            },
+            "description": {
+              "bg": "Едно от най-популярните ръководства по пчеларство в света, с подробни инструкции и илюстрации.",
+              "en": "One of the most popular beekeeping guides in the world, with detailed instructions and illustrations."
+            },
+            "url": "https://www.amazon.com/Beekeepers-Handbook-Diana-Sammataro/dp/0801476949",
+            "type": {
+              "bg": "Книга",
+              "en": "Book"
+            },
+            "icon": "📚",
+            "free": false,
+            "language": "en",
+            "verified": true
+          },
+          {
+            "title": {
+              "bg": "Honeybee Democracy - Thomas Seeley",
+              "en": "Honeybee Democracy - Thomas Seeley"
+            },
+            "description": {
+              "bg": "Фascinating research on how honeybee colonies make decisions, written by leading bee researcher.",
+              "en": "Fascinating research on how honeybee colonies make decisions, written by leading bee researcher."
+            },
+            "url": "https://www.amazon.com/Honeybee-Democracy-Thomas-D-Seeley/dp/0691147213",
+            "type": {
+              "bg": "Книга",
+              "en": "Book"
+            },
+            "icon": "📚",
+            "free": false,
+            "language": "en",
+            "verified": true
+          },
+          {
+            "title": {
+              "bg": "The Hive and the Honey Bee - Dadant & Sons",
+              "en": "The Hive and the Honey Bee - Dadant & Sons"
+            },
+            "description": {
+              "bg": "Класическа енциклопедия по пчеларство, обхващаща всички аспекти на пчелното стопанство.",
+              "en": "Classic beekeeping encyclopedia covering all aspects of beekeeping."
+            },
+            "url": "https://www.dadant.com/catalog/the-hive-and-the-honey-bee",
+            "type": {
+              "bg": "Енциклопедия",
+              "en": "Encyclopedia"
+            },
+            "icon": "📚",
+            "free": false,
+            "language": "en",
+            "verified": true
+          }
+        ]
+      },
+      {
+        "id": "online-resources",
+        "title": {
+          "bg": "Онлайн ресурси и библиотеки",
+          "en": "Online Resources and Libraries"
+        },
+        "description": {
+          "bg": "Безплатни онлайн библиотеки, статии и научни публикации",
+          "en": "Free online libraries, articles and scientific publications"
+        },
+        "resources": [
+          {
+            "title": {
+              "bg": "Apis Information Resource Center",
+              "en": "Apis Information Resource Center"
+            },
+            "description": {
+              "bg": "Централизирана база данни с научни статии и публикации по пчеларство.",
+              "en": "Centralized database of scientific articles and beekeeping publications."
+            },
+            "url": "https://www.apis.ac.uk/",
+            "type": {
+              "bg": "Библиотека",
+              "en": "Library"
+            },
+            "icon": "🌐",
+            "free": true,
+            "language": "en",
+            "verified": true
+          },
+          {
+            "title": {
+              "bg": "Bee Culture Magazine - Digital Archive",
+              "en": "Bee Culture Magazine - Digital Archive"
+            },
+            "description": {
+              "bg": "Архив на статии от Bee Culture Magazine - един от най-старите пчеларски списания.",
+              "en": "Archive of articles from Bee Culture Magazine - one of the oldest beekeeping magazines."
+            },
+            "url": "https://www.beeculture.com/",
+            "type": {
+              "bg": "Списание",
+              "en": "Magazine"
+            },
+            "icon": "📰",
+            "free": false,
+            "language": "en",
+            "verified": true
+          },
+          {
+            "title": {
+              "bg": "Google Scholar - Beekeeping Research",
+              "en": "Google Scholar - Beekeeping Research"
+            },
+            "description": {
+              "bg": "Научни статии и изследвания по пчеларство от академични източници.",
+              "en": "Scientific articles and beekeeping research from academic sources."
+            },
+            "url": "https://scholar.google.com/scholar?q=beekeeping",
+            "type": {
+              "bg": "База данни",
+              "en": "Database"
+            },
+            "icon": "🔬",
+            "free": true,
+            "language": "en",
+            "verified": true
+          }
+        ]
+      }
+    ]
   }
 }
 

@@ -46,4 +46,12 @@ export const categories = [
     href: "/guides/zdrave-na-pchelinite",
     description: "Болести, профилактика и лечение",
   },
+  {
+    id: 4,
+    title: "Библиотека по пчеларство",
+    img: "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?q=80&w=1200&auto=format&fit=crop",
+    price: null,
+    href: "/guides/biblioteka-pchelarstvo",
+    description: "Книги и ресурси на български и световна литература",
+  },
 ];

@@ -7,6 +7,7 @@
       "beekeepers": "Beekeepers",
       "news": "News", 
       "map": "Apiary map",
+      "treatments": "Treatments",
       "admin": "Administration"
     }
   },
@@ -202,16 +203,22 @@
     },
     "users": {
       "title": "User Management",
+      "name": "Name",
+      "email": "Email",
       "filters": "Filters",
       "search": "Search",
       "searchPlaceholder": "Name or email...",
       "role": "Role",
+      "roleFilter": "Role",
       "status": "Status",
+      "statusFilter": "Status",
       "allRoles": "All Roles",
       "allStatuses": "All Statuses",
       "trustLevel": "Trust Level",
       "verified": "Verified",
       "joined": "Joined",
+      "showing": "Showing",
+      "usersCount": "user(s)",
       "showingResults": "Showing {count} user(s)",
       "userDetails": "User Details",
       "changeRole": "Change Role",
@@ -283,6 +290,7 @@
       "allClear": "All Clear!",
       "noFlagged": "There are no flagged listings to review.",
       "awaitingModeration": "{count} listing(s) awaiting moderation",
+      "requireAttention": "flagged listing(s) requiring attention",
       "flaggedCount": "{count} flagged listing(s) requiring attention",
       "approvedCount": "{count} approved listing(s)",
       "noApproved": "No approved listings found.",
@@ -290,6 +298,7 @@
       "reject": "Reject",
       "edit": "Edit",
       "delete": "Delete",
+      "cancel": "Cancel",
       "rejectTitle": "Reject Listing",
       "rejectReason": "Please provide a reason for rejecting this listing:",
       "reasonPlaceholder": "Reason for rejection...",
@@ -298,7 +307,11 @@
       "loading": "Loading listings...",
       "approveSuccess": "Listing approved successfully",
       "rejectSuccess": "Listing rejected",
-      "error": "Failed to perform action"
+      "error": "Failed to perform action",
+      "previous": "Previous",
+      "next": "Next",
+      "page": "Page",
+      "of": "of"
     },
     "reports": {
       "title": "Reports & Analytics",
@@ -455,6 +468,20 @@
     }, 
     "languageSwitcher": {
       "label": "Language"
+    },
+    "reports": {
+      "geolocationNotSupported": "Geolocation is not supported by your browser.",
+      "locationPermissionDenied": "Location access denied. Please enable location access in your browser.",
+      "locationTimeout": "Location request timed out. Please try again.",
+      "locationFailed": "Failed to determine location. Please try again.",
+      "fieldRequired": "Please fill in the field \"{label}\".",
+      "validationError": "Validation error",
+      "submitFailed": "Failed to submit",
+      "useMyLocation": "My location",
+      "gettingLocation": "Getting location...",
+      "close": "Close",
+      "submitting": "Submitting...",
+      "successMessage": "Thank you! The report has been received and will be shared with beekeepers."
     }
   }, 
   "auth": {
@@ -492,6 +519,7 @@
       "warningText": "If contagious diseases are detected (American foulbrood, European foulbrood), immediate notification of the regional BFSA office is mandatory. Use only approved veterinary products.",
       "emergencyTitle": "Emergency Contacts",
       "emergencyText": "If you suspect a contagious disease, contact immediately:",
+      "babh CentralOffice": "BFSA - Central Office",
       "babhCentralOffice": "BFSA - Central Office",
       "regionalOffices": "BFSA Regional Offices",
       "suggestHealthResource": "Know a useful source for bee health? Share it with us!"
@@ -505,6 +533,15 @@
       "funFactTitle": "Did you know?",
       "funFactText": "Honey is the only food that never spoils! Archaeologists have found 3000-year-old honey in Egyptian tombs that is still edible. Honey also contains over 180 biologically active substances.",
       "suggestHoneyResource": "Know a useful resource? Help us enrich the collection with more quality sources for recipes and products."
+    },
+    "library": {
+      "title": "Beekeeping Library",
+      "subtitle": "Collection of books, textbooks and resources in Bulgarian and world literature on beekeeping",
+      "infoBannerTitle": "Why a beekeeping library?",
+      "infoBannerText": "Education and continuous improvement are the key to successful beekeeping. Here you will find a curated collection of books, textbooks and online resources - both in Bulgarian and from world literature. All resources are verified and recommended by experienced beekeepers.",
+      "booksAndResources": "Books and resources",
+      "multilingual": "Multilingual collection",
+      "suggestResourceDesc": "Know a good book or useful beekeeping resource? Share it with us and we'll add it to the library!"
     }
   },
   "beekeepers": {
@@ -593,7 +630,11 @@
     "shopHoneyDesc": "Browse the latest offers in the marketplace section.",
     "reportSwarm": "Report a swarm",
     "reportSwarmDesc": "Help volunteers respond in time.",
+    "reportTreatment": "Report treatment",
+    "reportTreatmentDesc": "Notify beekeepers about planned pesticide treatment.",
     "bloomAndPasture": "Bloom and pasture",
+    "priceUnit": "BGN/kg",
+    "viewDetailedForecast": "View detailed forecast",
     "products": {
       "acaciaHoney": "Acacia honey",
       "multifloralHoney": "Multifloral honey",
@@ -717,6 +758,51 @@
       "successMessage": "Password has been updated. Redirecting you to login...",
       "backToLogin": "Back to login",
       "error": "An error occurred. Please try again."
+    }
+  },
+  "treatments": {
+    "title": "Treatment Reports",
+    "subtitle": "Overview of all reports for planned pesticide treatments",
+    "loading": "Loading reports...",
+    "loadError": "Error loading reports",
+    "reportTreatment": "Report treatment",
+    "searchPlaceholder": "Search by location, pesticide, crop...",
+    "filterAll": "All",
+    "filterUpcoming": "Upcoming",
+    "filterPast": "Past",
+    "noResults": "No reports found",
+    "noResultsFiltered": "No reports match the current filters.",
+    "noResultsEmpty": "No treatment reports have been published yet.",
+    "beFirst": "Be the first - Report a treatment",
+    "treatmentBadge": "Treatment",
+    "pesticide": "Pesticide:",
+    "crop": "Crop:",
+    "reportedBy": "Reported by:",
+    "published": "Published:",
+    "statistics": "Statistics",
+    "totalReports": "Total reports",
+    "upcomingReports": "Upcoming",
+    "pastReports": "Past",
+    "locations": "Locations",
+    "tickerTitle": "Treatments",
+    "modal": {
+      "title": "Report pesticide treatment",
+      "description": "Notify beekeepers about planned pesticide treatment. Add as many details as possible.",
+      "submitButton": "Submit report",
+      "nameLabel": "Your name",
+      "namePlaceholder": "First and last name",
+      "phoneLabel": "Contact phone",
+      "phonePlaceholder": "088 123 4567",
+      "locationLabel": "Location",
+      "locationPlaceholder": "Village, district or GPS coordinates",
+      "treatmentDateLabel": "Treatment date",
+      "treatmentTimeLabel": "Treatment time",
+      "pesticideLabel": "Pesticide name",
+      "pesticidePlaceholder": "e.g. Glyphosate, 2,4-D, etc.",
+      "cropLabel": "Crop type",
+      "cropPlaceholder": "e.g. Sunflower, corn, wheat, etc.",
+      "notesLabel": "Additional information",
+      "notesPlaceholder": "Describe the area, treatment method, weather conditions, etc."
     }
   }
 }

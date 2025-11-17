@@ -32,6 +32,9 @@ export default function AddApiaryModal({
   const [lat, setLat] = useState<string>(String(defaultCoords?.lat ?? DEFAULT_CENTER.lat));
   const [lng, setLng] = useState<string>(String(defaultCoords?.lng ?? DEFAULT_CENTER.lng));
   const [region, setRegion] = useState("");
+  const [city, setCity] = useState("");
+  const [address, setAddress] = useState("");
+  const [code, setCode] = useState("");
   const [hiveCount, setHiveCount] = useState<string>("");
   const [flora, setFlora] = useState("");
   const [visibility, setVisibility] = useState<"public" | "unlisted">("public");
@@ -45,6 +48,9 @@ export default function AddApiaryModal({
     setLat(String(defaultCoords?.lat ?? DEFAULT_CENTER.lat));
     setLng(String(defaultCoords?.lng ?? DEFAULT_CENTER.lng));
     setRegion("");
+    setCity("");
+    setAddress("");
+    setCode("");
     setHiveCount("");
     setFlora("");
     setVisibility("public");
@@ -75,6 +81,9 @@ export default function AddApiaryModal({
     if (!Number.isFinite(latNum) || !Number.isFinite(lngNum)) {
       return t('coordsInvalid');
     }
+    if (!region.trim()) return t('regionRequired');
+    if (!city.trim()) return t('cityRequired');
+    if (!address.trim()) return t('addressRequired');
     if (hiveCount.trim()) {
       const hivesNum = Number(hiveCount);
       if (!Number.isFinite(hivesNum)) {
@@ -147,6 +156,9 @@ export default function AddApiaryModal({
         lat: latNum,
         lng: lngNum,
         region: region.trim() || undefined,
+        city: city.trim() || undefined,
+        address: address.trim() || undefined,
+        code: code.trim() || undefined,
         visibility,
         notes: notes.trim() || undefined,
         flora: parseFloraInput(flora),
@@ -236,12 +248,44 @@ export default function AddApiaryModal({
             </div>
             <div className="flex gap-3">
               <div className="flex-1">
-                <label className="block text-sm mb-1">{t('region')}</label>
+                <label className="block text-sm mb-1">{t('region')} *</label>
                 <input
                   value={region}
                   onChange={(e) => setRegion(e.target.value)}
                   className="w-full rounded-xl border px-3 py-2"
                   placeholder={t('regionPlaceholder')}
+                  required
+                />
+              </div>
+              <div className="flex-1">
+                <label className="block text-sm mb-1">{t('city')} *</label>
+                <input
+                  value={city}
+                  onChange={(e) => setCity(e.target.value)}
+                  className="w-full rounded-xl border px-3 py-2"
+                  placeholder={t('cityPlaceholder')}
+                  required
+                />
+              </div>
+            </div>
+            <div>
+              <label className="block text-sm mb-1">{t('address')} *</label>
+              <input
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+                className="w-full rounded-xl border px-3 py-2"
+                placeholder={t('addressPlaceholder')}
+                required
+              />
+            </div>
+            <div className="flex gap-3">
+              <div className="flex-1">
+                <label className="block text-sm mb-1">{t('code')}</label>
+                <input
+                  value={code}
+                  onChange={(e) => setCode(e.target.value)}
+                  className="w-full rounded-xl border px-3 py-2"
+                  placeholder={t('codePlaceholder')}
                 />
               </div>
               <div className="w-40">

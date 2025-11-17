@@ -2,7 +2,7 @@
 "use client";
 import { createContext, useContext, useCallback, useState, useEffect } from "react";
 
-type ModalType = "login" | "register" | "forgotPassword" | "reportSwarm" | "contactSeller" | null;
+type ModalType = "login" | "register" | "forgotPassword" | "reportSwarm" | "reportTreatment" | "contactSeller" | null;
 type ModalCtx = {
   open: (type: Exclude<ModalType, null>, payload?: unknown) => void;
   close: () => void;

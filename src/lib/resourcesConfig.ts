@@ -32,6 +32,7 @@ export type ResourcesConfig = {
   practices: ResourceConfig;
   health: ResourceConfig;
   honey: ResourceConfig;
+  library: ResourceConfig;
 };
 
 // Fetch resources from JSON config
