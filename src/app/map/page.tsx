@@ -8,9 +8,6 @@ import AddApiaryModal from "@/components/map/AddApiaryModal";
 import { useModal } from "@/components/modal/ModalProvider";
 import { useEffect, useMemo, useState } from "react";
 import { fetchApiaries, type Apiary } from "@/lib/apiaries";
-import type { TreatmentReport } from "@/components/treatments/TreatmentTicker";
-
-type ViewMode = "clusters" | "heatmap" | "points";
 
 export default function MapPage() {
   const { user } = useAuth();
@@ -18,13 +15,10 @@ export default function MapPage() {
 
   // Данни
   const [apiaries, setApiaries] = useState<Apiary[]>([]);
-  const [treatments, setTreatments] = useState<TreatmentReport[]>([]);
-  const [showTreatments, setShowTreatments] = useState(true);
   const [query, setQuery] = useState("");
   const [region, setRegion] = useState<string | "Всички">("Всички");
   const [flora, setFlora] = useState<string | "Всички">("Всички");
   const [visibility, setVisibility] = useState<"Всички" | "public" | "unlisted">("Всички");
-  const [view, setView] = useState<ViewMode>("clusters");
   const [selected, setSelected] = useState<Apiary | null>(null);
   const [addOpen, setAddOpen] = useState(false);
   const [defaultCoords, setDefaultCoords] = useState<{ lat: number; lng: number } | null>(null);
@@ -43,22 +37,6 @@ export default function MapPage() {
     fetchApiaries()
       .then(setApiaries)
       .catch(() => setApiaries([]));
-  }, []);
-
-  useEffect(() => {
-    fetch("/api/treatment-reports", { cache: "no-store" })
-      .then((res) => res.json())
-      .then((data) => setTreatments(data ?? []))
-      .catch(() => setTreatments([]));
-    
-    const handler = () => {
-      fetch("/api/treatment-reports", { cache: "no-store" })
-        .then((res) => res.json())
-        .then((data) => setTreatments(data ?? []))
-        .catch(() => setTreatments([]));
-    };
-    window.addEventListener("treatment:updated", handler);
-    return () => window.removeEventListener("treatment:updated", handler);
   }, []);
 
   const regions = useMemo(() => {
@@ -95,7 +73,7 @@ export default function MapPage() {
   }
 
   function handleCreate(a: Apiary) {
-    // TODO: Изпрати към бекенда и презареди
+    // Add to local state (backend save is handled by AddApiaryModal)
     setApiaries((prev) => [a, ...prev]);
     setSelected(a);
   }
@@ -135,28 +113,6 @@ export default function MapPage() {
               </select>
             </div>
           </section>
-
-          {/* Бързи връзки */}
-          <section className="rounded-2xl border p-4">
-            <h2 className="text-lg font-semibold">Бързи връзки</h2>
-            <ul className="mt-3 text-sm space-y-2">
-              <li>
-                <a className="hover:underline" href="/epord">
-                  Справки (EPORD)
-                </a>
-              </li>
-              <li>
-                <a className="hover:underline" href="/directory">
-                  Каталог на пчелини
-                </a>
-              </li>
-              <li>
-                <a className="hover:underline" href="/knowledge">
-                  Знания и статии
-                </a>
-              </li>
-            </ul>
-          </section>
         </aside>
       }
       right={
@@ -173,6 +129,11 @@ export default function MapPage() {
                   <div>
                     <span className="text-gray-500">Код / номер:</span> {selected.code ?? "-"}
                   </div>
+                  {selected.apiaryNumber && (
+                    <div>
+                      <span className="text-gray-500">Регистрационен номер:</span> {selected.apiaryNumber}
+                    </div>
+                  )}
                   <div>
                     <span className="text-gray-500">Регион:</span> {selected.region ?? "—"}
                   </div>
@@ -182,10 +143,21 @@ export default function MapPage() {
                   <div>
                     <span className="text-gray-500">Адрес / местност:</span> {selected.address ?? "—"}
                   </div>
-                  <div>
-                    <span className="text-gray-500">Собственик / пчелар:</span>{" "}
-                    {selected.owner ?? selected.contact?.name ?? "—"}
-                  </div>
+                  {selected.owner && (
+                    <div>
+                      <span className="text-gray-500">Собственик:</span> {selected.owner}
+                    </div>
+                  )}
+                  {selected.beekeeperName && (
+                    <div>
+                      <span className="text-gray-500">Име на пчелар:</span> {selected.beekeeperName}
+                    </div>
+                  )}
+                  {!selected.owner && !selected.beekeeperName && selected.contact?.name && (
+                    <div>
+                      <span className="text-gray-500">Контакт:</span> {selected.contact.name}
+                    </div>
+                  )}
                   <div>
                     <span className="text-gray-500">Брой кошери:</span>{" "}
                     {typeof selected.hiveCount === "number" ? selected.hiveCount : "—"}
@@ -209,16 +181,6 @@ export default function MapPage() {
               </div>
             )}
           </section>
-
-          {/* Съвети */}
-          <section className="rounded-2xl border p-5 shadow-sm">
-            <h2 className="text-lg font-semibold">Съвети</h2>
-            <ul className="mt-2 text-sm space-y-1 text-gray-700">
-              <li>В режим „Клъстери“ маркерите се групират.</li>
-              <li>Топлинната карта показва концентрации.</li>
-              <li>Публични/Скрит контролира видимостта.</li>
-            </ul>
-          </section>
         </aside>
       }
     >
@@ -226,43 +188,6 @@ export default function MapPage() {
       <section className="rounded-2xl border p-4 shadow-sm">
         <div className="flex flex-wrap items-center gap-3">
           <div className="font-semibold mr-auto">Преглед на пчелините</div>
-          <div className="flex items-center gap-2 text-sm">
-            <button onClick={() => setView("clusters")} className={`rounded-xl border px-3 py-1 hover:bg-gray-50 ${view === "clusters" ? "bg-gray-100" : ""}`}>
-              Клъстери
-            </button>
-            <button onClick={() => setView("heatmap")} className={`rounded-xl border px-3 py-1 hover:bg-gray-50 ${view === "heatmap" ? "bg-gray-100" : ""}`}>
-              Топлинна карта
-            </button>
-            <button onClick={() => setView("points")} className={`rounded-xl border px-3 py-1 hover:bg-gray-50 ${view === "points" ? "bg-gray-100" : ""}`}>
-              Точки
-            </button>
-            <div className="w-px h-6 bg-gray-200" />
-            <button 
-              onClick={() => setShowTreatments(!showTreatments)} 
-              className={`rounded-xl border px-3 py-1 hover:bg-gray-50 ${showTreatments ? "bg-red-50 border-red-300" : ""}`}
-              title="Покажи/скрий сигнали за третиране"
-            >
-              {showTreatments ? "⚠️ Третирания" : "⚠️ Третирания (скрити)"}
-            </button>
-            <div className="w-px h-6 bg-gray-200" />
-            <button
-              onClick={() =>
-                defaultCoords &&
-                setSelected({
-                  id: "preview",
-                  name: "Моята позиция",
-                  lat: defaultCoords.lat,
-                  lng: defaultCoords.lng,
-                  visibility: "unlisted",
-                  updatedAt: new Date().toISOString(),
-                })
-              }
-              className="rounded-xl border px-3 py-1 hover:bg-gray-50"
-              title="Покажи моето местоположение"
-            >
-              Моето местоположение
-            </button>
-          </div>
 
           {user && (
             <button onClick={handleAddClicked} className="rounded-xl bg-amber-500 px-3 py-2 text-sm font-medium text-gray-900 hover:bg-amber-400">
@@ -298,6 +223,11 @@ export default function MapPage() {
                 <div>
                   <span className="text-gray-500">Код / номер:</span> {a.code ?? "-"}
                 </div>
+                {a.apiaryNumber && (
+                  <div>
+                    <span className="text-gray-500">Регистрационен номер:</span> {a.apiaryNumber}
+                  </div>
+                )}
                 <div>
                   <span className="text-gray-500">Регион:</span> {a.region ?? "—"}
                 </div>
@@ -307,10 +237,21 @@ export default function MapPage() {
                 <div>
                   <span className="text-gray-500">Адрес / местност:</span> {a.address ?? "—"}
                 </div>
-                <div>
-                  <span className="text-gray-500">Собственик / пчелар:</span>{" "}
-                  {a.owner ?? a.contact?.name ?? "—"}
-                </div>
+                {a.owner && (
+                  <div>
+                    <span className="text-gray-500">Собственик:</span> {a.owner}
+                  </div>
+                )}
+                {a.beekeeperName && (
+                  <div>
+                    <span className="text-gray-500">Име на пчелар:</span> {a.beekeeperName}
+                  </div>
+                )}
+                {!a.owner && !a.beekeeperName && a.contact?.name && (
+                  <div>
+                    <span className="text-gray-500">Контакт:</span> {a.contact.name}
+                  </div>
+                )}
                 <div>
                   <span className="text-gray-500">Брой кошери:</span>{" "}
                   {typeof a.hiveCount === "number" ? a.hiveCount : "—"}

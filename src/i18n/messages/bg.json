@@ -28,6 +28,21 @@
     "locationTimeout": "Заявката за локация изтече.",
     "region": "Регион",
     "regionPlaceholder": "Регион или област",
+    "regionRequired": "Моля, въведете регион.",
+    "city": "Населено място",
+    "cityPlaceholder": "Град/село",
+    "cityRequired": "Моля, въведете населено място.",
+    "address": "Адрес / местност",
+    "addressPlaceholder": "Адрес или местност",
+    "addressRequired": "Моля, въведете адрес или местност.",
+    "code": "Код / номер",
+    "codePlaceholder": "Код или номер на пчелина",
+    "apiaryNumber": "Регистрационен номер",
+    "apiaryNumberPlaceholder": "Регистрационен номер на пчелина",
+    "owner": "Собственик",
+    "ownerPlaceholder": "Име на собственика",
+    "beekeeperName": "Име на пчелар",
+    "beekeeperNamePlaceholder": "Име на пчеларя",
     "hives": "Кошери",
     "hivesInvalid": "Броят кошери трябва да бъде валидно число.",
     "flora": "Основна флора",
@@ -420,7 +435,9 @@
     }, 
     "dashboard": {
       "empty": "Все още няма информация.", 
-      "title": "Пазарни индикатори (последни дни)"
+      "title": "Пазарни индикатори (последни дни)",
+      "noTrendData": "Няма достатъчно данни за тренд",
+      "insufficientData": "Нужни са поне 2 обяви за тренд"
     }, 
     "filters": {
       "sort": {

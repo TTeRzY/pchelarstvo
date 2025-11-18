@@ -554,44 +554,135 @@ export default function MarketplacePage() {
           )}
         </section>
 
-        {/* Dashboard - Collapsible */}
-        <details className="mb-8 group" open>
-          <summary className="cursor-pointer list-none">
-            <div className="flex items-center justify-between p-4 bg-white rounded-2xl border hover:shadow-sm transition-shadow">
-              <h2 className="text-lg font-semibold">{t("dashboard.title")}</h2>
-              <svg className="w-5 h-5 text-gray-600 group-open:rotate-180 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-              </svg>
-            </div>
-          </summary>
-          <div className="mt-4 flex flex-wrap gap-4">
+        {/* Market Indicators */}
+        <div className="mb-8 flex flex-wrap gap-4">
             {HONEY_PRODUCTS.map((p) => {
               const sample = chartListings.filter((l) => l.product === p.value);
               if (!sample.length) return null;
               const avg = sample.reduce((a, b) => a + b.pricePerKg, 0) / sample.length;
+              
+              // Calculate trend data for last 90 days (more data = better trend visibility)
+              const trendData = seriesFromListings(sample, p.value, 90);
+              const validData = trendData.filter((d) => typeof d.avg === "number" && Number.isFinite(d.avg));
+              
+              // Alternative: if we don't have enough daily data, use individual listing prices sorted by date
+              let sparklineValues: number[] = [];
+              let priceChangePercent: number | null = null;
+              
+              if (validData.length >= 2) {
+                // Use daily averages from seriesFromListings
+                sparklineValues = validData.map((d) => d.avg as number);
+              } else {
+                // Fallback: use individual listings sorted by date (last 90 days)
+                const now = new Date();
+                const ninetyDaysAgo = new Date();
+                ninetyDaysAgo.setDate(now.getDate() - 90);
+                
+                const recentListings = sample
+                  .filter((l) => {
+                    if (!l.created_at) return false;
+                    try {
+                      const date = new Date(l.created_at);
+                      if (Number.isNaN(+date)) return false;
+                      // Include listings from the last 90 days
+                      return date >= ninetyDaysAgo && date <= now;
+                    } catch {
+                      return false;
+                    }
+                  })
+                  .sort((a, b) => {
+                    try {
+                      const dateA = a.created_at ? new Date(a.created_at).getTime() : 0;
+                      const dateB = b.created_at ? new Date(b.created_at).getTime() : 0;
+                      return dateA - dateB;
+                    } catch {
+                      return 0;
+                    }
+                  });
+                
+                if (recentListings.length >= 2) {
+                  sparklineValues = recentListings.map((l) => l.pricePerKg);
+                }
+              }
+              
+              // Calculate price change: compare first vs last data points
+              // Positive = price went UP (green), Negative = price went DOWN (red)
+              const hasTrend = sparklineValues.length >= 2;
+              if (hasTrend && sparklineValues.length >= 2) {
+                const firstPrice = sparklineValues[0];
+                const lastPrice = sparklineValues[sparklineValues.length - 1];
+                if (firstPrice > 0) {
+                  priceChangePercent = ((lastPrice - firstPrice) / firstPrice) * 100;
+                }
+              }
+              
+              const minPrice = hasTrend ? Math.min(...sparklineValues) : 0;
+              const maxPrice = hasTrend ? Math.max(...sparklineValues) : 0;
+              const priceRange = maxPrice - minPrice || 1;
+              
+              // Normalize values for SVG (0-100 scale)
+              const normalizedPoints = sparklineValues.map((val, idx) => {
+                const x = (idx / (sparklineValues.length - 1 || 1)) * 100;
+                const y = 100 - ((val - minPrice) / priceRange) * 100;
+                return `${x},${y}`;
+              }).join(" ");
+              
+              // Determine colors: UP = green, DOWN = red
+              const isPriceUp = priceChangePercent !== null && priceChangePercent > 0;
+              const isPriceDown = priceChangePercent !== null && priceChangePercent < 0;
+              const lineColor = isPriceUp ? "#10b981" : isPriceDown ? "#ef4444" : "#6b7280"; // green for up, red for down, gray for neutral
+              
               return (
                 <div key={p.value} className="flex-1 min-w-[220px] max-w-[360px] rounded-2xl bg-white px-5 py-4 shadow-sm hover:shadow transition">
                   <div className="text-sm text-gray-500">{t(p.labelKey)}</div>
                   <div className="mt-1 text-2xl font-bold">{fmtPrice(avg)}</div>
-                  <div className="mt-3 h-10 rounded-lg bg-gray-100" />
+                  <div className="mt-3 h-10 rounded-lg bg-gray-50 border border-gray-200 p-2 flex items-center justify-between gap-2">
+                    {hasTrend ? (
+                      <>
+                        <div className="flex-1 h-full relative">
+                          <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="w-full h-full">
+                            <polyline
+                              points={normalizedPoints}
+                              fill="none"
+                              stroke={lineColor}
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
+                          </svg>
+                        </div>
+                        {priceChangePercent !== null && (
+                          <div className={`flex items-center gap-1 text-xs font-medium ${isPriceUp ? "text-green-600" : isPriceDown ? "text-red-600" : "text-gray-600"}`}>
+                            {isPriceUp ? (
+                              <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" clipRule="evenodd" />
+                              </svg>
+                            ) : isPriceDown ? (
+                              <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                              </svg>
+                            ) : null}
+                            <span>{Math.abs(priceChangePercent).toFixed(1)}%</span>
+                          </div>
+                        )}
+                      </>
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-xs text-gray-400">
+                        {sample.length === 1 
+                          ? t("dashboard.insufficientData")
+                          : t("dashboard.noTrendData")
+                        }
+                      </div>
+                    )}
+                  </div>
                 </div>
               );
             })}
             {chartListings.length === 0 && <div className="text-sm text-gray-500 p-4">{t("dashboard.empty")}</div>}
-          </div>
-        </details>
+        </div>
 
-        {/* Chart - Collapsible */}
-        <details className="mb-8 group" open>
-          <summary className="cursor-pointer list-none">
-            <div className="flex items-center justify-between p-4 bg-white rounded-2xl border hover:shadow-sm transition-shadow">
-              <h2 className="text-lg font-semibold">{t("charts.title")}</h2>
-              <svg className="w-5 h-5 text-gray-600 group-open:rotate-180 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-              </svg>
-            </div>
-          </summary>
-          <div className="mt-4 bg-white rounded-2xl border p-4">
+        {/* Chart */}
+        <div className="mb-8 bg-white rounded-2xl border p-4">
             <div className="flex items-center justify-between mb-4 gap-3 flex-wrap">
               <select value={chartProduct} onChange={(e) => setChartProduct(e.target.value)} className="rounded-xl border px-3 py-2 text-sm bg-white">
                 {HONEY_PRODUCTS.map((p) => (
@@ -613,8 +704,7 @@ export default function MarketplacePage() {
             ) : (
               <PriceChart data={chartData} title={t("charts.priceTitle", { product: getProductLabel(chartProduct), unit: t("price.unitShort") })} />
             )}
-          </div>
-        </details>
+        </div>
 
         {/* Sidebar Layout for Filters & Listings */}
         <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-8">

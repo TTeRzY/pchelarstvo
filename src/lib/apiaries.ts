@@ -8,7 +8,9 @@ export type Apiary = {
   city?: string | null;
   address?: string | null;
   owner?: string | null;
+  beekeeperName?: string | null;
   code?: string | null;
+  apiaryNumber?: string | null;
   lat?: number | null;
   lng?: number | null;
   visibility: "public" | "unlisted";
@@ -27,7 +29,9 @@ export type CreateApiaryPayload = {
   city?: string;
   address?: string;
   owner?: string;
+  beekeeperName?: string;
   code?: string;
+  apiaryNumber?: string;
   flora?: string[];
   hiveCount?: number;
   visibility: "public" | "unlisted";
@@ -103,7 +107,9 @@ const normalizeApiary = (raw: any): Apiary => {
   const baseId = idCandidate != null ? String(idCandidate) : fallbackId();
 
   const owner = coerceString(raw.owner);
+  const beekeeperName = coerceString(raw.beekeeperName ?? raw.beekeeper_name ?? raw.beekeeper);
   const code = coerceString(raw.code ?? raw.apiary_code);
+  const apiaryNumber = coerceString(raw.apiaryNumber ?? raw.apiary_number ?? raw.registration_number);
   const explicitName = coerceString(raw.name);
   const derivedName = explicitName || (owner ? `${owner}${code ? ` / ${code}` : ""}` : DEFAULT_FALLBACK_NAME);
 
@@ -136,7 +142,9 @@ const normalizeApiary = (raw: any): Apiary => {
     city: coerceString(raw.city) || null,
     address: coerceString(raw.address) || null,
     owner: owner || null,
+    beekeeperName: beekeeperName || null,
     code: code || null,
+    apiaryNumber: apiaryNumber || null,
     lat,
     lng,
     visibility: raw.visibility === "unlisted" ? "unlisted" : "public",
@@ -312,7 +320,11 @@ export async function createApiary(payload: CreateApiaryPayload): Promise<Apiary
     city: payload.city ?? null,
     address: payload.address ?? null,
     code: payload.code ?? null,
+    apiaryNumber: payload.apiaryNumber ?? null,
+    apiary_number: payload.apiaryNumber ?? null,
     owner: payload.owner ?? null,
+    beekeeperName: payload.beekeeperName ?? null,
+    beekeeper_name: payload.beekeeperName ?? null,
     visibility: payload.visibility,
     notes: payload.notes ?? null,
     flora: payload.flora ?? [],
@@ -338,7 +350,9 @@ export async function createApiary(payload: CreateApiaryPayload): Promise<Apiary
     city: payload.city ?? null,
     address: payload.address ?? null,
     owner: payload.owner ?? null,
+    beekeeperName: payload.beekeeperName ?? null,
     code: payload.code ?? null,
+    apiaryNumber: payload.apiaryNumber ?? null,
     lat: payload.lat,
     lng: payload.lng,
     visibility: payload.visibility,
