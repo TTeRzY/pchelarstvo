@@ -54,7 +54,6 @@ export default function AdminReportsPage() {
         setError(err.message || t('loadFailed'));
         setLoading(false);
       });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   if (loading) {

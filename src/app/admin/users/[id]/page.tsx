@@ -3,7 +3,7 @@
 import { use, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import type { User, UserRole, UserStatus } from '@/types/user';
+import type { User, UserRole } from '@/types/user';
 import { UserBadge } from '@/components/admin/UserBadge';
 import { StatusBadge } from '@/components/admin/StatusBadge';
 
@@ -77,7 +77,6 @@ export default function AdminUserDetailsPage({ params }: PageProps) {
 
   useEffect(() => {
     loadUser();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [resolvedParams.id]);
 
   const updateUser = (updates: Partial<User>) => {

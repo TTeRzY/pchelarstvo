@@ -1,6 +1,6 @@
 "use client";
 
-import type { Resource, ResourceCategory } from "@/data/beekeeping-resources";
+import type { ResourceCategory } from "@/data/beekeeping-resources";
 
 type ResourceListProps = {
   categories: ResourceCategory[];

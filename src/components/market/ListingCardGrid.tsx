@@ -76,6 +76,11 @@ export default function ListingCardGrid({
           )}
           {listing.sellerName && <div className="text-xs">{listing.sellerName}</div>}
         </div>
+        {listing.created_at && (
+          <div className="text-xs text-gray-500 mb-4">
+            {t("published", { date: formattedDate })}
+          </div>
+        )}
 
         {/* Actions */}
         <div className="flex gap-2">

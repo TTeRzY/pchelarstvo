@@ -1,4 +1,4 @@
-import type { Resource, ResourceCategory } from './beekeeping-resources';
+import type { ResourceCategory } from './beekeeping-resources';
 
 // Здраве на пчелните семейства - Bee Health Resources
 export const BEE_HEALTH_RESOURCES: ResourceCategory[] = [

@@ -1,4 +1,4 @@
-import type { Resource, ResourceCategory } from './beekeeping-resources';
+import type { ResourceCategory } from './beekeeping-resources';
 
 // Рецепти и продукти с мед - Honey Recipes & Bee Products Resources
 export const HONEY_PRODUCTS_RESOURCES: ResourceCategory[] = [

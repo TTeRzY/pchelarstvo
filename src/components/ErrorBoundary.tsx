@@ -136,7 +136,7 @@ export class ErrorBoundary extends Component<Props, State> {
  * Hook to manually trigger error boundary (for testing)
  */
 export function useErrorHandler() {
-  return (error: Error, errorInfo?: ErrorInfo) => {
+  return (error: Error) => {
     throw error; // This will be caught by the nearest ErrorBoundary
   };
 }

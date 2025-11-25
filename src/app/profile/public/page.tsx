@@ -57,7 +57,7 @@ export default function PublicProfilePage() {
       <section className="rounded-2xl border shadow-sm bg-white p-6 space-y-3">
         <h2 className="text-lg font-semibold">Recent listings</h2>
         <p className="text-sm text-gray-600">
-          A lightweight feed with the beekeeper's latest marketplace listings will appear here in v2.
+          A lightweight feed with the beekeeper&rsquo;s latest marketplace listings will appear here in v2.
         </p>
         <div className="rounded-xl border border-dashed border-gray-300 p-6 text-sm text-gray-500">
           Listings feed (TODO)

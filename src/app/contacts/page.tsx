@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import PageShell from "@/components/layout/PageShell";
 import ApiariesMapClient from "@/components/map/ApiariesMap";
 
@@ -48,19 +49,19 @@ export default function ContactPage() {
               <h2 className="text-lg font-semibold">Полезни връзки</h2>
               <ul className="mt-3 text-sm space-y-2 text-gray-700">
                 <li>
-                  <a className="hover:underline" href="/marketplace/new">
+                  <Link className="hover:underline" href="/marketplace/new">
                     Подай обява
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a className="hover:underline" href="/map">
+                  <Link className="hover:underline" href="/map">
                     Добави пчелин на картата
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a className="hover:underline" href="/news">
+                  <Link className="hover:underline" href="/news">
                     Последни новини
-                  </a>
+                  </Link>
                 </li>
               </ul>
             </div>
@@ -72,16 +73,12 @@ export default function ContactPage() {
               <h2 className="text-lg font-semibold mb-4">Локация (пример)</h2>
               <div className="h-64 w-full rounded-xl overflow-hidden">
                 <ApiariesMapClient
-                  items={[
+                  pins={[
                     {
                       id: "demo",
-                      name: "Pchelarstvo.bg",
                       lat: 42.6977,
                       lng: 23.3219,
-                      region: "Онлайн",
-                      type: "Хоби",
-                      status: "Активен",
-                      colonies: 0,
+                      label: "Pchelarstvo.bg",
                     },
                   ]}
                 />

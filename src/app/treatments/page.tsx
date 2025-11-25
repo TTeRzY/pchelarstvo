@@ -99,7 +99,7 @@ export default function TreatmentsPage() {
     return filteredReports
       .filter((r) => r.location)
       .slice(0, 50) // Limit to 50 for performance
-      .map((r, idx) => ({
+      .map((r) => ({
         id: r.id,
         lat: 42.75 + (Math.random() - 0.5) * 0.5, // Placeholder - would use geocoded coords
         lng: 25.0 + (Math.random() - 0.5) * 0.5,

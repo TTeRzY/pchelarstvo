@@ -5,14 +5,12 @@ import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 
 import Hero from "@/components/layout/Hero";
-import NewsList from "@/components/news/NewsList";
 import Categories from "@/components/categories/Categories";
 import ApiariesMapClient, { type Pin as ApiaryPin } from "@/components/map/ApiariesMap";
 import PriceChart from "@/components/market/PriceChart";
 import OfficialResources from "@/components/resources/OfficialResources";
 
 import { categories } from "@/data/sample";
-import type { NewsItem } from "@/types/news";
 import { calendarMonths, type MonthKey } from "@/data/calendar";
 import { demoForecast, type ForecastEntry } from "@/data/forecast";
 import { fetchApiaries } from "@/lib/apiaries";

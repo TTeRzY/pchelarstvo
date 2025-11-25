@@ -6,7 +6,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { useAuth } from "@/context/AuthProvider";
 import { useModal } from "@/components/modal/ModalProvider";
 import PriceChart from "@/components/market/PriceChart";
-import { fetchListings, type Listing as ApiListing } from "@/lib/listings";
+import { fetchListings } from "@/lib/listings";
 import { useDebounce } from "@/hooks/useDebounce";
 import ActiveFilterChips from "@/components/market/ActiveFilterChips";
 import ListingStats from "@/components/market/ListingStats";
@@ -176,7 +176,6 @@ export default function MarketplacePage() {
   const [product, setProduct] = useState<string | "all">("all");
   const [minPrice, setMinPrice] = useState<string>("");
   const [maxPrice, setMaxPrice] = useState<string>("");
-  const [negotiableOnly, setNegotiableOnly] = useState(false);
   const [sort, setSort] = useState<"newest" | "priceAsc" | "priceDesc">("newest");
   const [page, setPage] = useState(1);
   const pageSize = 20;
@@ -346,7 +345,6 @@ export default function MarketplacePage() {
     setMinPrice("");
     setMaxPrice("");
     setQ("");
-    setNegotiableOnly(false);
   }
 
   function fmtPrice(n: unknown, unit?: string) {

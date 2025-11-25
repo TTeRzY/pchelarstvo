@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function Footer() {
   return (
     <footer className="bg-yellow-400 text-black">
@@ -7,8 +9,8 @@ export default function Footer() {
         <div className="min-w-[200px] flex-1">
           <h4 className="text-lg font-semibold mb-3 text-black">Навигация</h4>
           <ul className="space-y-2 text-sm">
-            <li><a href="/map" className="hover:underline">Карта на пчелините</a></li>
-            <li><a href="/marketplace" className="hover:underline">Пчелна борса</a></li>
+            <li><Link href="/map" className="hover:underline">Карта на пчелините</Link></li>
+            <li><Link href="/marketplace" className="hover:underline">Пчелна борса</Link></li>
             <li><a href="#" className="hover:underline">База знания</a></li>
           </ul>
         </div>

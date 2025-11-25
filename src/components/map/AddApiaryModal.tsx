@@ -4,8 +4,6 @@ import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { createApiary, type Apiary, type CreateApiaryPayload } from "@/lib/apiaries";
 
-const DEFAULT_CENTER = { lat: 42.6977, lng: 23.3219 };
-
 const parseFloraInput = (value: string): string[] | undefined => {
   const items = value
     .split(",")

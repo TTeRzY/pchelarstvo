@@ -1,6 +1,6 @@
 "use client";
 
-import { getExperienceYears } from '@/types/beekeeper';
+import Link from "next/link";
 import type { BeekeeperProfile } from '@/types/beekeeper';
 // import StarRating from './StarRating';  // TODO: Enable in future version
 import TrustBadge from './TrustBadge';
@@ -18,7 +18,6 @@ export default function BeekeeperProfileModal({
   onContact,
   isGuest = false
 }: BeekeeperProfileModalProps) {
-  const experienceYears = getExperienceYears(beekeeper.memberSince);
   const isVerified = !!beekeeper.verifiedAt;
 
   // Truncate bio for guests
@@ -105,11 +104,7 @@ export default function BeekeeperProfileModal({
               <div className="text-2xl font-bold text-green-600">{beekeeper.completedDeals}</div>
               <div className="text-xs text-gray-600 mt-1">Сделки</div>
             </div>
-            {/* Experience - Hidden for now, enable in future version */}
-            {/* <div className="text-center p-4 bg-gradient-to-br from-blue-50 to-cyan-50 rounded-xl border border-blue-200">
-              <div className="text-2xl font-bold text-blue-600">{experienceYears}</div>
-              <div className="text-xs text-gray-600 mt-1">Години опит</div>
-            </div> */}
+            {/* TODO: Re-enable experience stats when data is available */}
           </div>
 
           {/* Location */}
@@ -271,12 +266,12 @@ export default function BeekeeperProfileModal({
               >
                 💬 Свържи се
               </button>
-              <a
+              <Link
                 href="/marketplace"
                 className="flex-1 rounded-xl border border-gray-300 px-6 py-3 font-semibold hover:bg-gray-50 transition-colors text-center block"
               >
                 📢 Виж обявите
-              </a>
+              </Link>
             </div>
           )}
         </div>

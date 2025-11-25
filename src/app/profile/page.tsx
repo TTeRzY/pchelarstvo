@@ -8,7 +8,7 @@ import ChangePasswordModal, { type ChangePasswordData } from "@/components/profi
 import AddApiaryModal from "@/components/map/AddApiaryModal";
 import { authClient } from "@/lib/authClient";
 import { userClient } from "@/lib/userClient";
-import { createApiary, fetchUserApiaries, type Apiary } from "@/lib/apiaries";
+import { fetchUserApiaries, type Apiary } from "@/lib/apiaries";
 import type { User } from "@/types/user";
 import RoleBadge from "@/components/profile/RoleBadge";
 

@@ -57,7 +57,7 @@ export default function NewsPage() {
 
   // Client-side sorting only (filtering is now server-side)
   const sorted = useMemo(() => {
-    let arr = [...items];
+    const arr = [...items];
     if (sort === "newest") arr.sort((a, b) => +new Date(b.updatedAt) - +new Date(a.updatedAt));
     else if (sort === "top") arr.sort((a, b) => (b.views ?? 0) - (a.views ?? 0));
     return arr;

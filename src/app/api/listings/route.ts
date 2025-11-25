@@ -138,7 +138,8 @@ export async function POST(req: Request) {
 
     // Return the id and secret so the client can store for future edits
     return NextResponse.json({ id: payload.id, secret: payload.secret }, { status: 201 });
-  } catch (err) {
+  } catch (error) {
+    console.error('[api/listings] Failed to parse listing payload', error);
     return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
   }
 }

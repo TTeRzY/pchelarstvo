@@ -1,6 +1,5 @@
 "use client";
 
-import { getExperienceYears } from '@/types/beekeeper';
 import type { BeekeeperProfile } from '@/types/beekeeper';
 // import StarRating from './StarRating';  // TODO: Enable in future version
 import TrustBadge from './TrustBadge';
@@ -18,7 +17,6 @@ export default function BeekeeperCard({
   onContact,
   isGuest = false
 }: BeekeeperCardProps) {
-  const experienceYears = getExperienceYears(beekeeper.memberSince);
   const isVerified = !!beekeeper.verifiedAt;
 
   return (
@@ -63,15 +61,6 @@ export default function BeekeeperCard({
           <TrustBadge level={beekeeper.trustLevel} size="sm" />
         </div>
 
-        {/* Rating - Hidden for now, enable in future version */}
-        {/* <div className="flex justify-center mb-3">
-          <StarRating 
-            rating={beekeeper.rating} 
-            reviewCount={beekeeper.reviewCount}
-            size="sm"
-          />
-        </div> */}
-
         {/* Info */}
         <div className="space-y-1.5 text-sm text-gray-600 mb-4">
           <div className="flex items-center justify-center gap-1">
@@ -82,11 +71,7 @@ export default function BeekeeperCard({
             <span>🏺</span>
             <span>{beekeeper.totalHives} кошера</span>
           </div>
-          {/* Experience - Hidden for now, enable in future version */}
-          {/* <div className="flex items-center justify-center gap-1">
-            <span>📅</span>
-            <span>{experienceYears} {experienceYears === 1 ? 'година' : 'години'} опит</span>
-          </div> */}
+          {/* TODO: Re-enable experience details when data is available */}
           {beekeeper.completedDeals > 0 && (
             <div className="flex items-center justify-center gap-1">
               <span>✓</span>

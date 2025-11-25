@@ -3,7 +3,7 @@
  * Provides reusable HTTP methods for making API calls
  */
 
-import { handleApiError, handleNetworkError, logError, type AppError } from './errorHandler';
+import { handleApiError, handleNetworkError, logError } from './errorHandler';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE ?? ''; // For direct API calls, otherwise uses Next.js API routes
 
