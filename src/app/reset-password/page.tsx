@@ -1,12 +1,15 @@
 ﻿"use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { authClient } from "@/lib/authClient";
 
-export default function ResetPasswordPage() {
+// Force dynamic rendering to prevent static generation issues with useSearchParams
+export const dynamic = 'force-dynamic';
+
+function ResetPasswordForm() {
   const t = useTranslations("passwordReset.resetPassword");
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -123,5 +126,13 @@ export default function ResetPasswordPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function ResetPasswordPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-gray-50 flex items-center justify-center">Зареждане...</div>}>
+      <ResetPasswordForm />
+    </Suspense>
   );
 }

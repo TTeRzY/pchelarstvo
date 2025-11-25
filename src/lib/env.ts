@@ -40,9 +40,11 @@ const REQUIRED_VARS = [
 /**
  * Validate environment variables
  */
-export function validateEnv(): { valid: boolean; errors: string[] } {
+export function validateEnv(): { valid: boolean; errors: string[]; warnings: string[] } {
   const errors: string[] = [];
+  const warnings: string[] = [];
   const isProduction = process.env.NODE_ENV === 'production';
+  const isBuildTime = process.env.NEXT_PHASE === 'phase-production-build' || process.env.VERCEL === '1';
 
   // Check required variables
   for (const varName of REQUIRED_VARS) {
@@ -52,16 +54,22 @@ export function validateEnv(): { valid: boolean; errors: string[] } {
   }
 
   // Check production-specific variables
+  // During build time, only warn (don't fail) since env vars may be set at runtime
   if (isProduction) {
     for (const varName of REQUIRED_PROD_VARS) {
       if (!process.env[varName]) {
-        errors.push(`Missing required production variable: ${varName}`);
+        const message = `Missing required production variable: ${varName}`;
+        if (isBuildTime) {
+          warnings.push(message);
+        } else {
+          errors.push(message);
+        }
       }
     }
 
     // Warn about missing JWT_SECRET in production
     if (!process.env.JWT_SECRET) {
-      errors.push(
+      warnings.push(
         'WARNING: JWT_SECRET is not set. This is required for secure token verification in production.'
       );
     }
@@ -88,6 +96,7 @@ export function validateEnv(): { valid: boolean; errors: string[] } {
   return {
     valid: errors.length === 0,
     errors,
+    warnings,
   };
 }
 
@@ -117,8 +126,32 @@ export function logEnvValidation(): void {
     return;
   }
 
+  const isBuildTime = typeof process !== 'undefined' && (
+    process.env.NEXT_PHASE === 'phase-production-build' ||
+    (process.env.VERCEL === '1' && process.env.VERCEL_ENV === 'production' && !process.env.NEXT_PUBLIC_API_BASE)
+  );
+
   const validation = validateEnv();
   
+  // During build time, only log warnings (never errors)
+  if (isBuildTime) {
+    if (validation.warnings.length > 0) {
+      validation.warnings.forEach((warning) => {
+        console.warn(`  - ${warning}`);
+      });
+    }
+    // Don't log success during build to reduce noise
+    return;
+  }
+  
+  // Log warnings (non-blocking)
+  if (validation.warnings.length > 0) {
+    validation.warnings.forEach((warning) => {
+      console.warn(`  - ${warning}`);
+    });
+  }
+  
+  // Log errors (blocking) - only during runtime, not build
   if (!validation.valid) {
     console.error('❌ Environment validation failed:');
     validation.errors.forEach((error) => {
@@ -128,12 +161,17 @@ export function logEnvValidation(): void {
     if (process.env.NODE_ENV === 'production') {
       console.error('\n⚠️  Application may not function correctly in production!');
     }
-  } else {
+  } else if (validation.warnings.length === 0) {
     console.log('✅ Environment variables validated successfully');
+  } else {
+    // Has warnings but no errors
+    console.log('✅ Environment variables validated (with warnings)');
   }
 }
 
 // Validate on module load (server-side only)
+// During build, validation will only log warnings (not errors)
+// Environment variables should be set at runtime in Vercel
 if (typeof window === 'undefined') {
   logEnvValidation();
 }
