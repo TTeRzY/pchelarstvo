@@ -47,8 +47,10 @@ export function decodeToken(token: string): JWTPayload | null {
  * Verify JWT token with secret (for server-side verification)
  * This should be used when you have access to JWT_SECRET
  */
-export function verifyToken(token: string, secret: string): JWTPayload | null {
+export function verifyToken(token: string, _secret: string): JWTPayload | null {
   try {
+    // Placeholder until signature verification with secret is implemented
+    void _secret;
     const decoded = decodeToken(token);
     if (!decoded) {
       return null;

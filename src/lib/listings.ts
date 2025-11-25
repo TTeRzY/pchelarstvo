@@ -24,7 +24,7 @@ async function get<T>(url: string): Promise<T> {
   return res.json() as Promise<T>;
 }
 
-async function auth<T>(method: string, url: string, body: any, token: string): Promise<T> {
+async function auth<T>(method: string, url: string, body: unknown, token: string): Promise<T> {
   const res = await fetch(`${API_BASE}${url}`, {
     method,
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
@@ -53,6 +53,37 @@ export type FetchListingsResponse = {
   perPage: number;
 };
 
+type PaginatedListingsPayload = {
+  items: Listing[];
+  total: number;
+  page?: number;
+  perPage?: number;
+};
+
+type ItemsArrayPayload = {
+  items: Listing[];
+};
+
+type DataArrayPayload = {
+  data: Listing[];
+};
+
+function isPaginatedListingsPayload(payload: unknown): payload is PaginatedListingsPayload {
+  if (typeof payload !== "object" || payload === null) return false;
+  const candidate = payload as { items?: unknown; total?: unknown };
+  return Array.isArray(candidate.items) && typeof candidate.total === "number";
+}
+
+function hasItemsArray(payload: unknown): payload is ItemsArrayPayload {
+  if (typeof payload !== "object" || payload === null) return false;
+  return Array.isArray((payload as { items?: unknown }).items);
+}
+
+function hasDataArray(payload: unknown): payload is DataArrayPayload {
+  if (typeof payload !== "object" || payload === null) return false;
+  return Array.isArray((payload as { data?: unknown }).data);
+}
+
 export async function fetchListings(params?: FetchListingsParams): Promise<FetchListingsResponse> {
   const qs = new URLSearchParams();
   if (params?.type) qs.set("type", params.type);
@@ -64,13 +95,12 @@ export async function fetchListings(params?: FetchListingsParams): Promise<Fetch
   if (params?.sort) qs.set("sort", params.sort);
   if (typeof params?.page === "number") qs.set("page", String(params.page));
   if (typeof params?.perPage === "number") qs.set("perPage", String(params.perPage));
-  
-  const resp = await get<any>(`/api/listings${qs.toString() ? `?${qs}` : ""}`);
+  const resp = await get<unknown>(`/api/listings${qs.toString() ? `?${qs}` : ""}`);
   
   // Handle paginated response
-  if (resp?.items && typeof resp?.total === "number") {
+  if (isPaginatedListingsPayload(resp)) {
     return {
-      items: resp.items as Listing[],
+      items: resp.items,
       total: resp.total,
       page: resp.page || 1,
       perPage: resp.perPage || 20,
@@ -78,17 +108,17 @@ export async function fetchListings(params?: FetchListingsParams): Promise<Fetch
   }
   
   // Backward compatibility: if response is just an array or old format
-  if (Array.isArray(resp?.items)) {
+  if (hasItemsArray(resp)) {
     return {
-      items: resp.items as Listing[],
+      items: resp.items,
       total: resp.items.length,
       page: 1,
       perPage: resp.items.length,
     };
   }
-  if (Array.isArray(resp?.data)) {
+  if (hasDataArray(resp)) {
     return {
-      items: resp.data as Listing[],
+      items: resp.data,
       total: resp.data.length,
       page: 1,
       perPage: resp.data.length,

@@ -3,7 +3,7 @@
  * Handles all user profile-related operations
  */
 
-import { get, post, put, patch } from './api';
+import { get, patch } from './api';
 import type { User } from '@/types/user';
 
 export interface UpdateProfileData {
@@ -31,9 +31,12 @@ export const userClient = {
    * Update current user's profile (calls Laravel directly)
    */
   async updateProfile(data: UpdateProfileData): Promise<User> {
-    const response = await patch<ProfileResponse>('/api/auth/me', data);
-    // Laravel returns { user: {...} }, extract the user object
-    return response.user || response as any as User;
+    const response = await patch<ProfileResponse | User>('/api/auth/me', data);
+    // Laravel returns { user: {...} }, extract the user object when present
+    if (isProfileResponse(response)) {
+      return response.user;
+    }
+    return response;
   },
 
   /**
@@ -67,4 +70,9 @@ export const userClient = {
     return get<User>(`/api/user/profile/${userId}`);
   },
 };
+
+function isProfileResponse(payload: unknown): payload is ProfileResponse {
+  if (typeof payload !== 'object' || payload === null) return false;
+  return 'user' in payload;
+}
 

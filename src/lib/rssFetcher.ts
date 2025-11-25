@@ -2,6 +2,18 @@ import Parser from 'rss-parser';
 import type { NewsItem, NewsTopic } from '@/types/news';
 import { RSS_SOURCES, type RSSSource } from '@/config/rssSources';
 
+type RSSMediaField = {
+  $?: {
+    url?: string;
+  };
+};
+
+type ExtendedRSSItem = Parser.Item & {
+  mediaContent?: RSSMediaField;
+  mediaThumbnail?: RSSMediaField;
+  contentEncoded?: string;
+};
+
 const parser = new Parser({
   customFields: {
     item: [
@@ -57,19 +69,18 @@ function extractCover(item: Parser.Item): string | undefined {
   }
   
   // Media content
-  const mediaContent = (item as any).mediaContent;
-  if (mediaContent?.$?.url) {
-    return mediaContent.$.url;
+  const extendedItem = item as ExtendedRSSItem;
+  if (extendedItem.mediaContent?.$?.url) {
+    return extendedItem.mediaContent.$.url;
   }
   
   // Media thumbnail
-  const mediaThumbnail = (item as any).mediaThumbnail;
-  if (mediaThumbnail?.$?.url) {
-    return mediaThumbnail.$.url;
+  if (extendedItem.mediaThumbnail?.$?.url) {
+    return extendedItem.mediaThumbnail.$.url;
   }
   
   // Try to extract first image from content
-  const content = item.content || (item as any).contentEncoded || '';
+  const content = item.content || extendedItem.contentEncoded || '';
   const imgMatch = content.match(/<img[^>]+src="([^">]+)"/);
   if (imgMatch) {
     return imgMatch[1];
