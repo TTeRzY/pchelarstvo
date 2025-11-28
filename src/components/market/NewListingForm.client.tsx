@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { createListing } from "@/lib/listings";
 import { authStorage } from "@/lib/authClient";
+import { useAuth } from "@/context/AuthProvider";
 
 type ListingType = "sell" | "buy";
 type ProductType =
@@ -43,10 +44,25 @@ const initial: FormState = {
 };
 
 export default function NewListingForm({ onCreated }: { onCreated?: (id: string) => void }) {
+  const { user } = useAuth();
   const [form, setForm] = useState<FormState>(initial);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
   const [okMsg, setOkMsg] = useState("");
+
+  // Pre-fill form with user profile data when user is available
+  useEffect(() => {
+    if (user) {
+      setForm((prev) => ({
+        ...prev,
+        contactName: user.name || prev.contactName,
+        email: user.email || prev.email,
+        phone: user.phone || prev.phone,
+        region: user.region || prev.region,
+        city: user.city || prev.city,
+      }));
+    }
+  }, [user]);
 
   const canSubmit = useMemo(() => {
     const required = ["product", "title", "quantityKg", "pricePerKg", "region", "contactName", "phone", "email", "description"] as const;
@@ -100,7 +116,16 @@ export default function NewListingForm({ onCreated }: { onCreated?: (id: string)
       );
 
       setOkMsg("Обявата е публикувана успешно!");
-      setForm(initial);
+      // Reset form but preserve user profile data
+      const resetForm: FormState = {
+        ...initial,
+        contactName: user?.name || "",
+        email: user?.email || "",
+        phone: user?.phone || "",
+        region: user?.region || "",
+        city: user?.city || "",
+      };
+      setForm(resetForm);
       onCreated?.(created.id);
     } catch (err: any) {
       setErrors({ submit: err?.message || "Възникна неочаквана грешка." });
@@ -132,6 +157,13 @@ export default function NewListingForm({ onCreated }: { onCreated?: (id: string)
   return (
     <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow p-4 md:p-6 space-y-4">
       <h2 className="text-lg font-extrabold uppercase">Нова обява</h2>
+      
+      {user && (
+        <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 text-sm text-amber-800">
+          <p className="font-medium">ℹ️ Информацията за контакт е попълнена автоматично от вашия профил.</p>
+          <p className="text-xs mt-1">Можете да я редактирате, ако е необходимо.</p>
+        </div>
+      )}
 
       <div className="flex flex-wrap gap-3">
         <div className="flex-1 min-w-[200px]">
@@ -158,7 +190,7 @@ export default function NewListingForm({ onCreated }: { onCreated?: (id: string)
         </div>
 
         <div className="flex-1 min-w-[200px]">
-          <label className={label}>Регион</label>
+          <label className={label}>Регион {user?.region && <span className="text-xs text-gray-500">(от профил)</span>}</label>
           <input className={field} placeholder="напр. Пловдив" {...input("region")} />
           {errors.region && <p className="text-xs text-red-600 mt-1">{errors.region}</p>}
         </div>
@@ -182,24 +214,24 @@ export default function NewListingForm({ onCreated }: { onCreated?: (id: string)
           {errors.pricePerKg && <p className="text-xs text-red-600 mt-1">{errors.pricePerKg}</p>}
         </div>
         <div className="flex-1 min-w-[200px]">
-          <label className={label}>Населено място</label>
+          <label className={label}>Населено място {user?.city && <span className="text-xs text-gray-500">(от профил)</span>}</label>
           <input className={field} placeholder="напр. Асеновград" {...input("city")} />
         </div>
       </div>
 
       <div className="flex flex-wrap gap-3">
         <div className="flex-1 min-w-[200px]">
-          <label className={label}>Контакт име *</label>
+          <label className={label}>Контакт име * {user?.name && <span className="text-xs text-gray-500">(от профил)</span>}</label>
           <input className={field} placeholder="Вашето име" {...input("contactName")} />
           {errors.contactName && <p className="text-xs text-red-600 mt-1">{errors.contactName}</p>}
         </div>
         <div className="flex-1 min-w-[200px]">
-          <label className={label}>Телефон *</label>
+          <label className={label}>Телефон * {user?.phone && <span className="text-xs text-gray-500">(от профил)</span>}</label>
           <input className={field} placeholder="+359 88 123 4567" {...input("phone")} />
           {errors.phone && <p className="text-xs text-red-600 mt-1">{errors.phone}</p>}
         </div>
         <div className="flex-1 min-w-[200px]">
-          <label className={label}>Email *</label>
+          <label className={label}>Email * {user?.email && <span className="text-xs text-gray-500">(от профил)</span>}</label>
           <input className={field} placeholder="user@mail.bg" {...input("email")} />
           {errors.email && <p className="text-xs text-red-600 mt-1">{errors.email}</p>}
         </div>
@@ -222,7 +254,22 @@ export default function NewListingForm({ onCreated }: { onCreated?: (id: string)
         >
           {saving ? "Публикуване..." : "Публикувай обява"}
         </button>
-        <button type="button" onClick={() => setForm(initial)} className="border px-4 py-2 rounded">
+        <button 
+          type="button" 
+          onClick={() => {
+            // Reset form but preserve user profile data
+            const resetForm: FormState = {
+              ...initial,
+              contactName: user?.name || "",
+              email: user?.email || "",
+              phone: user?.phone || "",
+              region: user?.region || "",
+              city: user?.city || "",
+            };
+            setForm(resetForm);
+          }} 
+          className="border px-4 py-2 rounded"
+        >
           Изчисти
         </button>
       </div>

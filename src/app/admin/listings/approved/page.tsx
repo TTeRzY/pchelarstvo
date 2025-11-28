@@ -89,11 +89,24 @@ export default function AdminApprovedListingsPage() {
       key: 'createdAt',
       label: 'Date',
       sortable: true,
-      render: (listing: Listing) => (
-        <span className="text-gray-700">
-          {new Date(listing.createdAt).toLocaleDateString('bg-BG')}
-        </span>
-      ),
+      render: (listing: Listing) => {
+        if (!listing.createdAt) return <span className="text-gray-400">—</span>;
+        try {
+          const date = new Date(listing.createdAt);
+          if (isNaN(date.getTime())) return <span className="text-gray-400">—</span>;
+          return (
+            <span className="text-gray-700">
+              {date.toLocaleDateString('bg-BG', { 
+                year: 'numeric', 
+                month: 'short', 
+                day: 'numeric' 
+              })}
+            </span>
+          );
+        } catch {
+          return <span className="text-gray-400">—</span>;
+        }
+      },
     },
   ];
 

@@ -31,6 +31,17 @@ export default function Footer() {
           <p className="text-sm">+359 879 122727</p>
         </div>
 
+        {/* За платформата */}
+        <div className="min-w-[200px] flex-1">
+          <h4 className="text-lg font-semibold mb-3 text-black">За платформата</h4>
+          <p className="text-sm text-gray-700 mb-2">
+            Pchelarstvo.bg е безплатна общностна платформа за българските пчелари, създадена без комерсиални цели.
+          </p>
+          <p className="text-xs text-gray-600 italic">
+            Платформата е напълно безплатна за общността. Всички услуги са достъпни без такси.
+          </p>
+        </div>
+
       </div>
 
       {/* Copy bar */}
@@ -38,8 +49,8 @@ export default function Footer() {
         <div className="max-w-[1400px] mx-auto px-6 py-4 flex flex-col md:flex-row justify-between items-center gap-3 text-sm text-black">
           <span>© {new Date().getFullYear()} Pchelarstvo.bg</span>
           <nav className="flex gap-4">
-            <a href="#" className="hover:underline">Privacy</a>
-            <a href="#" className="hover:underline">Terms</a>
+            <Link href="/privacy" className="hover:underline">Политика за поверителност</Link>
+            <Link href="/terms" className="hover:underline">Условия за използване</Link>
           </nav>
         </div>
       </div>

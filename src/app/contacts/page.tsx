@@ -49,11 +49,6 @@ export default function ContactPage() {
               <h2 className="text-lg font-semibold">Полезни връзки</h2>
               <ul className="mt-3 text-sm space-y-2 text-gray-700">
                 <li>
-                  <Link className="hover:underline" href="/marketplace/new">
-                    Подай обява
-                  </Link>
-                </li>
-                <li>
                   <Link className="hover:underline" href="/news">
                     Последни новини
                   </Link>
@@ -65,8 +60,7 @@ export default function ContactPage() {
           {/* RIGHT: Optional map */}
           {SHOW_MAP && (
             <div className="flex-1 p-8 bg-gray-50">
-              <h2 className="text-lg font-semibold mb-4">Локация (пример)</h2>
-              <div className="h-64 w-full rounded-xl overflow-hidden">
+              <div className="h-96 w-full rounded-xl overflow-hidden">
                 <ApiariesMapClient
                   pins={[
                     {

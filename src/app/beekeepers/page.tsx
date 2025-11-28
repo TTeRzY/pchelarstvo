@@ -167,17 +167,19 @@ export default function BeekeepersPage() {
 
             {/* Loading State */}
             {loading && (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {[1, 2, 3, 4, 5, 6].map((i) => (
-                  <div key={i} className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-                    <div className="h-28 bg-gray-200 animate-pulse" />
-                    <div className="pt-14 pb-4 px-4 space-y-3">
-                      <div className="h-4 bg-gray-200 rounded animate-pulse w-3/4 mx-auto" />
-                      <div className="h-3 bg-gray-200 rounded animate-pulse w-1/2 mx-auto" />
-                      <div className="h-3 bg-gray-200 rounded animate-pulse w-2/3 mx-auto" />
+              <div className="flex justify-center">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 w-full max-w-7xl">
+                  {[1, 2, 3, 4, 5, 6].map((i) => (
+                    <div key={i} className="bg-white rounded-xl md:rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+                      <div className="h-16 md:h-28 bg-gray-200 animate-pulse" />
+                      <div className="pt-10 md:pt-14 pb-3 md:pb-4 px-3 md:px-4 space-y-2 md:space-y-3">
+                        <div className="h-4 bg-gray-200 rounded animate-pulse w-3/4 mx-auto" />
+                        <div className="h-3 bg-gray-200 rounded animate-pulse w-1/2 mx-auto" />
+                        <div className="h-3 bg-gray-200 rounded animate-pulse w-2/3 mx-auto" />
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
             )}
 
@@ -202,16 +204,18 @@ export default function BeekeepersPage() {
 
             {/* Beekeeper Grid */}
             {!loading && !error && filteredBeekeepers.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredBeekeepers.map(beekeeper => (
-                  <BeekeeperCard 
-                    key={beekeeper.id}
-                    beekeeper={beekeeper}
-                    onViewProfile={() => setSelectedBeekeeper(beekeeper)}
-                    onContact={() => handleContactClick(beekeeper)}
-                    isGuest={!user}
-                  />
-                ))}
+              <div className="flex justify-center">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 w-full max-w-7xl mx-auto">
+                  {filteredBeekeepers.map(beekeeper => (
+                    <BeekeeperCard 
+                      key={beekeeper.id}
+                      beekeeper={beekeeper}
+                      onViewProfile={() => setSelectedBeekeeper(beekeeper)}
+                      onContact={() => handleContactClick(beekeeper)}
+                      isGuest={!user}
+                    />
+                  ))}
+                </div>
               </div>
             ) : !loading && !error ? (
               <div className="text-center py-16">

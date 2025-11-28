@@ -312,7 +312,8 @@ export default function ProfilePage() {
                   {passwordMessage && <p className="text-xs text-emerald-600">{passwordMessage}</p>}
                   {passwordError && <p className="text-xs text-rose-600">{passwordError}</p>}
                 </div>
-                <div className="rounded-xl border bg-gray-50 p-4 space-y-2">
+                {/* 2FA section hidden for now */}
+                {/* <div className="rounded-xl border bg-gray-50 p-4 space-y-2">
                   <h3 className="font-semibold">Двуфакторна защита</h3>
                   <p className="text-sm text-gray-600">
                     {profileData?.twoFactorEnabled 
@@ -330,7 +331,7 @@ export default function ProfilePage() {
                   >
                     {profileData?.twoFactorEnabled ? "Деактивирай 2FA" : "Активирай 2FA"}
                   </button>
-                </div>
+                </div> */}
                 <p className="text-xs text-gray-500">
                   Пълен списък с активни сесии и управление на устройства планираме за версия 2.
                 </p>
@@ -367,7 +368,8 @@ export default function ProfilePage() {
               </div>
             </div>
             <div className="flex gap-3">
-              <button className="rounded-xl border px-4 py-2 text-sm hover:bg-gray-50">Виж публичния профил</button>
+              {/* Виж публичния профил button hidden for now */}
+              {/* <button className="rounded-xl border px-4 py-2 text-sm hover:bg-gray-50">Виж публичния профил</button> */}
               <button 
                 onClick={() => setAddApiaryOpen(true)}
                 className="rounded-xl bg-amber-500 px-4 py-2 text-sm font-medium text-gray-900 hover:bg-amber-400"

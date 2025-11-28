@@ -87,21 +87,6 @@ export default function AdminLayout({
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Mobile Sidebar Toggle Button */}
-      <button
-        onClick={() => setSidebarOpen(!sidebarOpen)}
-        className="lg:hidden fixed top-4 left-4 z-50 p-2 bg-white rounded-lg shadow-md border border-gray-200 hover:bg-gray-50"
-        aria-label="Toggle sidebar"
-      >
-        <svg className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          {sidebarOpen ? (
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-          ) : (
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-          )}
-        </svg>
-      </button>
-
       {/* Mobile Backdrop */}
       {sidebarOpen && (
         <div
@@ -111,7 +96,7 @@ export default function AdminLayout({
       )}
 
       {/* Sidebar */}
-      <aside className={`fixed left-0 top-0 h-full w-64 bg-white border-r border-gray-200 flex flex-col shadow-sm z-40 transition-transform duration-300 ${
+      <aside className={`fixed left-0 lg:top-0 top-[65px] h-[calc(100vh-65px)] lg:h-full w-64 bg-white border-r border-gray-200 flex flex-col shadow-sm z-40 transition-transform duration-300 ${
         sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
       }`}>
         {/* Logo/Header */}
@@ -133,6 +118,10 @@ export default function AdminLayout({
               <Link
                 key={item.href}
                 href={item.href}
+                onClick={() => {
+                  // Auto-close sidebar on mobile when navigation link is clicked
+                  setSidebarOpen(false);
+                }}
                 className={`
                   flex items-center gap-3 px-4 py-3 rounded-xl transition-colors
                   ${isActive 
@@ -152,13 +141,21 @@ export default function AdminLayout({
         <div className="p-4 border-t border-gray-200 bg-gray-50">
           <Link
             href="/"
+            onClick={() => {
+              // Auto-close sidebar on mobile when link is clicked
+              setSidebarOpen(false);
+            }}
             className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 hover:bg-gray-100 transition-colors"
           >
             <span className="text-xl">🌻</span>
             <span className="font-medium">{t('nav.backToSite')}</span>
           </Link>
           <button
-            onClick={() => logout()}
+            onClick={() => {
+              logout();
+              // Auto-close sidebar on mobile when logout is clicked
+              setSidebarOpen(false);
+            }}
             className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 hover:bg-gray-100 transition-colors mt-1"
           >
             <span className="text-xl">🚪</span>
@@ -170,19 +167,41 @@ export default function AdminLayout({
       {/* Main Content */}
       <div className="lg:ml-64 min-h-screen">
         {/* Top Header */}
-        <header className="bg-white border-b border-gray-200 px-8 py-5 shadow-sm">
-          <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-bold text-gray-900">
+        <header className="bg-white border-b border-gray-200 px-4 lg:px-8 py-4 lg:py-5 shadow-sm sticky top-0 z-30 h-[65px] flex items-center">
+          <div className="flex items-center justify-between gap-4">
+            {/* Mobile Menu Toggle Button - Inside Header */}
+            <button
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              className="lg:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
+              aria-label="Toggle sidebar"
+            >
+              <svg className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                {sidebarOpen ? (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                ) : (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                )}
+              </svg>
+            </button>
+            
+            <h2 className="text-xl lg:text-2xl font-bold text-gray-900 flex-1">
               {menuItems.find(item => pathname === item.href || pathname.startsWith(item.href))?.label || t('dashboard.title')}
             </h2>
+            
             <div className="text-sm text-gray-600 flex items-center gap-2">
-              <span>📅</span>
-              <span suppressHydrationWarning>
+              <span className="hidden sm:inline">📅</span>
+              <span suppressHydrationWarning className="hidden sm:inline">
                 {new Date().toLocaleDateString('bg-BG', { 
                   weekday: 'long', 
                   year: 'numeric', 
                   month: 'long', 
                   day: 'numeric' 
+                })}
+              </span>
+              <span className="sm:hidden" suppressHydrationWarning>
+                {new Date().toLocaleDateString('bg-BG', { 
+                  day: 'numeric',
+                  month: 'short'
                 })}
               </span>
             </div>
