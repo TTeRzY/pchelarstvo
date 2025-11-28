@@ -55,15 +55,6 @@ export default async function NewsDetailPage({ params }: { params: Promise<{ id:
             </ul>
           </section>
 
-          {/* Newsletter */}
-          <section className="rounded-2xl border p-5 shadow-sm">
-            <h2 className="text-lg font-semibold">Бюлетин</h2>
-            <p className="text-sm text-gray-600 mt-1">Абонирайте се за новини и анализи.</p>
-            <form className="mt-4 flex gap-2">
-              <input className="flex-1 rounded-xl border px-3 py-2 text-sm" placeholder="you@example.com" />
-              <button className="rounded-xl bg-amber-500 px-4 py-2 text-sm font-medium text-gray-900 hover:bg-amber-400">Абонирай се</button>
-            </form>
-          </section>
         </aside>
       }
     >

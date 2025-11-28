@@ -309,6 +309,10 @@ export async function createApiary(payload: CreateApiaryPayload): Promise<Apiary
     throw new Error("Login required to add a new apiary.");
   }
 
+  // NOTE: Backend should automatically create/update a beekeeper profile for the authenticated user
+  // when an apiary is created. If users are not appearing in the beekeepers list after adding
+  // an apiary, check the backend API to ensure it creates the beekeeper profile.
+  
   const headers = new Headers({ "Content-Type": "application/json" });
   headers.set("Authorization", `Bearer ${token}`);
 

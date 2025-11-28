@@ -16,7 +16,7 @@ export default function PublicProfilePage() {
           <h2 className="text-lg font-semibold">Get in touch</h2>
           <div className="text-sm text-gray-600">
             <p>Email: anton@pchelarstvo.bg</p>
-            <p>Phone: +359 88 123 4567</p>
+            <p>Phone: +359 879 122727</p>
           </div>
           <button className="rounded-xl border px-4 py-2 text-sm hover:bg-gray-50">Send message</button>
           <p className="text-xs text-gray-500">

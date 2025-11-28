@@ -28,27 +28,9 @@ export default function Footer() {
         <div className="min-w-[200px] flex-1">
           <h4 className="text-lg font-semibold mb-3 text-black">Контакти</h4>
           <p className="text-sm">info@pchelarstvo.bg</p>
-          <p className="text-sm">+359 88 123 4567</p>
+          <p className="text-sm">+359 879 122727</p>
         </div>
 
-        {/* Бюлетин */}
-        <div className="min-w-[250px] flex-1">
-          <h4 className="text-lg font-semibold mb-3 text-black">Бюлетин</h4>
-          <p className="text-sm mb-3">Абонирай се за новини и съвети</p>
-          <form className="flex gap-2">
-            <input
-              type="email"
-              placeholder="Имейл адрес"
-              className="flex-1 rounded-xl border border-gray-600 bg-white px-3 py-2 text-sm placeholder-gray-400 text-gray-200 focus:outline-none focus:ring focus:ring-yellow-500"
-            />
-            <button
-              type="submit"
-              className="rounded-xl bg-green-400 px-4 py-2 text-sm font-medium text-gray-900 hover:bg-yellow-400"
-            >
-              Запиши ме
-            </button>
-          </form>
-        </div>
       </div>
 
       {/* Copy bar */}

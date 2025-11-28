@@ -8,10 +8,19 @@ import L from "leaflet";
 import marker2x from "leaflet/dist/images/marker-icon-2x.png";
 import marker1x from "leaflet/dist/images/marker-icon.png";
 import markerShadow from "leaflet/dist/images/marker-shadow.png";
+
+// Ensure icon URLs are strings (Next.js imports may return objects)
+const getIconUrl = (img: any): string => {
+  if (typeof img === 'string') return img;
+  if (img?.src) return img.src;
+  if (img?.default) return img.default;
+  return String(img);
+};
+
 L.Icon.Default.mergeOptions({
-  iconRetinaUrl: marker2x as unknown as string,
-  iconUrl: marker1x as unknown as string,
-  shadowUrl: markerShadow as unknown as string,
+  iconRetinaUrl: getIconUrl(marker2x),
+  iconUrl: getIconUrl(marker1x),
+  shadowUrl: getIconUrl(markerShadow),
 });
 
 export type Pin = { 

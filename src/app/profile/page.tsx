@@ -286,7 +286,7 @@ export default function ProfilePage() {
             <section className="rounded-2xl border shadow-sm bg-white p-5">
               <h2 className="text-lg font-semibold">Нужда от помощ?</h2>
               <p className="text-sm text-gray-600">
-                Пишете ни на support@pchelarstvo.bg или позвънете на +359 88 123 4567, ако имате нужда от съдействие.
+                Пишете ни на support@pchelarstvo.bg или позвънете на +359 879 122727, ако имате нужда от съдействие.
               </p>
             </section>
           </aside>

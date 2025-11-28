@@ -20,6 +20,7 @@ export default function AdminLayout({
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isMounted, setIsMounted] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
     setIsMounted(true);
@@ -86,8 +87,33 @@ export default function AdminLayout({
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Mobile Sidebar Toggle Button */}
+      <button
+        onClick={() => setSidebarOpen(!sidebarOpen)}
+        className="lg:hidden fixed top-4 left-4 z-50 p-2 bg-white rounded-lg shadow-md border border-gray-200 hover:bg-gray-50"
+        aria-label="Toggle sidebar"
+      >
+        <svg className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          {sidebarOpen ? (
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          ) : (
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+          )}
+        </svg>
+      </button>
+
+      {/* Mobile Backdrop */}
+      {sidebarOpen && (
+        <div
+          className="lg:hidden fixed inset-0 bg-black/50 z-40"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
       {/* Sidebar */}
-      <aside className="fixed left-0 top-0 h-full w-64 bg-white border-r border-gray-200 flex flex-col shadow-sm">
+      <aside className={`fixed left-0 top-0 h-full w-64 bg-white border-r border-gray-200 flex flex-col shadow-sm z-40 transition-transform duration-300 ${
+        sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+      }`}>
         {/* Logo/Header */}
         <div className="p-6 border-b border-gray-200 bg-amber-50">
           <Link href="/admin/dashboard" className="flex items-center gap-3">
@@ -142,7 +168,7 @@ export default function AdminLayout({
       </aside>
 
       {/* Main Content */}
-      <div className="ml-64 min-h-screen">
+      <div className="lg:ml-64 min-h-screen">
         {/* Top Header */}
         <header className="bg-white border-b border-gray-200 px-8 py-5 shadow-sm">
           <div className="flex items-center justify-between">

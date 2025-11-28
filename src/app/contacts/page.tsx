@@ -26,7 +26,7 @@ export default function ContactPage() {
                   Имейл
                 </a>
                 <a
-                  href="tel:+359881112222"
+                  href="tel:+359879122727"
                   className="rounded-xl bg-gray-100 px-5 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200"
                 >
                   Телефон
@@ -41,7 +41,7 @@ export default function ContactPage() {
               </div>
               <div>
                 <div className="text-gray-500">Телефон</div>
-                <div className="font-medium">+359 88 111 2222</div>
+                <div className="font-medium">+359 879 122727</div>
               </div>
             </div>
 
@@ -51,11 +51,6 @@ export default function ContactPage() {
                 <li>
                   <Link className="hover:underline" href="/marketplace/new">
                     Подай обява
-                  </Link>
-                </li>
-                <li>
-                  <Link className="hover:underline" href="/map">
-                    Добави пчелин на картата
                   </Link>
                 </li>
                 <li>
