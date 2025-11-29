@@ -4,6 +4,7 @@ import { use, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import type { User, UserRole } from '@/types/user';
+import { normalizeUser } from '@/lib/userUtils';
 import { UserBadge } from '@/components/admin/UserBadge';
 import { StatusBadge } from '@/components/admin/StatusBadge';
 
@@ -65,7 +66,8 @@ export default function AdminUserDetailsPage({ params }: PageProps) {
           showError(data.error);
           router.push('/admin/users');
         } else {
-          setUser(data);
+          // Normalize user data from snake_case to camelCase
+          setUser(normalizeUser(data));
           setLoading(false);
         }
       })
@@ -171,15 +173,33 @@ export default function AdminUserDetailsPage({ params }: PageProps) {
         'Content-Type': 'application/json',
       },
     })
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        return res.json();
+      })
       .then(data => {
+        console.log('Verify response:', data); // Debug log
         if (data.success) {
           showSuccess(t('success.verified'));
-          loadUser(); // Reload user data
+          // Update user state with the returned user data if available
+          if (data.user) {
+            // Normalize user data from snake_case to camelCase
+            setUser(normalizeUser(data.user));
+            setSaving(false);
+          } else {
+            // Fallback: reload user data if not in response
+            // Add a small delay to ensure backend has updated
+            setTimeout(() => {
+              loadUser();
+              setSaving(false);
+            }, 500);
+          }
         } else {
-          showError(t('error.verifyFailed'));
+          showError(data.message || t('error.verifyFailed'));
+          setSaving(false);
         }
-        setSaving(false);
       })
       .catch(err => {
         console.error('Failed to verify user:', err);
@@ -270,7 +290,9 @@ export default function AdminUserDetailsPage({ params }: PageProps) {
               Joined
             </label>
             <p className="text-gray-900">
-              {new Date(user.createdAt).toLocaleDateString('bg-BG')}
+              {user.createdAt && !isNaN(new Date(user.createdAt).getTime())
+                ? new Date(user.createdAt).toLocaleDateString('bg-BG')
+                : '—'}
             </p>
           </div>
           <div>
@@ -278,7 +300,7 @@ export default function AdminUserDetailsPage({ params }: PageProps) {
               {t('lastLogin')}
             </label>
             <p className="text-gray-900">
-              {user.lastLoginAt 
+              {user.lastLoginAt && !isNaN(new Date(user.lastLoginAt).getTime())
                 ? new Date(user.lastLoginAt).toLocaleDateString('bg-BG')
                 : t('never')}
             </p>
@@ -288,7 +310,7 @@ export default function AdminUserDetailsPage({ params }: PageProps) {
               Verified
             </label>
             <p className="text-gray-900">
-              {user.verifiedAt 
+              {user.verifiedAt && !isNaN(new Date(user.verifiedAt).getTime())
                 ? `✓ ${new Date(user.verifiedAt).toLocaleDateString('bg-BG')}`
                 : `✗ ${t('notVerified')}`}
             </p>

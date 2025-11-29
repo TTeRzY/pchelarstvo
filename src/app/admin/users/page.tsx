@@ -89,11 +89,20 @@ export default function AdminUsersPage() {
       key: 'createdAt',
       label: t('users.joined'),
       sortable: true,
-      render: (user: User) => (
-        <span className="text-gray-700">
-          {new Date(user.createdAt).toLocaleDateString('bg-BG')}
-        </span>
-      ),
+      render: (user: User) => {
+        if (!user.createdAt) return <span className="text-gray-400">—</span>;
+        try {
+          const date = new Date(user.createdAt);
+          if (isNaN(date.getTime())) return <span className="text-gray-400">—</span>;
+          return (
+            <span className="text-gray-700">
+              {date.toLocaleDateString('bg-BG')}
+            </span>
+          );
+        } catch {
+          return <span className="text-gray-400">—</span>;
+        }
+      },
     },
   ];
 
