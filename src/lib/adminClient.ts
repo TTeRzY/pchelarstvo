@@ -3,7 +3,7 @@
  * Provides type-safe methods for all admin operations
  */
 
-import { get, post, patch, del } from './api';
+import { adminApi } from './apiClient';
 import type { User, UserRole, UserStatus } from '@/types/user';
 import type { Listing, ListingStatus } from '@/types/listing';
 
@@ -63,21 +63,21 @@ export const adminClient = {
     page?: number;
     perPage?: number;
   }): Promise<AdminUsersResponse> {
-    const queryParams: Record<string, string> = {};
+    const queryParams: Record<string, string | number> = {};
     if (params?.role) queryParams.role = params.role;
     if (params?.status) queryParams.status = params.status;
     if (params?.search) queryParams.search = params.search;
-    if (params?.page) queryParams.page = String(params.page);
-    if (params?.perPage) queryParams.perPage = String(params.perPage);
+    if (params?.page) queryParams.page = params.page;
+    if (params?.perPage) queryParams.perPage = params.perPage;
 
-    return get<AdminUsersResponse>('/api/admin/users', queryParams);
+    return adminApi.get<AdminUsersResponse>('/users', queryParams);
   },
 
   /**
    * Get single user by ID
    */
   async getUser(id: string): Promise<User> {
-    return get<User>(`/api/admin/users/${id}`);
+    return adminApi.get<User>(`/users/${id}`);
   },
 
   /**
@@ -87,14 +87,14 @@ export const adminClient = {
     id: string,
     data: { name?: string; role?: UserRole; status?: UserStatus }
   ): Promise<{ success: boolean; user: User }> {
-    return patch<{ success: boolean; user: User }>(`/api/admin/users/${id}`, data);
+    return adminApi.patch<{ success: boolean; user: User }>(`/users/${id}`, data);
   },
 
   /**
    * Verify user manually
    */
   async verifyUser(id: string): Promise<{ success: boolean; message: string; user: User }> {
-    return post<{ success: boolean; message: string; user: User }>(`/api/admin/users/${id}/verify`, {});
+    return adminApi.post<{ success: boolean; message: string; user: User }>(`/users/${id}/verify`, {});
   },
 
   /**
@@ -104,8 +104,8 @@ export const adminClient = {
     id: string,
     reason: string
   ): Promise<{ success: boolean; message: string; user: User }> {
-    return post<{ success: boolean; message: string; user: User }>(
-      `/api/admin/users/${id}/suspend`,
+    return adminApi.post<{ success: boolean; message: string; user: User }>(
+      `/users/${id}/suspend`,
       { reason }
     );
   },
@@ -114,8 +114,8 @@ export const adminClient = {
    * Reactivate suspended user
    */
   async activateUser(id: string): Promise<{ success: boolean; message: string; user: User }> {
-    return post<{ success: boolean; message: string; user: User }>(
-      `/api/admin/users/${id}/activate`,
+    return adminApi.post<{ success: boolean; message: string; user: User }>(
+      `/users/${id}/activate`,
       {}
     );
   },
@@ -124,7 +124,7 @@ export const adminClient = {
    * Delete user account (super admin only)
    */
   async deleteUser(id: string): Promise<{ success: boolean; message: string }> {
-    return del<{ success: boolean; message: string }>(`/api/admin/users/${id}`);
+    return adminApi.delete<{ success: boolean; message: string }>(`/users/${id}`);
   },
 
   // ==================== Listings ====================
@@ -138,34 +138,34 @@ export const adminClient = {
     page?: number;
     perPage?: number;
   }): Promise<AdminListingsResponse> {
-    const queryParams: Record<string, string> = {};
+    const queryParams: Record<string, string | number> = {};
     if (params?.status) queryParams.status = params.status;
     if (params?.search) queryParams.search = params.search;
-    if (params?.page) queryParams.page = String(params.page);
-    if (params?.perPage) queryParams.perPage = String(params.perPage);
+    if (params?.page) queryParams.page = params.page;
+    if (params?.perPage) queryParams.perPage = params.perPage;
 
-    return get<AdminListingsResponse>('/api/admin/listings', queryParams);
+    return adminApi.get<AdminListingsResponse>('/listings', queryParams);
   },
 
   /**
    * Get pending listings queue
    */
   async getPendingListings(): Promise<AdminListingsQueueResponse> {
-    return get<AdminListingsQueueResponse>('/api/admin/listings/pending');
+    return adminApi.get<AdminListingsQueueResponse>('/listings/pending');
   },
 
   /**
    * Get flagged listings
    */
   async getFlaggedListings(): Promise<AdminListingsQueueResponse> {
-    return get<AdminListingsQueueResponse>('/api/admin/listings/flagged');
+    return adminApi.get<AdminListingsQueueResponse>('/listings/flagged');
   },
 
   /**
    * Approve a pending listing
    */
   async approveListing(id: string): Promise<{ success: boolean; listing: Listing }> {
-    return post<{ success: boolean; listing: Listing }>(`/api/admin/listings/${id}/approve`, {});
+    return adminApi.post<{ success: boolean; listing: Listing }>(`/listings/${id}/approve`, {});
   },
 
   /**
@@ -175,7 +175,7 @@ export const adminClient = {
     id: string,
     reason: string
   ): Promise<{ success: boolean; listing: Listing }> {
-    return post<{ success: boolean; listing: Listing }>(`/api/admin/listings/${id}/reject`, {
+    return adminApi.post<{ success: boolean; listing: Listing }>(`/listings/${id}/reject`, {
       reason,
     });
   },
@@ -184,7 +184,7 @@ export const adminClient = {
    * Delete a listing (admin only)
    */
   async deleteListing(id: string): Promise<{ success: boolean; message: string }> {
-    return del<{ success: boolean; message: string }>(`/api/admin/listings/${id}`);
+    return adminApi.delete<{ success: boolean; message: string }>(`/listings/${id}`);
   },
 
   // ==================== Statistics ====================
@@ -193,7 +193,7 @@ export const adminClient = {
    * Get dashboard statistics
    */
   async getStats(): Promise<AdminStatsResponse> {
-    return get<AdminStatsResponse>('/api/admin/stats');
+    return adminApi.get<AdminStatsResponse>('/stats');
   },
 };
 

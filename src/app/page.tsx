@@ -12,11 +12,12 @@ import OfficialResources from "@/components/resources/OfficialResources";
 
 import { categories } from "@/data/sample";
 import { calendarMonths, type MonthKey } from "@/data/calendar";
-import { demoForecast, type ForecastEntry } from "@/data/forecast";
+import type { ForecastEntry } from "@/data/forecast";
 import { fetchApiaries } from "@/lib/apiaries";
 import { fetchListings, type Listing } from "@/lib/listings";
 import { useAuth } from "@/context/AuthProvider";
 import { useModal } from "@/components/modal/ModalProvider";
+import { HONEY_PRODUCTS } from "@/data/honeyProducts";
 
 type QuickAction = {
   key: string;
@@ -27,7 +28,7 @@ type QuickAction = {
   onClick?: () => void;
 };
 
-const MARKET_DAYS = 30;
+type Range = "7d" | "30d" | "1y";
 
 function buildSeries(items: Listing[], product: string, days: number) {
   const now = new Date();
@@ -94,27 +95,35 @@ export default function HomePage() {
   const { user } = useAuth();
   const { open } = useModal();
   const t = useTranslations("homePage");
+  const tMarketplace = useTranslations("marketplace");
 
-  const PRODUCT_OPTIONS = [
-    t("products.acaciaHoney"),
-    t("products.multifloralHoney"),
-    t("products.lindenHoney"),
-    t("products.sunflowerHoney"),
-    t("products.honeydewHoney"),
-  ] as const;
-
-  const DEFAULT_PRODUCT = PRODUCT_OPTIONS[0];
+  // Use shared honey products list from marketplace (source of truth)
+  const DEFAULT_PRODUCT = HONEY_PRODUCTS[0]?.value ?? "";
 
   const [mapPins, setMapPins] = useState<ApiaryPin[]>([]);
   const [mapLoading, setMapLoading] = useState(true);
   const [mapError, setMapError] = useState<string | null>(null);
 
   const [selectedProduct, setSelectedProduct] = useState<string>(DEFAULT_PRODUCT);
+  const [range, setRange] = useState<Range>("7d");
   const [marketListings, setMarketListings] = useState<Listing[]>([]);
   const [marketChartLoading, setMarketChartLoading] = useState(true);
   const [marketChartError, setMarketChartError] = useState<string | null>(null);
+  
+  // Calculate days based on range
+  const marketDays = range === "7d" ? 7 : range === "30d" ? 30 : 365;
+  
+  // Range options for filter buttons
+  const chartRanges: { value: Range; label: string }[] = useMemo(
+    () => [
+      { value: "7d", label: tMarketplace("charts.range.7d") },
+      { value: "30d", label: tMarketplace("charts.range.30d") },
+      { value: "1y", label: tMarketplace("charts.range.1y") },
+    ],
+    [tMarketplace]
+  );
 
-  const [forecast, setForecast] = useState<ForecastEntry>(demoForecast);
+  const [forecast, setForecast] = useState<ForecastEntry | null>(null);
   const [forecastLoading, setForecastLoading] = useState(true);
   const [forecastError, setForecastError] = useState<string | null>(null);
 
@@ -202,19 +211,23 @@ export default function HomePage() {
 
     fetch("/api/forecast")
       .then(async (res) => {
-        const payload = await res.json();
         if (cancelled) return;
+        if (!res.ok) {
+          throw new Error(`Forecast API returned ${res.status}`);
+        }
+        const payload = await res.json();
         if (payload?.forecast) {
           setForecast(payload.forecast as ForecastEntry);
           setForecastError(payload.source === "fallback" ? t("forecastFallback") : null);
         } else {
-          setForecast(demoForecast);
-          setForecastError(t("forecastDemo"));
+          setForecast(null);
+          setForecastError(t("forecastLoadError"));
         }
       })
-      .catch(() => {
+      .catch((error) => {
         if (!cancelled) {
-          setForecast(demoForecast);
+          console.error("Failed to load forecast:", error);
+          setForecast(null);
           setForecastError(t("forecastLoadError"));
         }
       })
@@ -261,8 +274,8 @@ export default function HomePage() {
   */
 
   const marketChartData = useMemo(
-    () => buildSeries(marketListings, selectedProduct, MARKET_DAYS),
-    [marketListings, selectedProduct]
+    () => buildSeries(marketListings, selectedProduct, marketDays),
+    [marketListings, selectedProduct, marketDays]
   );
 
   function handleSubmitListing() {
@@ -362,11 +375,11 @@ export default function HomePage() {
                     <h2 className="text-lg font-semibold text-gray-900">{t("forecastAndPasture")}</h2>
                     {forecastLoading ? (
                       <span className="rounded-full bg-gray-100 text-gray-500 text-xs font-semibold px-3 py-1">{t("loading")}</span>
-                    ) : (
+                    ) : forecast?.nectarLevel ? (
                       <span className="rounded-full bg-amber-100 text-amber-700 text-xs font-semibold px-3 py-1">
                         {forecast.nectarLevel.toUpperCase()}
                       </span>
-                    )}
+                    ) : null}
                   </div>
                   <p className="text-sm text-gray-600">{t("summaryInfo")}</p>
                   {forecastError ? (
@@ -380,26 +393,36 @@ export default function HomePage() {
                       <div className="h-4 rounded bg-gray-100 animate-pulse" />
                       <div className="h-4 rounded bg-gray-100 animate-pulse" />
                     </div>
-                  ) : (
+                  ) : forecast ? (
                     <ul className="space-y-2 text-sm text-gray-700">
                       <li>
                         <span className="font-medium">{t("regionLabel")}</span> {forecast.region}
                       </li>
-                      <li>
-                        <span className="font-medium">{t("temperatureLabel")}</span> {forecast.temperatureC}°C
-                      </li>
+                      {forecast.temperatureC != null && (
+                        <li>
+                          <span className="font-medium">{t("temperatureLabel")}</span> {forecast.temperatureC}°C
+                        </li>
+                      )}
                       <li>
                         <span className="font-medium">{t("windLabel")}</span> {forecast.wind}
                       </li>
-                      <li>
-                        <span className="font-medium">{t("humidityLabel")}</span> {forecast.humidity}%
-                      </li>
-                      <li>
-                        <span className="font-medium">{t("nextRainLabel")}</span> {forecast.nextRain}
-                      </li>
+                      {forecast.humidity != null && (
+                        <li>
+                          <span className="font-medium">{t("humidityLabel")}</span> {forecast.humidity}%
+                        </li>
+                      )}
+                      {forecast.nextRain && (
+                        <li>
+                          <span className="font-medium">{t("nextRainLabel")}</span> {forecast.nextRain}
+                        </li>
+                      )}
                     </ul>
+                  ) : (
+                    <div className="text-center py-4 text-gray-500 text-sm">
+                      {t("forecastLoadError")}
+                    </div>
                   )}
-                  {forecast.notes ? (
+                  {forecast?.notes ? (
                     <div className="rounded-xl bg-blue-50 border border-blue-100 px-3 py-2 text-xs text-blue-900">
                       {forecast.notes}
                     </div>
@@ -454,12 +477,12 @@ export default function HomePage() {
               <main className="col-span-12 lg:col-span-6 flex flex-col gap-8">
                 <section className="rounded-2xl border border-gray-200 shadow-sm">
                   <div className="p-5 border-b">
-                    <div className="flex flex-wrap items-center gap-3">
-                      <div>
-                        <h2 className="text-xl font-semibold text-gray-900">{t("marketPrices")}</h2>
-                        <p className="text-sm text-gray-500">{t("lastDealsForDays", { days: MARKET_DAYS })}</p>
-                      </div>
-                      <div className="flex items-center gap-2 ml-auto">
+                    <div className="mb-6">
+                      <h2 className="text-xl font-semibold text-gray-900">{t("marketPrices")}</h2>
+                      <p className="text-sm text-gray-500">{t("lastDealsForDays", { days: marketDays })}</p>
+                    </div>
+                    <div className="flex items-center justify-between gap-3 flex-wrap">
+                      <div className="flex items-center gap-2">
                         <label htmlFor="market-product" className="text-sm text-gray-500">
                           {t("productLabel")}
                         </label>
@@ -469,12 +492,27 @@ export default function HomePage() {
                           onChange={(event) => setSelectedProduct(event.target.value)}
                           className="rounded-xl border px-3 py-2 text-sm bg-white"
                         >
-                          {PRODUCT_OPTIONS.map((option) => (
-                            <option key={option} value={option}>
-                              {option}
+                          {HONEY_PRODUCTS.map((product) => (
+                            <option key={product.value} value={product.value}>
+                              {tMarketplace(product.labelKey)}
                             </option>
                           ))}
                         </select>
+                      </div>
+                      <div className="flex gap-2">
+                        {chartRanges.map(({ value, label }) => (
+                          <button
+                            key={value}
+                            onClick={() => setRange(value)}
+                            className={`px-3 py-1 rounded-xl text-sm font-medium transition-colors ${
+                              range === value
+                                ? "bg-gray-900 text-white"
+                                : "bg-white border border-gray-300 hover:bg-gray-50"
+                            }`}
+                          >
+                            {label}
+                          </button>
+                        ))}
                       </div>
                     </div>
                   </div>

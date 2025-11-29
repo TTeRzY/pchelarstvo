@@ -1,6 +1,26 @@
 /**
+ * @deprecated This file is deprecated. Please use `apiClient.ts` instead.
+ * 
+ * The unified API client (`apiClient.ts`) provides:
+ * - Automatic authentication token management
+ * - Token refresh on 401 errors
+ * - Centralized error handling
+ * - Request/response interceptors
+ * - Consistent API patterns
+ * 
+ * Migration guide:
+ * - Replace `import { get, post } from './api'` with `import { api, publicApi } from './apiClient'`
+ * - Use `api.get()` for authenticated requests
+ * - Use `publicApi.get()` for public requests
+ * - Use `adminApi.get()` for admin requests
+ * 
+ * This file is kept for backward compatibility but will be removed in a future version.
+ */
+
+/**
  * API Utility Functions
  * Provides reusable HTTP methods for making API calls
+ * @deprecated Use apiClient.ts instead
  */
 
 import { handleApiError, handleNetworkError, logError } from './errorHandler';

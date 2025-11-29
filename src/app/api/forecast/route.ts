@@ -1,5 +1,4 @@
 ﻿import { NextRequest, NextResponse } from "next/server";
-import { demoForecast } from "@/data/forecast";
 
 const DEFAULT_LAT = Number(process.env.NEXT_PUBLIC_DEFAULT_LAT ?? "42.6977");
 const DEFAULT_LNG = Number(process.env.NEXT_PUBLIC_DEFAULT_LNG ?? "23.3219");
@@ -27,8 +26,8 @@ function windDescription(speed?: number, direction?: number) {
   return dirLabel ? `${speedLabel} ${dirLabel} вятър (${speed.toFixed(1)} м/с)` : `${speedLabel} вятър (${speed.toFixed(1)} м/с)`;
 }
 
-function nectarLevelFromConditions(temp?: number, humidity?: number, precipitation?: number) {
-  if (typeof temp !== "number") return demoForecast.nectarLevel;
+function nectarLevelFromConditions(temp?: number, humidity?: number, precipitation?: number): "нисък" | "умерен" | "висок" {
+  if (typeof temp !== "number") return "умерен";
   if (precipitation != null && precipitation > 8) return "висок";
   if (temp >= 20 && temp <= 30 && (humidity == null || (humidity >= 40 && humidity <= 80))) return "висок";
   if (temp >= 15 && temp <= 34) return "умерен";
@@ -62,30 +61,38 @@ export async function GET(req: NextRequest) {
     const current = data.current ?? {};
     const daily = data.daily ?? {};
 
+    const temperatureC = typeof current.temperature_2m === "number" ? Math.round(current.temperature_2m) : null;
+    const humidity = typeof current.relative_humidity_2m === "number" ? Math.round(current.relative_humidity_2m) : null;
+    const precipitation = Array.isArray(daily.precipitation_sum) && daily.precipitation_sum.length > 0 ? daily.precipitation_sum[0] : null;
+
     const forecast = {
       region,
-      temperatureC: typeof current.temperature_2m === "number" ? Math.round(current.temperature_2m) : demoForecast.temperatureC,
+      temperatureC: temperatureC ?? null,
       wind: windDescription(current.wind_speed_10m, current.wind_direction_10m),
-      humidity: typeof current.relative_humidity_2m === "number" ? Math.round(current.relative_humidity_2m) : demoForecast.humidity,
-      nectarLevel: nectarLevelFromConditions(current.temperature_2m, current.relative_humidity_2m, daily.precipitation_sum?.[0]),
-      nextRain:
-        Array.isArray(daily.precipitation_sum) && daily.precipitation_sum.length > 0
-          ? `${daily.precipitation_sum[0]} мм през следващите 24 часа`
-          : demoForecast.nextRain,
+      humidity: humidity ?? null,
+      nectarLevel: nectarLevelFromConditions(current.temperature_2m, current.relative_humidity_2m, precipitation),
+      nextRain: precipitation != null ? `${precipitation} мм през следващите 24 часа` : null,
       notes:
-        current.temperature_2m != null
-          ? current.temperature_2m >= 18 && current.temperature_2m <= 30
+        temperatureC != null
+          ? temperatureC >= 18 && temperatureC <= 30
             ? "Температурите са подходящи за активна работа на пчелите."
-            : current.temperature_2m < 10
+            : temperatureC < 10
             ? "Студено време – ограничете отварянето на кошерите."
             : "Следете влагата и осигурете проветрение на кошерите."
-          : demoForecast.notes,
+          : null,
     } as const;
 
     return NextResponse.json({ forecast, source: "open-meteo" });
   } catch (error) {
     console.error("Forecast fetch failed", error);
-    return NextResponse.json({ forecast: { ...demoForecast, region }, source: "fallback", error: String(error) });
+    // Return error instead of fallback data
+    return NextResponse.json(
+      { 
+        error: "Failed to fetch forecast data",
+        message: error instanceof Error ? error.message : "Unknown error"
+      },
+      { status: 500 }
+    );
   }
 }
 

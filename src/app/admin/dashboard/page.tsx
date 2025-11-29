@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import { StatCard } from '@/components/admin/StatCard';
 import Link from 'next/link';
 import { adminClient, type AdminStatsResponse } from '@/lib/adminClient';
+import { getUserErrorMessage } from '@/lib/errorUtils';
 
 export default function AdminDashboard() {
   const t = useTranslations('admin');
@@ -30,7 +31,8 @@ export default function AdminDashboard() {
       setLoading(false);
     } catch (err: any) {
       console.error('Failed to load stats:', err);
-      setError(err.message || 'Cannot connect to backend server');
+      // Use error utility to get user-friendly message
+      setError(getUserErrorMessage(err, 'Cannot connect to backend server'));
       setLoading(false);
     }
   };

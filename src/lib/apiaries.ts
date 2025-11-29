@@ -1,3 +1,4 @@
+import { api, publicApi } from "./apiClient";
 import { authStorage } from "./authClient";
 
 // Apiary shape used across the app, aligned with backend (Laravel) fields
@@ -8,43 +9,28 @@ export type Apiary = {
   city?: string | null;
   address?: string | null;
   owner?: string | null;
-  beekeeperName?: string | null;
-  code?: string | null;
   apiaryNumber?: string | null;
   lat?: number | null;
   lng?: number | null;
-  visibility: "public" | "unlisted";
   updatedAt?: string | null;
   flora?: string[];
   hiveCount?: number;
   contact?: { name?: string; phone?: string; email?: string };
-  notes?: string | null;
 };
 
 export type CreateApiaryPayload = {
-  name: string;
+  name: string; // Auto-generated from region and city
   lat: number;
   lng: number;
   region?: string;
   city?: string;
   address?: string;
   owner?: string;
-  beekeeperName?: string;
-  code?: string;
   apiaryNumber?: string;
   flora?: string[];
   hiveCount?: number;
-  visibility: "public" | "unlisted";
-  notes?: string;
 };
 
-const USE_DIRECT_API =
-  process.env.NEXT_PUBLIC_API_DIRECT === "true" ||
-  process.env.NEXT_PUBLIC_API_DIRECT === "1" ||
-  process.env.NEXT_PUBLIC_AUTH_DIRECT === "true" ||
-  process.env.NEXT_PUBLIC_AUTH_DIRECT === "1";
-
-const API_BASE = USE_DIRECT_API ? process.env.NEXT_PUBLIC_API_BASE ?? "" : "";
 const APIARY_LIST_PATH = "/api/apiaries";
 const APIARY_CREATE_PATH = "/api/add-apiary";
 const DEFAULT_FALLBACK_NAME = "Apiary";
@@ -85,17 +71,8 @@ const fallbackId = (): string => {
 };
 
 const applyNameFix = (apiary: Apiary): Apiary => {
-  const trimmed = apiary.name?.trim() ?? "";
-  if (!trimmed || !/^[0-9]+$/.test(trimmed)) {
-    return apiary;
-  }
-  const code = apiary.code ?? trimmed;
-  const owner = apiary.owner ?? undefined;
-  return {
-    ...apiary,
-    code,
-    name: `${owner ?? DEFAULT_FALLBACK_NAME}${code ? ` / ${code}` : ""}`,
-  };
+  // Name is already set from backend or auto-generated
+  return apiary;
 };
 
 const normalizeApiary = (raw: any): Apiary => {
@@ -107,11 +84,9 @@ const normalizeApiary = (raw: any): Apiary => {
   const baseId = idCandidate != null ? String(idCandidate) : fallbackId();
 
   const owner = coerceString(raw.owner);
-  const beekeeperName = coerceString(raw.beekeeperName ?? raw.beekeeper_name ?? raw.beekeeper);
-  const code = coerceString(raw.code ?? raw.apiary_code);
   const apiaryNumber = coerceString(raw.apiaryNumber ?? raw.apiary_number ?? raw.registration_number);
   const explicitName = coerceString(raw.name);
-  const derivedName = explicitName || (owner ? `${owner}${code ? ` / ${code}` : ""}` : DEFAULT_FALLBACK_NAME);
+  const derivedName = explicitName || (owner ? `${owner}` : DEFAULT_FALLBACK_NAME);
 
   const lat = toNum(raw.lat ?? raw.latitude);
   const lng = toNum(raw.lng ?? raw.longitude);
@@ -142,17 +117,13 @@ const normalizeApiary = (raw: any): Apiary => {
     city: coerceString(raw.city) || null,
     address: coerceString(raw.address) || null,
     owner: owner || null,
-    beekeeperName: beekeeperName || null,
-    code: code || null,
     apiaryNumber: apiaryNumber || null,
     lat,
     lng,
-    visibility: raw.visibility === "unlisted" ? "unlisted" : "public",
     updatedAt,
     flora,
     hiveCount: typeof hiveCount === "number" && Number.isFinite(hiveCount) ? hiveCount : undefined,
     contact: raw.contact,
-    notes: coerceString(raw.notes ?? raw.description) || null,
   };
 };
 
@@ -195,27 +166,41 @@ const normalizeSingleApiary = (data: any): Apiary | null => {
   }
 };
 
+// Helper to convert apiRequest calls to unified API client
+// Note: apiRequest is kept for backward compatibility but now uses unified client
 const apiRequest = async <T>(path: string, init: RequestInit = {}): Promise<T> => {
-  const headers = new Headers(init.headers ?? undefined);
-  if (!headers.has("accept")) {
-    headers.set("accept", "application/json");
+  const method = init.method || "GET";
+  const includeAuth = init.headers && new Headers(init.headers).has("Authorization");
+  
+  // Extract body if present
+  let body: unknown = undefined;
+  if (init.body && typeof init.body === "string") {
+    try {
+      body = JSON.parse(init.body);
+    } catch {
+      body = init.body;
+    }
   }
 
-  const response = await fetch(`${API_BASE}${path}`, {
-    ...init,
-    headers,
-  });
-
-  if (!response.ok) {
-    const message = await response.text().catch(() => "");
-    throw new Error(message || `Request failed with status ${response.status}`);
+  // Use unified API client
+  if (method === "GET") {
+    return publicApi.get<T>(path);
+  } else if (method === "POST") {
+    if (includeAuth) {
+      return api.post<T>(path, body);
+    } else {
+      return publicApi.post<T>(path, body);
+    }
+  } else if (method === "PATCH") {
+    return api.patch<T>(path, body);
+  } else if (method === "PUT") {
+    return api.put<T>(path, body);
+  } else if (method === "DELETE") {
+    return api.delete<T>(path);
   }
-
-  if (response.status === 204) {
-    return undefined as T;
-  }
-
-  return (await response.json()) as T;
+  
+  // Fallback for other methods
+  throw new Error(`Unsupported HTTP method: ${method}`);
 };
 
 async function tryGetBrowserCoords(timeoutMs = 2000): Promise<{ lat: number; lng: number } | null> {
@@ -249,7 +234,6 @@ async function tryGetBrowserCoords(timeoutMs = 2000): Promise<{ lat: number; lng
 
 export async function fetchApiaries(params?: {
   region?: string;
-  visibility?: "public" | "unlisted";
   lat?: number;
   lng?: number;
   radiusKm?: number;
@@ -257,7 +241,6 @@ export async function fetchApiaries(params?: {
 }): Promise<Apiary[]> {
   const qs = new URLSearchParams();
   if (params?.region) qs.set("region", params.region);
-  if (params?.visibility) qs.set("visibility", params.visibility);
 
   let lat = params?.lat;
   let lng = params?.lng;
@@ -275,10 +258,14 @@ export async function fetchApiaries(params?: {
   if (typeof params?.radiusKm === "number") qs.set("radiusKm", String(params.radiusKm));
   qs.set("limit", String(params?.limit ?? 50));
 
-  const data = await apiRequest<any>(`${APIARY_LIST_PATH}${qs.toString() ? `?${qs}` : ""}`, {
-    method: "GET",
-    cache: "no-store",
+  // Convert URLSearchParams to object for unified API client
+  const queryParams: Record<string, string | number> = {};
+  qs.forEach((value, key) => {
+    const numValue = Number(value);
+    queryParams[key] = isNaN(numValue) ? value : numValue;
   });
+
+  const data = await publicApi.get<any>(APIARY_LIST_PATH, queryParams);
 
   return normalizeApiaryList(data);
 }
@@ -289,16 +276,8 @@ export async function fetchUserApiaries(): Promise<Apiary[]> {
     throw new Error("Login required to fetch user apiaries.");
   }
 
-  const headers = new Headers();
-  headers.set("Authorization", `Bearer ${token}`);
-  headers.set("Accept", "application/json");
-
-  // Fetch from Laravel backend: /api/apiaries?user=me
-  const data = await apiRequest<any>(`${APIARY_LIST_PATH}?user=me`, {
-    method: "GET",
-    headers,
-    cache: "no-store",
-  });
+  // Use unified API client - token is automatically included
+  const data = await api.get<any>(`${APIARY_LIST_PATH}`, { user: "me" });
 
   return normalizeApiaryList(data);
 }
@@ -313,9 +292,6 @@ export async function createApiary(payload: CreateApiaryPayload): Promise<Apiary
   // when an apiary is created. If users are not appearing in the beekeepers list after adding
   // an apiary, check the backend API to ensure it creates the beekeeper profile.
   
-  const headers = new Headers({ "Content-Type": "application/json" });
-  headers.set("Authorization", `Bearer ${token}`);
-
   const body = {
     name: payload.name,
     lat: payload.lat,
@@ -323,24 +299,16 @@ export async function createApiary(payload: CreateApiaryPayload): Promise<Apiary
     region: payload.region ?? null,
     city: payload.city ?? null,
     address: payload.address ?? null,
-    code: payload.code ?? null,
     apiaryNumber: payload.apiaryNumber ?? null,
     apiary_number: payload.apiaryNumber ?? null,
     owner: payload.owner ?? null,
-    beekeeperName: payload.beekeeperName ?? null,
-    beekeeper_name: payload.beekeeperName ?? null,
-    visibility: payload.visibility,
-    notes: payload.notes ?? null,
     flora: payload.flora ?? [],
     hiveCount: payload.hiveCount ?? null,
     hive_count: payload.hiveCount ?? null,
   };
 
-  const data = await apiRequest<any>(APIARY_CREATE_PATH, {
-    method: "POST",
-    headers,
-    body: JSON.stringify(body),
-  });
+  // Use unified API client - token is automatically included
+  const data = await api.post<any>(APIARY_CREATE_PATH, body);
 
   const normalized = normalizeSingleApiary(data);
   if (normalized) {
@@ -354,15 +322,11 @@ export async function createApiary(payload: CreateApiaryPayload): Promise<Apiary
     city: payload.city ?? null,
     address: payload.address ?? null,
     owner: payload.owner ?? null,
-    beekeeperName: payload.beekeeperName ?? null,
-    code: payload.code ?? null,
     apiaryNumber: payload.apiaryNumber ?? null,
     lat: payload.lat,
     lng: payload.lng,
-    visibility: payload.visibility,
     updatedAt: new Date().toISOString(),
     flora: payload.flora,
     hiveCount: payload.hiveCount,
-    notes: payload.notes ?? null,
   };
 }

@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { authClient } from "@/lib/authClient";
+import { getUserErrorMessage } from "@/lib/errorUtils";
 
 // Force dynamic rendering to prevent static generation issues with useSearchParams
 export const dynamic = 'force-dynamic';
@@ -36,20 +37,8 @@ function ResetPasswordForm() {
       setStatus("success");
       setTimeout(() => router.push("/login"), 2000);
     } catch (err: any) {
-      const raw = err?.message ?? t("error");
-      try {
-        const parsed = JSON.parse(raw);
-        if (parsed?.message) {
-          setError(parsed.message);
-        } else if (parsed?.errors) {
-          const first = Object.values(parsed.errors)[0] as string[] | undefined;
-          setError(first?.[0] ?? raw);
-        } else {
-          setError(raw);
-        }
-      } catch {
-        setError(raw);
-      }
+      // Use error utility to get user-friendly message
+      setError(getUserErrorMessage(err, t("error")));
       setStatus("idle");
     }
   }

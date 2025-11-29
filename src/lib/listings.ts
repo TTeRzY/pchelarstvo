@@ -1,7 +1,10 @@
 ﻿
+import { api, publicApi } from './apiClient';
+
 export type Listing = {
   id: string;
   createdAt?: string;
+  updatedAt?: string;
   type: ListingType;
   product: string;
   title: string;
@@ -10,29 +13,23 @@ export type Listing = {
   region: string;
   city?: string;
   description?: string;
-  status?: "active" | "completed";
+  status?: "pending" | "approved" | "active" | "completed" | "rejected" | "flagged";
   user?: { id: string; name: string; email?: string | null };
   contactEmail?: string | null;
   contactPhone?: string | null;
+  contactName?: string;
+  phone?: string;
+  email?: string;
+  // Moderation fields
+  moderated_by?: number | null;
+  moderated_at?: string | null;
+  rejection_reason?: string | null;
+  flag_count?: number;
+  moderator?: {
+    id: number;
+    name: string;
+  };
 };
-
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE ?? ""; // e.g. http://127.0.0.1:8000
-
-async function get<T>(url: string): Promise<T> {
-  const res = await fetch(`${API_BASE}${url}`, { cache: "no-store" });
-  if (!res.ok) throw new Error(await res.text());
-  return res.json() as Promise<T>;
-}
-
-async function auth<T>(method: string, url: string, body: unknown, token: string): Promise<T> {
-  const res = await fetch(`${API_BASE}${url}`, {
-    method,
-    headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-    body: JSON.stringify(body),
-  });
-  if (!res.ok) throw new Error(await res.text());
-  return res.json() as Promise<T>;
-}
 
 export type FetchListingsParams = {
   type?: ListingType;
@@ -85,19 +82,37 @@ function hasDataArray(payload: unknown): payload is DataArrayPayload {
 }
 
 export async function fetchListings(params?: FetchListingsParams): Promise<FetchListingsResponse> {
-  const qs = new URLSearchParams();
-  if (params?.type) qs.set("type", params.type);
-  if (params?.region) qs.set("region", params.region);
-  if (params?.q) qs.set("q", params.q);
-  if (params?.product) qs.set("product", params.product);
-  if (typeof params?.minPrice === "number") qs.set("minPrice", String(params.minPrice));
-  if (typeof params?.maxPrice === "number") qs.set("maxPrice", String(params.maxPrice));
-  if (params?.sort) qs.set("sort", params.sort);
-  if (typeof params?.page === "number") qs.set("page", String(params.page));
-  if (typeof params?.perPage === "number") qs.set("perPage", String(params.perPage));
-  const resp = await get<unknown>(`/api/listings${qs.toString() ? `?${qs}` : ""}`);
+  const queryParams: Record<string, string | number | boolean> = {};
+  if (params?.type) queryParams.type = params.type;
+  if (params?.region) queryParams.region = params.region;
+  if (params?.q) queryParams.q = params.q;
+  if (params?.product) queryParams.product = params.product;
+  if (typeof params?.minPrice === "number") queryParams.minPrice = params.minPrice;
+  if (typeof params?.maxPrice === "number") queryParams.maxPrice = params.maxPrice;
+  if (params?.sort) queryParams.sort = params.sort;
+  if (typeof params?.page === "number") queryParams.page = params.page;
+  if (typeof params?.perPage === "number") queryParams.perPage = params.perPage;
   
-  // Handle paginated response
+  const resp = await publicApi.get<unknown>('/api/listings', queryParams);
+  
+  // Handle Laravel paginated response format: { data: [...], current_page, per_page, total, last_page }
+  if (resp && typeof resp === 'object' && 'data' in resp && Array.isArray((resp as any).data)) {
+    const laravelResp = resp as {
+      data: Listing[];
+      current_page?: number;
+      per_page?: number;
+      total?: number;
+      last_page?: number;
+    };
+    return {
+      items: laravelResp.data,
+      total: laravelResp.total || laravelResp.data.length,
+      page: laravelResp.current_page || 1,
+      perPage: laravelResp.per_page || 20,
+    };
+  }
+  
+  // Handle paginated response with items
   if (isPaginatedListingsPayload(resp)) {
     return {
       items: resp.items,
@@ -130,7 +145,7 @@ export async function fetchListings(params?: FetchListingsParams): Promise<Fetch
 
 export async function fetchListing(id: string): Promise<Listing | null> {
   try {
-    return await get<Listing>(`/api/listings/${id}`);
+    return await publicApi.get<Listing>(`/api/listings/${id}`);
   } catch {
     return null;
   }
@@ -150,12 +165,10 @@ export type CreateListingInput = {
   description: string;
 };
 
-export async function createListing(input: CreateListingInput, token: string): Promise<Listing> {
-  return auth<Listing>("POST", "/api/listings", input, token);
+export async function createListing(input: CreateListingInput): Promise<Listing> {
+  // Token is automatically included via unified API client
+  return api.post<Listing>("/api/listings", input);
 }
-
-
-
 
 export type ContactListingInput = {
   message: string;
@@ -163,6 +176,51 @@ export type ContactListingInput = {
   phone?: string | null;
 };
 
-export async function contactListing(id: string, input: ContactListingInput, token: string): Promise<void> {
-  await auth<Record<string, unknown>>("POST", `/api/listings/${id}/messages`, input, token);
+export async function contactListing(id: string, input: ContactListingInput): Promise<void> {
+  // Token is automatically included via unified API client
+  await api.post(`/api/listings/${id}/messages`, input);
+}
+
+/**
+ * Get user's own listings with optional filters
+ */
+export type GetMyListingsParams = {
+  status?: 'pending' | 'approved' | 'active' | 'completed' | 'rejected' | 'flagged';
+  type?: ListingType;
+  product?: string;
+  region?: string;
+  page?: number;
+  perPage?: number;
+};
+
+export type MyListingsResponse = {
+  data: Listing[];
+  current_page: number;
+  per_page: number;
+  total: number;
+  last_page: number;
+};
+
+export async function getMyListings(params?: GetMyListingsParams): Promise<MyListingsResponse> {
+  const queryParams: Record<string, string | number> = {};
+  if (params?.status) queryParams.status = params.status;
+  if (params?.type) queryParams.type = params.type;
+  if (params?.product) queryParams.product = params.product;
+  if (params?.region) queryParams.region = params.region;
+  if (params?.page) queryParams.page = params.page;
+  if (params?.perPage) queryParams.perPage = params.perPage;
+
+  // Token is automatically included via unified API client
+  return api.get<MyListingsResponse>('/api/listings/my', queryParams);
+}
+
+/**
+ * Update listing status (e.g., mark as completed)
+ */
+export async function updateListingStatus(
+  listingId: string,
+  status: 'completed'
+): Promise<Listing> {
+  // Token is automatically included via unified API client
+  return api.patch<Listing>(`/api/listings/${listingId}`, { status });
 }

@@ -1,146 +1,70 @@
-import { NextResponse } from 'next/server';
-import { readJsonFile, writeJsonFile, projectPath } from '../_lib/jsonStore';
+import { NextRequest, NextResponse } from "next/server";
 
-type ListingType = 'sell' | 'buy';
-type Listing = {
-  id: string;
-  createdAt: string;
-  type: ListingType;
-  product: string;
-  title: string;
-  quantityKg: number;
-  pricePerKg: number;
-  region: string;
-  city?: string;
-  contactName: string;
-  phone: string;
-  email?: string;
-  description?: string;
-  status?: 'pending' | 'approved' | 'rejected' | 'active' | 'completed' | 'flagged';
-  secret?: string; // simple edit token returned on create
+const RESOURCE_PATH = "/api/listings";
+
+const readApiRoot = () =>
+  process.env.API_BASE ?? process.env.AUTH_API_BASE ?? process.env.NEXT_PUBLIC_API_BASE ?? "";
+
+const buildTargetUrl = (apiRoot: string, req: NextRequest) => {
+  const base = apiRoot.replace(/\/$/, "");
+  const target = `${base}${RESOURCE_PATH}`;
+  const url = new URL(target);
+  if (req.nextUrl.search) {
+    url.search = req.nextUrl.search;
+  }
+  return url;
 };
 
-const STORE = projectPath('data', 'listings.json');
-
-async function getAll(): Promise<Listing[]> {
-  return readJsonFile<Listing[]>(STORE, []);
-}
-
-export async function GET(req: Request) {
-  const url = new URL(req.url);
-  const type = url.searchParams.get('type') as ListingType | null;
-  const region = url.searchParams.get('region')?.toLowerCase();
-  const q = url.searchParams.get('q')?.toLowerCase();
-  const product = url.searchParams.get('product');
-  const minPrice = url.searchParams.get('minPrice');
-  const maxPrice = url.searchParams.get('maxPrice');
-  const sort = url.searchParams.get('sort') || 'newest';
-  const page = parseInt(url.searchParams.get('page') || '1');
-  const perPage = parseInt(url.searchParams.get('perPage') || '20');
-
-  let items = await getAll();
-
-  // Filter out non-public listings (only show approved/active/completed)
-  items = items.filter((l) => 
-    l.status === 'approved' || 
-    l.status === 'active' || 
-    l.status === 'completed' || 
-    !l.status // backward compatibility for listings without status
-  );
-
-  // Apply filters
-  if (type) items = items.filter((l) => l.type === type);
-  if (region) items = items.filter((l) => l.region.toLowerCase().includes(region));
-  if (q) {
-    items = items.filter((l) => 
-      l.title.toLowerCase().includes(q) ||
-      l.product.toLowerCase().includes(q) ||
-      l.region.toLowerCase().includes(q)
+async function forward(req: NextRequest) {
+  const apiRoot = readApiRoot();
+  if (!apiRoot) {
+    return NextResponse.json(
+      { message: "API base URL is not configured" },
+      { status: 500 }
     );
   }
-  if (product) items = items.filter((l) => l.product === product);
-  if (minPrice) {
-    const min = parseFloat(minPrice);
-    if (!isNaN(min)) {
-      items = items.filter((l) => l.pricePerKg >= min);
-    }
-  }
-  if (maxPrice) {
-    const max = parseFloat(maxPrice);
-    if (!isNaN(max)) {
-      items = items.filter((l) => l.pricePerKg <= max);
-    }
+
+  const headers = new Headers(req.headers);
+  headers.delete("host");
+  headers.delete("connection");
+  headers.delete("content-length");
+  if (!headers.has("accept")) {
+    headers.set("accept", "application/json");
   }
 
-  // Sort
-  switch (sort) {
-    case 'priceAsc':
-      items.sort((a, b) => a.pricePerKg - b.pricePerKg);
-      break;
-    case 'priceDesc':
-      items.sort((a, b) => b.pricePerKg - a.pricePerKg);
-      break;
-    case 'newest':
-    default:
-      items.sort((a, b) => +new Date(b.createdAt) - +new Date(a.createdAt));
-      break;
+  const init: RequestInit = {
+    method: req.method,
+    headers,
+    redirect: "manual",
+    cache: "no-store",
+  };
+
+  if (req.method !== "GET" && req.method !== "HEAD") {
+    init.body = await req.text();
   }
 
-  // Apply pagination
-  const total = items.length;
-  const start = (page - 1) * perPage;
-  const paginatedItems = items.slice(start, start + perPage);
+  try {
+    const upstream = await fetch(buildTargetUrl(apiRoot, req), init);
+    const responseHeaders = new Headers(upstream.headers);
+    responseHeaders.delete("transfer-encoding");
 
-  return NextResponse.json({ 
-    items: paginatedItems, 
-    total,
-    page,
-    perPage,
-    count: paginatedItems.length
-  });
+    return new NextResponse(upstream.body, {
+      status: upstream.status,
+      headers: responseHeaders,
+    });
+  } catch (error) {
+    return NextResponse.json(
+      { message: error instanceof Error ? error.message : "Upstream request failed" },
+      { status: 502 }
+    );
+  }
 }
 
-export async function POST(req: Request) {
-  try {
-    const body = await req.json();
-    const required = ['type', 'product', 'title', 'quantityKg', 'pricePerKg', 'region', 'contactName', 'phone'] as const;
-    for (const k of required) {
-      if (body[k] == null || String(body[k]).trim() === '') {
-        return NextResponse.json({ error: `Missing field: ${k}` }, { status: 400 });
-      }
-    }
+export async function GET(req: NextRequest) {
+  return forward(req);
+}
 
-    const payload: Listing = {
-      id: crypto.randomUUID(),
-      createdAt: new Date().toISOString(),
-      type: body.type,
-      product: String(body.product),
-      title: String(body.title),
-      quantityKg: Number(body.quantityKg),
-      pricePerKg: Number(body.pricePerKg),
-      region: String(body.region),
-      city: body.city ? String(body.city) : undefined,
-      contactName: String(body.contactName),
-      phone: String(body.phone),
-      email: body.email ? String(body.email) : undefined,
-      description: body.description ? String(body.description) : undefined,
-      status: 'active',
-      secret: crypto.randomUUID(),
-    };
-
-    if (!(payload.quantityKg > 0) || !(payload.pricePerKg > 0)) {
-      return NextResponse.json({ error: 'quantityKg and pricePerKg must be > 0' }, { status: 400 });
-    }
-
-    const list = await getAll();
-    list.unshift(payload);
-    await writeJsonFile(STORE, list);
-
-    // Return the id and secret so the client can store for future edits
-    return NextResponse.json({ id: payload.id, secret: payload.secret }, { status: 201 });
-  } catch (error) {
-    console.error('[api/listings] Failed to parse listing payload', error);
-    return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
-  }
+export async function POST(req: NextRequest) {
+  return forward(req);
 }
 

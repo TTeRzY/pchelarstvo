@@ -4,6 +4,7 @@ import { useState, ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import Modal from "@/components/modal/Modal";
 import { useModal } from "@/components/modal/ModalProvider";
+import { getUserErrorMessage } from "@/lib/errorUtils";
 
 export type ReportField = {
   key: string;
@@ -164,7 +165,8 @@ export default function BaseReportModal({ config }: BaseReportModalProps) {
       window.dispatchEvent(new Event(config.updateEvent));
       setTimeout(() => handleClose(), 1600);
     } catch (err: any) {
-      setError(err?.message ?? t("submitFailed"));
+      // Use error utility to get user-friendly message
+      setError(getUserErrorMessage(err, t("submitFailed")));
     } finally {
       setSubmitting(false);
     }

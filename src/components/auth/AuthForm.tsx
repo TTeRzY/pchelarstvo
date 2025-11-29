@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useAuth } from "@/context/AuthProvider";
 import { useModal } from "@/components/modal/ModalProvider";
+import { getUserErrorMessage } from "@/lib/errorUtils";
 
 export default function AuthForm({ mode }: { mode: "login" | "register" }) {
   const { login, register } = useAuth();
@@ -27,7 +28,8 @@ export default function AuthForm({ mode }: { mode: "login" | "register" }) {
       }
       close();
     } catch (e: any) {
-      setErr(e?.message ?? "Възникна проблем. Опитайте отново.");
+      // Use error utility to get user-friendly message
+      setErr(getUserErrorMessage(e, "Възникна проблем. Опитайте отново."));
     } finally {
       setSubmitting(false);
     }

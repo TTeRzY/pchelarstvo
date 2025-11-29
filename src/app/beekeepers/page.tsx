@@ -9,6 +9,7 @@ import ContactModal from '@/components/beekeepers/ContactModal';
 import { fetchBeekeepers } from '@/lib/beekeeperClient';
 import { useAuth } from '@/context/AuthProvider';
 import { useModal } from '@/components/modal/ModalProvider';
+import { getUserErrorMessage } from '@/lib/errorUtils';
 import type { BeekeeperProfile } from '@/types/beekeeper';
 import type { TrustLevel } from '@/types/user';
 
@@ -53,7 +54,8 @@ export default function BeekeepersPage() {
       .catch((err) => {
         if (!cancelled) {
           console.error('Failed to fetch beekeepers:', err);
-          setError('Неуспешно зареждане на пчелари');
+          // Use error utility to get user-friendly message
+          setError(getUserErrorMessage(err, 'Неуспешно зареждане на пчелари'));
           setBeekeepers([]);
         }
       })

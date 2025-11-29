@@ -2,20 +2,10 @@
 
 export type ForecastEntry = {
   region: string;
-  temperatureC: number;
+  temperatureC: number | null;
   wind: string;
-  humidity: number;
+  humidity: number | null;
   nectarLevel: ForecastLevel;
-  nextRain: string;
-  notes?: string;
-};
-
-export const demoForecast: ForecastEntry = {
-  region: "Цяла България",
-  temperatureC: 22,
-  wind: "лек южен вятър",
-  humidity: 65,
-  nectarLevel: "умерен",
-  nextRain: "след 2 дни (местни превалявания)",
-  notes: "Очаквай по-висок нектарен поток след следващите валежи.",
+  nextRain: string | null;
+  notes?: string | null;
 };

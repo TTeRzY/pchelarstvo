@@ -1,6 +1,7 @@
 ﻿"use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import PageShell from "@/components/layout/PageShell";
 import { useAuth } from "@/context/AuthProvider";
 import { useModal } from "@/components/modal/ModalProvider";
@@ -11,6 +12,7 @@ import { userClient } from "@/lib/userClient";
 import { fetchUserApiaries, type Apiary } from "@/lib/apiaries";
 import type { User } from "@/types/user";
 import RoleBadge from "@/components/profile/RoleBadge";
+import { getUserErrorMessage } from "@/lib/errorUtils";
 
 const quickTips = [
   "Преглеждайте профилните си данни в началото на всеки сезон.",
@@ -189,7 +191,9 @@ export default function ProfilePage() {
       setSaving(false);
     } catch (error: any) {
       console.error("Failed to save profile:", error);
-      setMessage("Грешка при запазване. Опитайте отново.");
+      // Use error utility to get user-friendly message
+      const { getUserErrorMessage } = await import('@/lib/errorUtils');
+      setMessage(getUserErrorMessage(error, "Грешка при запазване. Опитайте отново."));
       setSaving(false);
     }
   }
@@ -370,6 +374,12 @@ export default function ProfilePage() {
             <div className="flex gap-3">
               {/* Виж публичния профил button hidden for now */}
               {/* <button className="rounded-xl border px-4 py-2 text-sm hover:bg-gray-50">Виж публичния профил</button> */}
+              <Link
+                href="/my-listings"
+                className="rounded-xl border border-gray-300 px-4 py-2 text-sm font-medium text-gray-900 hover:bg-gray-50 transition-colors"
+              >
+                Моите обяви
+              </Link>
               <button 
                 onClick={() => setAddApiaryOpen(true)}
                 className="rounded-xl bg-amber-500 px-4 py-2 text-sm font-medium text-gray-900 hover:bg-amber-400"
@@ -538,12 +548,6 @@ export default function ProfilePage() {
                             {apiary.hiveCount} кошера
                           </span>
                         )}
-                        {apiary.visibility && (
-                          <span className="flex items-center gap-1">
-                            <span>{apiary.visibility === "public" ? "👁️" : "🔒"}</span>
-                            {apiary.visibility === "public" ? "Публичен" : "Скрит"}
-                          </span>
-                        )}
                       </div>
                       {apiary.flora && apiary.flora.length > 0 && (
                         <div className="mt-2 flex flex-wrap gap-1">
@@ -556,9 +560,6 @@ export default function ProfilePage() {
                             </span>
                           ))}
                         </div>
-                      )}
-                      {apiary.notes && (
-                        <p className="mt-2 text-sm text-gray-500 italic">{apiary.notes}</p>
                       )}
                     </div>
                     <div className="flex gap-2 ml-4">

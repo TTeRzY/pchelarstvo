@@ -91,11 +91,12 @@ export default function ContactSellerModal() {
     setSubmitting(true);
 
     try {
+      // Token is now automatically included by the unified API client
       await contactListing(contactPayload.listingId, {
         message,
         email: form.email.trim() || user?.email || null,
         phone: form.phone.trim() || null,
-      }, token);
+      });
 
       setSubmitted(true);
       setForm((prev) => ({ ...prev, message: "" }));
@@ -103,10 +104,8 @@ export default function ContactSellerModal() {
         close();
       }, 1200);
     } catch (err: any) {
-      const message = typeof err?.message === "string" && err.message.length
-        ? err.message
-        : t("error");
-      setError(message);
+      // Use error utility to get user-friendly message
+      setError(getUserErrorMessage(err, t("error")));
     } finally {
       setSubmitting(false);
     }

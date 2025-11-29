@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { createApiary, type Apiary, type CreateApiaryPayload } from "@/lib/apiaries";
+import { getUserErrorMessage } from "@/lib/errorUtils";
 
 const parseFloraInput = (value: string): string[] | undefined => {
   const items = value
@@ -26,39 +27,29 @@ export default function AddApiaryModal({
   const t = useTranslations('apiary');
   const dialogRef = useRef<HTMLDivElement>(null);
 
-  const [name, setName] = useState("");
   const [lat, setLat] = useState<string>("");
   const [lng, setLng] = useState<string>("");
   const [region, setRegion] = useState("");
   const [city, setCity] = useState("");
   const [address, setAddress] = useState("");
-  const [code, setCode] = useState("");
   const [apiaryNumber, setApiaryNumber] = useState("");
   const [owner, setOwner] = useState("");
-  const [beekeeperName, setBeekeeperName] = useState("");
   const [hiveCount, setHiveCount] = useState<string>("");
   const [flora, setFlora] = useState("");
-  const [visibility, setVisibility] = useState<"public" | "unlisted">("public");
-  const [notes, setNotes] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [loadingLocation, setLoadingLocation] = useState(false);
 
   const resetForm = () => {
-    setName("");
     setLat("");
     setLng("");
     setRegion("");
     setCity("");
     setAddress("");
-    setCode("");
     setApiaryNumber("");
     setOwner("");
-    setBeekeeperName("");
     setHiveCount("");
     setFlora("");
-    setVisibility("public");
-    setNotes("");
     setError(null);
   };
 
@@ -79,7 +70,6 @@ export default function AddApiaryModal({
   if (!open) return null;
 
   const validate = (): string | null => {
-    if (!name.trim()) return t('nameRequired');
     const latNum = Number(lat);
     const lngNum = Number(lng);
     if (!Number.isFinite(latNum) || !Number.isFinite(lngNum)) {
@@ -156,18 +146,14 @@ export default function AddApiaryModal({
       const hiveNum = hiveCount.trim() ? Number(hiveCount) : undefined;
 
       const payload: CreateApiaryPayload = {
-        name: name.trim(),
+        name: `${region.trim()} - ${city.trim()}`, // Auto-generate name from region and city
         lat: latNum,
         lng: lngNum,
         region: region.trim() || undefined,
         city: city.trim() || undefined,
         address: address.trim() || undefined,
-        code: code.trim() || undefined,
         apiaryNumber: apiaryNumber.trim() || undefined,
         owner: owner.trim() || undefined,
-        beekeeperName: beekeeperName.trim() || undefined,
-        visibility,
-        notes: notes.trim() || undefined,
         flora: parseFloraInput(flora),
         hiveCount: hiveNum,
       };
@@ -177,7 +163,8 @@ export default function AddApiaryModal({
       resetForm();
       onClose();
     } catch (err) {
-      setError(err instanceof Error ? err.message : t('createError'));
+      // Use error utility to get user-friendly message
+      setError(getUserErrorMessage(err, t('createError')));
     } finally {
       setSubmitting(false);
     }
@@ -205,17 +192,6 @@ export default function AddApiaryModal({
                   placeholder={t('apiaryNumberPlaceholder')}
                 />
               </div>
-              <div>
-                <label className="block text-xs font-medium text-gray-700 mb-1">{t('name')} *</label>
-                <input
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  className="w-full rounded-lg border border-gray-300 px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
-                  placeholder={t('namePlaceholder')}
-                  required
-                />
-              </div>
-              
               <div>
                 <button
                   type="button"
@@ -297,15 +273,6 @@ export default function AddApiaryModal({
           </div>
           <div className="grid grid-cols-2 gap-2">
             <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1">{t('code')}</label>
-              <input
-                value={code}
-                onChange={(e) => setCode(e.target.value)}
-                className="w-full rounded-lg border border-gray-300 px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
-                placeholder={t('codePlaceholder')}
-              />
-            </div>
-            <div>
               <label className="block text-xs font-medium text-gray-700 mb-1">{t('hives')}</label>
               <input
                 value={hiveCount}
@@ -315,8 +282,6 @@ export default function AddApiaryModal({
                 min="0"
               />
             </div>
-          </div>
-          <div className="grid grid-cols-2 gap-2">
             <div>
               <label className="block text-xs font-medium text-gray-700 mb-1">{t('owner')}</label>
               <input
@@ -324,15 +289,6 @@ export default function AddApiaryModal({
                 onChange={(e) => setOwner(e.target.value)}
                 className="w-full rounded-lg border border-gray-300 px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
                 placeholder={t('ownerPlaceholder')}
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1">{t('beekeeperName')}</label>
-              <input
-                value={beekeeperName}
-                onChange={(e) => setBeekeeperName(e.target.value)}
-                className="w-full rounded-lg border border-gray-300 px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
-                placeholder={t('beekeeperNamePlaceholder')}
               />
             </div>
           </div>
@@ -345,28 +301,6 @@ export default function AddApiaryModal({
               placeholder={t('floraPlaceholder')}
             />
           </div>
-          <div>
-            <label className="block text-xs font-medium text-gray-700 mb-1">{t('visibility')}</label>
-            <select
-              value={visibility}
-              onChange={(e) => setVisibility(e.target.value as "public" | "unlisted")}
-              className="w-full rounded-lg border border-gray-300 px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
-            >
-              <option value="public">{t('visibilityPublic')}</option>
-              <option value="unlisted">{t('visibilityUnlisted')}</option>
-            </select>
-          </div>
-          <div>
-            <label className="block text-xs font-medium text-gray-700 mb-1">{t('notes')}</label>
-            <textarea
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              rows={2}
-              className="w-full rounded-lg border border-gray-300 px-2.5 py-1.5 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
-              placeholder={t('notesPlaceholder')}
-            />
-          </div>
-
               {error && <div className="text-xs text-rose-600 bg-rose-50 px-2 py-1.5 rounded-lg">{error}</div>}
             </div>
             <div className="flex items-center gap-2 px-4 py-3 border-t bg-gray-50 flex-shrink-0">

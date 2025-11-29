@@ -2,6 +2,7 @@
 
 import { createPortal } from "react-dom";
 import { useEffect, useRef, useState } from "react";
+import { getUserErrorMessage } from "@/lib/errorUtils";
 
 export type ChangePasswordData = {
   currentPassword: string;
@@ -83,8 +84,8 @@ export default function ChangePasswordModal({ open, onClose, onSubmit }: Props) 
       await onSubmit(form);
       onClose();
     } catch (err: any) {
-      const message = err?.message || "Възникна грешка. Опитайте отново.";
-      setError(message);
+      // Use error utility to get user-friendly message
+      setError(getUserErrorMessage(err, "Възникна грешка. Опитайте отново."));
       setSubmitting(false);
     }
   };

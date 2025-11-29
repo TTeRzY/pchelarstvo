@@ -152,6 +152,14 @@ export default function MobileNavMenu({ isOpen, onClose }: MobileNavMenuProps) {
           ) : (
             <div className="space-y-2">
               <Link
+                href="/my-listings"
+                onClick={handleLinkClick}
+                className="flex items-center gap-2 w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-900 hover:bg-gray-50 transition-colors"
+              >
+                <span>📋</span>
+                <span>Моите обяви</span>
+              </Link>
+              <Link
                 href="/profile"
                 onClick={handleLinkClick}
                 className="flex items-center gap-2 w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-900 hover:bg-gray-50 transition-colors"

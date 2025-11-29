@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { createListing } from "@/lib/listings";
 import { authStorage } from "@/lib/authClient";
 import { useAuth } from "@/context/AuthProvider";
+import { getUserErrorMessage } from "@/lib/errorUtils";
 
 type ListingType = "sell" | "buy";
 type ProductType =
@@ -98,22 +99,20 @@ export default function NewListingForm({ onCreated }: { onCreated?: (id: string)
         setErrors({ submit: "Изисква се вход в системата (Login)." });
         return;
       }
-      const created = await createListing(
-        {
-          type: form.type,
-          product: String(form.product),
-          title: form.title.trim(),
-          quantityKg: Number(form.quantityKg),
-          pricePerKg: Number(form.pricePerKg),
-          region: form.region.trim(),
-          city: form.city.trim() || undefined,
-          contactName: form.contactName.trim(),
-          phone: form.phone.trim(),
-          email: form.email.trim(),
-          description: form.description.trim(),
-        },
-        token
-      );
+      // Token is now automatically included by the unified API client
+      const created = await createListing({
+        type: form.type,
+        product: String(form.product),
+        title: form.title.trim(),
+        quantityKg: Number(form.quantityKg),
+        pricePerKg: Number(form.pricePerKg),
+        region: form.region.trim(),
+        city: form.city.trim() || undefined,
+        contactName: form.contactName.trim(),
+        phone: form.phone.trim(),
+        email: form.email.trim(),
+        description: form.description.trim(),
+      });
 
       setOkMsg("Обявата е публикувана успешно!");
       // Reset form but preserve user profile data
@@ -128,7 +127,8 @@ export default function NewListingForm({ onCreated }: { onCreated?: (id: string)
       setForm(resetForm);
       onCreated?.(created.id);
     } catch (err: any) {
-      setErrors({ submit: err?.message || "Възникна неочаквана грешка." });
+      // Use error utility to get user-friendly message
+      setErrors({ submit: getUserErrorMessage(err, "Възникна неочаквана грешка.") });
     } finally {
       setSaving(false);
     }

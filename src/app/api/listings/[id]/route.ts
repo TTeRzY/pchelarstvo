@@ -1,63 +1,86 @@
-import { NextResponse } from 'next/server';
-import { readJsonFile, writeJsonFile, projectPath } from '../../_lib/jsonStore';
+import { NextRequest, NextResponse } from "next/server";
 
-type Listing = {
-  id: string;
-  createdAt: string;
-  type: 'sell' | 'buy';
-  product: string;
-  title: string;
-  quantityKg: number;
-  pricePerKg: number;
-  region: string;
-  city?: string;
-  contactName: string;
-  phone: string;
-  email?: string;
-  description?: string;
-  status?: 'active' | 'completed';
-  secret?: string;
+const RESOURCE_PATH = "/api/listings";
+
+const readApiRoot = () =>
+  process.env.API_BASE ?? process.env.AUTH_API_BASE ?? process.env.NEXT_PUBLIC_API_BASE ?? "";
+
+const buildTargetUrl = (apiRoot: string, id: string, req: NextRequest) => {
+  const base = apiRoot.replace(/\/$/, "");
+  const target = `${base}${RESOURCE_PATH}/${id}`;
+  const url = new URL(target);
+  if (req.nextUrl.search) {
+    url.search = req.nextUrl.search;
+  }
+  return url;
 };
 
-const STORE = projectPath('data', 'listings.json');
+async function forward(req: NextRequest, id: string) {
+  const apiRoot = readApiRoot();
+  if (!apiRoot) {
+    return NextResponse.json(
+      { message: "API base URL is not configured" },
+      { status: 500 }
+    );
+  }
+
+  const headers = new Headers(req.headers);
+  headers.delete("host");
+  headers.delete("connection");
+  headers.delete("content-length");
+  if (!headers.has("accept")) {
+    headers.set("accept", "application/json");
+  }
+
+  const init: RequestInit = {
+    method: req.method,
+    headers,
+    redirect: "manual",
+    cache: "no-store",
+  };
+
+  if (req.method !== "GET" && req.method !== "HEAD") {
+    init.body = await req.text();
+  }
+
+  try {
+    const upstream = await fetch(buildTargetUrl(apiRoot, id, req), init);
+    const responseHeaders = new Headers(upstream.headers);
+    responseHeaders.delete("transfer-encoding");
+
+    return new NextResponse(upstream.body, {
+      status: upstream.status,
+      headers: responseHeaders,
+    });
+  } catch (error) {
+    return NextResponse.json(
+      { message: error instanceof Error ? error.message : "Upstream request failed" },
+      { status: 502 }
+    );
+  }
+}
 
 export async function GET(
-  _req: Request,
+  req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
-  const all = await readJsonFile<Listing[]>(STORE, []);
-  const item = all.find((l) => l.id === id);
-  if (!item) return NextResponse.json({ error: 'Not found' }, { status: 404 });
-  return NextResponse.json(item);
+  return forward(req, id);
 }
 
-export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
+export async function PATCH(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   const { id } = await params;
-  const body = await req.json().catch(() => null) as Partial<Listing> & { secret?: string } | null;
-  if (!body) return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
+  return forward(req, id);
+}
 
-  const all = await readJsonFile<Listing[]>(STORE, []);
-  const idx = all.findIndex((l) => l.id === id);
-  if (idx === -1) return NextResponse.json({ error: 'Not found' }, { status: 404 });
-
-  const existing = all[idx];
-
-  // Simple protection: require secret to update
-  if (!body.secret || body.secret !== existing.secret) {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-  }
-
-  const updated: Listing = {
-    ...existing,
-    title: body.title != null ? String(body.title) : existing.title,
-    city: body.city != null ? String(body.city) : existing.city,
-    description: body.description != null ? String(body.description) : existing.description,
-    status: body.status === 'completed' ? 'completed' : existing.status,
-  };
-
-  all[idx] = updated;
-  await writeJsonFile(STORE, all);
-  return NextResponse.json({ ok: true });
+export async function DELETE(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id } = await params;
+  return forward(req, id);
 }
 

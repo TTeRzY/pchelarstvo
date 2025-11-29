@@ -18,7 +18,6 @@ export default function MapPage() {
   const [query, setQuery] = useState("");
   const [region, setRegion] = useState<string | "Всички">("Всички");
   const [flora, setFlora] = useState<string | "Всички">("Всички");
-  const [visibility, setVisibility] = useState<"Всички" | "public" | "unlisted">("Всички");
   const [selected, setSelected] = useState<Apiary | null>(null);
   const [addOpen, setAddOpen] = useState(false);
   const [defaultCoords, setDefaultCoords] = useState<{ lat: number; lng: number } | null>(null);
@@ -58,15 +57,13 @@ export default function MapPage() {
         (a) =>
           a.name.toLowerCase().includes(s) ||
           (a.region ?? "").toLowerCase().includes(s) ||
-          (a.notes ?? "").toLowerCase().includes(s) ||
           (a.flora ?? []).some((f) => f.toLowerCase().includes(s))
       );
     }
     if (region !== "Всички") arr = arr.filter((a) => a.region === region);
     if (flora !== "Всички") arr = arr.filter((a) => (a.flora ?? []).includes(flora));
-    if (visibility !== "Всички") arr = arr.filter((a) => a.visibility === visibility);
     return arr;
-  }, [apiaries, query, region, flora, visibility]);
+  }, [apiaries, query, region, flora]);
 
   function handleAddClicked() {
     setAddOpen(true);
@@ -88,7 +85,7 @@ export default function MapPage() {
             <div className="mt-3 flex flex-col gap-3">
               <input
                 className="rounded-xl border px-3 py-2 text-sm"
-                placeholder="Търсене по име, регион, бележки"
+                placeholder="Търсене по име, регион"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
               />
@@ -106,11 +103,6 @@ export default function MapPage() {
                   </option>
                 ))}
               </select>
-              <select className="rounded-xl border px-3 py-2 text-sm" value={visibility} onChange={(e) => setVisibility(e.target.value as any)}>
-                <option value="Всички">Всички</option>
-                <option value="public">Публични</option>
-                <option value="unlisted">Скрит</option>
-              </select>
             </div>
           </section>
         </aside>
@@ -126,9 +118,6 @@ export default function MapPage() {
               <div className="mt-3 text-sm">
                 <div className="font-semibold">{selected.name}</div>
                 <div className="mt-2 space-y-1">
-                  <div>
-                    <span className="text-gray-500">Код / номер:</span> {selected.code ?? "-"}
-                  </div>
                   {selected.apiaryNumber && (
                     <div>
                       <span className="text-gray-500">Регистрационен номер:</span> {selected.apiaryNumber}
@@ -148,12 +137,7 @@ export default function MapPage() {
                       <span className="text-gray-500">Собственик:</span> {selected.owner}
                     </div>
                   )}
-                  {selected.beekeeperName && (
-                    <div>
-                      <span className="text-gray-500">Име на пчелар:</span> {selected.beekeeperName}
-                    </div>
-                  )}
-                  {!selected.owner && !selected.beekeeperName && selected.contact?.name && (
+                  {!selected.owner && selected.contact?.name && (
                     <div>
                       <span className="text-gray-500">Контакт:</span> {selected.contact.name}
                     </div>
@@ -168,11 +152,6 @@ export default function MapPage() {
                     <span className="text-gray-500">Флора:</span> {selected.flora.join(", ")}
                   </div>
                 ) : null}
-                {selected.notes && (
-                  <div className="mt-2 text-gray-700">
-                    <span className="text-gray-500">Бележки:</span> {selected.notes}
-                  </div>
-                )}
                 {selected.updatedAt && (
                   <div className="text-xs text-gray-500 mt-2">
                     Обновено: {new Date(selected.updatedAt).toLocaleDateString("bg-BG")}
@@ -207,7 +186,13 @@ export default function MapPage() {
       {/* Карта + списък */}
       <section className="flex flex-col gap-6">
         <div className="rounded-2xl border shadow-sm overflow-hidden">
-          <ApiariesMapClient pins={filtered.map((a) => ({ id: a.id, lat: a.lat, lng: a.lng, label: a.name }))} heightClass="h-96" scrollWheelZoom={true} />
+          <ApiariesMapClient 
+            pins={filtered
+              .filter((a) => a.lat != null && a.lng != null && typeof a.lat === 'number' && typeof a.lng === 'number')
+              .map((a) => ({ id: a.id, lat: a.lat!, lng: a.lng!, label: a.name }))} 
+            heightClass="h-96" 
+            scrollWheelZoom={true} 
+          />
         </div>
 
         {/* Списък (по избор) */}
@@ -220,9 +205,6 @@ export default function MapPage() {
             >
               <div className="text-sm font-semibold">{a.name}</div>
               <div className="mt-2 space-y-1 text-xs text-gray-700">
-                <div>
-                  <span className="text-gray-500">Код / номер:</span> {a.code ?? "-"}
-                </div>
                 {a.apiaryNumber && (
                   <div>
                     <span className="text-gray-500">Регистрационен номер:</span> {a.apiaryNumber}
@@ -242,12 +224,7 @@ export default function MapPage() {
                     <span className="text-gray-500">Собственик:</span> {a.owner}
                   </div>
                 )}
-                {a.beekeeperName && (
-                  <div>
-                    <span className="text-gray-500">Име на пчелар:</span> {a.beekeeperName}
-                  </div>
-                )}
-                {!a.owner && !a.beekeeperName && a.contact?.name && (
+                {!a.owner && a.contact?.name && (
                   <div>
                     <span className="text-gray-500">Контакт:</span> {a.contact.name}
                   </div>
@@ -260,9 +237,6 @@ export default function MapPage() {
               {a.flora?.length ? (
                 <div className="text-xs text-gray-600 mt-1">Флора: {a.flora.join(", ")}</div>
               ) : null}
-              <div className="text-xs text-gray-600 mt-1">
-                Видимост: {a.visibility === "public" ? "Публичен" : "Скрит"}
-              </div>
             </button>
           ))}
           {filtered.length === 0 && (
